@@ -75,7 +75,7 @@ function showResults(myq, qc, rc){
 
 A basic understanding of the command line interface (CLI) is highly recommended for success in this course. We will briefly review the commands necessary for this course on the first morning, but there will not be enough time to provide full instruction in CLI basics. Beginners without any previous knowledge will be able to complete this course, and achieve a more thorough understanding of the techniques and analyses covered, but will probably not be able to conduct an experiment on their own.
 
-If you do not have CLI experience, or it has been a while since you last worked on the command line, please take some time before the workshop to work through the first part of the [Introduction to the Command Line for Bioinformatics](https://ucdavis-bioinformatics-training.github.io/2021-March-Introduction-to-the-Command-Line-for-Bioinformatics/){:target="_blank"} course.
+If you do not have CLI experience, or it has been a while since you last worked on the command line, please take some time before the workshop to work through the first part of the [Introduction to the Command Line for Bioinformatics](https://ucdavis-bioinformatics-training.github.io/2022-Jan-Introduction-to-the-Command-Line-for-Bioinformatics/){:target="_blank"} course.
 
 Of course, you are free to continue working through all the materials in Introduction to the Command Line for Bioinformatics! The more confident you are in your command line skills, the more you will be able to explore the content in this course.
 
@@ -508,10 +508,10 @@ For this workshop we will be using a cluster reservation, meaning we've set asid
 
 |:---      |:---     |:---                 |:---                 |:---         |
 |RESV_NAME |  STATE  |         START_TIME  |           END_TIME  | DURATION    |
-| workshop | ACTIVE  | 2021-08-09T00:00:00 | 2021-08-01T00:00:00 | 7-00:00:00 |
+| scrnareq | INACTIVE | 2022-03-18T00:00:00 | 2022-03-26T00:00:00 | 8-00:00:00 | fleet-[10-12,17-20,22]|
 
 
-You'll notice the reservation extends to August-16-2021, you will have the whole week to work on the cluster and workshop material.
+You'll notice the reservation extends to March-26-2022, you will have until the end of the week to work on the cluster and workshop material.
 
 ## First, what is a cluster?
 
@@ -597,7 +597,7 @@ The first line tells sbatch what scripting language (bash here) the rest of the 
 
 
     cd /share/workshop/intro_scrnaseq/$USER
-    wget https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2021-August-Single-Cell-RNA-Seq-Analysis/master/software_scripts/scripts/template.slurm template.slurm
+    wget https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-March-Single-Cell-RNA-Seq-Analysis/main/software_scripts/scripts/template.slurm template.slurm
     cat template.slurm
     sbatch template.slurm
 
