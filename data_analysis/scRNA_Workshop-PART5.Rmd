@@ -26,10 +26,10 @@ experiment.aggregate
 
 ## So how many features should we use? Use too few and your leaving out interesting variation that may define cell types, use too many and you add in noise? maybe?
 
-Lets choose the first 50, based on our prior part.
+Lets choose the first 25, based on our prior part.
 
 ```{r use_pcs, warning=FALSE,error=FALSE,message=FALSE}
-use.pcs = 1:50
+use.pcs = 1:25
 ```
 
 ## Identifying clusters
@@ -45,7 +45,7 @@ Seurat prior approach was heavily inspired by recent manuscripts which applied g
 
 The FindClusters function implements the neighbor based clustering procedure, and contains a resolution parameter that sets the granularity of the downstream clustering, with increased values leading to a greater number of clusters. I tend to like to perform a series of resolutions, investigate and choose.
 
-```{r find_neighbors_help, warning=FALSE,error=FALSE,message=FALSE, eval=FALSE}
+```{r find_neighbors_help, eval=FALSE}
 ?FindNeighbors
 ```
 
@@ -95,13 +95,13 @@ DimPlot(object = experiment.aggregate, group.by=grep("res",colnames(experiment.a
 DimPlot(object = experiment.aggregate, group.by=grep("res",colnames(experiment.aggregate@meta.data),value = TRUE)[5:8], ncol=2 , pt.size=3.0, reduction = "tsne", label = T)
 ```
 
-1. Try exploring different PCS, so first 5, 15, 25, we used 50, what about 100? How does the clustering change?
+1. Try exploring different PCS, so first 5, 10, 15, we used 25, what about 100? How does the clustering change?
 
-Once complete go back to 1:50
+Once complete go back to 1:25
 
 ### Choosing a resolution
 
-Lets set the default identity to a resolution of 0.25 and produce a table of cluster to sample assignments.
+Lets set the default identity to a resolution of 1.25 and produce a table of cluster to sample assignments.
 ```{r cells_per_res_sample, warning=FALSE,error=FALSE,message=FALSE}
 Idents(experiment.aggregate) <- "RNA_snn_res.1.25"
 table(Idents(experiment.aggregate),experiment.aggregate$orig.ident)
@@ -151,10 +151,10 @@ percent mitochondrial
 FeaturePlot(experiment.aggregate, features = c('percent.mito'), pt.size=0.5)
 ```
 
-## Building a phylogenetic tree relating the 'average' cell from each group in default 'Ident' (currently "RNA_snn_res.0.25"). Tree is estimated based on a distance matrix constructed in either gene expression space or PCA space.
+## Building a phylogenetic tree relating the 'average' cell from each group in default 'Ident' (currently "RNA_snn_res.1.25"). Tree is estimated based on a distance matrix constructed in either gene expression space or PCA space.
 
 ```{r create_tree, warning=FALSE,error=FALSE,message=FALSE}
-Idents(experiment.aggregate) <- "RNA_snn_res.0.25"
+Idents(experiment.aggregate) <- "RNA_snn_res.1.25"
 experiment.aggregate <- BuildClusterTree(
   experiment.aggregate, dims = use.pcs)
 
@@ -162,27 +162,31 @@ PlotClusterTree(experiment.aggregate)
 ```
 1. Create new trees of other data
 
-Once complete go back to Res 0.25
+Once complete go back to Res 1.25
 
 ```{r umap_plot2, warning=FALSE,error=FALSE,message=FALSE}
 DimPlot(object = experiment.aggregate, pt.size=0.5, label = TRUE, reduction = "umap")
+DimPlot(experiment.aggregate, pt.size = 0.5, label = TRUE, reduction = "tsne")
 ```
 
 ### Merging clusters
 
-Merge Clustering results, so lets say clusters 3 and 7 are actually the same cell type (overlaps in the tsne, not as apparent in the umap) and we don't wish to separate them out as distinct clusters. Same with 4 and 5.
+Merge Clustering results, so lets say clusters 0,  and 9 are actually the same cell type and we don't wish to separate them out as distinct clusters. Same with 1, 6, and 11.
 
 ```{r merging_cluster, warning=FALSE,error=FALSE,message=FALSE}
 experiment.merged = experiment.aggregate
-Idents(experiment.merged) <- "RNA_snn_res.0.25"
+Idents(experiment.merged) <- "RNA_snn_res.1.25"
 
 experiment.merged <- RenameIdents(
   object = experiment.merged,
-  '3' = '7', '4' = '5'
+  '9' = '0',
+  '6' = '1',
+  '11' = '1'
 )
 
 table(Idents(experiment.merged))
 DimPlot(object = experiment.merged, pt.size=0.5, label = T, reduction = "umap")
+DimPlot(experiment.merged, pt.size = 0.5, label = TRUE, reduction = "tsne" )
 VlnPlot(object = experiment.merged, features = "percent.mito", pt.size = 0.05)
 ```
 
@@ -194,9 +198,9 @@ In order to reorder the clusters for plotting purposes take a look at the levels
 experiment.examples <- experiment.merged
 levels(experiment.examples@active.ident)
 
-experiment.examples@active.ident <- relevel(experiment.examples@active.ident, "6")
+experiment.examples@active.ident <- relevel(experiment.examples@active.ident, "12")
 levels(experiment.examples@active.ident)
-# now cluster 6 is the "first" factor
+# now cluster 12 is the "first" factor
 
 DimPlot(object = experiment.examples, pt.size=0.5, label = T, reduction = "umap")
 VlnPlot(object = experiment.examples, features = "percent.mito", pt.size = 0.05)
@@ -205,7 +209,7 @@ VlnPlot(object = experiment.examples, features = "percent.mito", pt.size = 0.05)
 
 ```{r merging_cluster3, warning=FALSE,error=FALSE,message=FALSE}
 # relevel all the factors to the order I want
-Idents(experiment.examples) <- factor(experiment.examples@active.ident, levels=c("6","2","0","7","5","9","1","8"))
+Idents(experiment.examples) <- factor(experiment.examples@active.ident, levels=c("12","3","4","13","0","1","2","5","7", "8", "10"))
 levels(experiment.examples@active.ident)
 
 DimPlot(object = experiment.examples, pt.size=0.5, label = T, reduction = "umap")
@@ -227,14 +231,14 @@ DimPlot(object = experiment.examples, pt.size=0.5, label = T, reduction = "umap"
 
 Plot UMAP  coloring by the slot 'orig.ident' (sample names) with alpha colors turned on. A pretty picture
 ```{r pretty_pre, warning=FALSE,error=FALSE,message=FALSE}
-DimPlot(object = experiment.aggregate, group.by="orig.ident", pt.size=0.5, reduction = "umap" )
+DimPlot(object = experiment.aggregate, group.by="orig.ident", pt.size=0.5, reduction = "umap", shuffle = TRUE)
 ```
 
 
 ```{r pretty_post, warning=FALSE,error=FALSE,message=FALSE}
 ## Pretty umap using alpha
 alpha.use <- 2/5
-p <- DimPlot(object = experiment.aggregate, group.by="orig.ident", pt.size=0.5, reduction = "umap")
+p <- DimPlot(object = experiment.aggregate, group.by="orig.ident", pt.size=0.5, reduction = "umap", shuffle = TRUE)
 p$layers[[1]]$mapping$alpha <- alpha.use
 p + scale_alpha_continuous(range = alpha.use, guide = F)
 
@@ -243,7 +247,7 @@ p + scale_alpha_continuous(range = alpha.use, guide = F)
 Removing cells assigned to clusters from a plot, So here plot all clusters but cluster 6 (contaminant?)
 ```{r removing_cells, warning=FALSE,error=FALSE,message=FALSE}
 # create a new tmp object with those removed
-experiment.aggregate.tmp <- experiment.aggregate[,-which(Idents(experiment.aggregate) %in% c("6"))]
+experiment.aggregate.tmp <- experiment.aggregate[,-which(Idents(experiment.aggregate) %in% c("7"))]
 
 dim(experiment.aggregate)
 dim(experiment.aggregate.tmp)
@@ -369,19 +373,16 @@ Right now our results ONLY exist in the Ident data object, lets save it to our m
 ```{r save_cluster, warning=FALSE,error=FALSE,message=FALSE}
 experiment.merged$finalcluster <- Idents(experiment.merged)
 head(experiment.merged[[]])
+table(experiment.merged$finalcluster, experiment.merged$orig.ident)
 ```
 
 ## Subsetting samples and plotting
 
 If you want to look at the representation of just one sample, or sets of samples
 ```{r subset, warning=FALSE,error=FALSE,message=FALSE}
-experiment.sample2 <- subset(experiment.merged, orig.ident == "T021PBMC")
+experiment.sample1 <- subset(experiment.merged, orig.ident == "conv_COVID")
 
-DimPlot(object = experiment.sample2, group.by = "RNA_snn_res.0.25", pt.size=0.5, label = TRUE, reduction = "tsne")
-
-experiment.batch1 <- subset(experiment.merged, batchid == "Batch1")
-
-DimPlot(object = experiment.batch1, group.by = "RNA_snn_res.0.25", pt.size=0.5, label = TRUE, reduction = "tsne")
+DimPlot(object = experiment.sample1, group.by = "RNA_snn_res.0.25", pt.size=0.5, label = TRUE, reduction = "tsne")
 ```
 
 ### Adding in a new metadata column representing samples within clusters. So differential expression of PBMC2 vs PBMC3 within cluster 7
@@ -392,11 +393,11 @@ experiment.merged$samplecluster = paste(experiment.merged$orig.ident,experiment.
 # set the identity to the new variable
 Idents(experiment.merged) <- "samplecluster"
 
-markers.comp <- FindMarkers(experiment.merged, ident.1 = c("PBMC2-7","PBMC3-7"), ident.2= "PBMC2-5")
+markers.comp <- FindMarkers(experiment.merged, ident.1 = c("conv_COVID-0","conv_MMR-0"), ident.2= "conv_Tdap-0")
 
 head(markers.comp)
 
-experiment.subset <- subset(experiment.merged, samplecluster %in%  c( "PBMC2-7", "PBMC3-7" ))
+experiment.subset <- subset(experiment.merged, samplecluster %in%  c( "conv_COVID-0", "conv_MMR-0", "conv_Tdap-0" ))
 DoHeatmap(experiment.subset, features = head(rownames(markers.comp),20))
 ```
 
@@ -405,17 +406,17 @@ DoHeatmap(experiment.subset, features = head(rownames(markers.comp),20))
 Idents(experiment.merged) <- "finalcluster"
 ```
 
-And last lets save all the objects in our session.
-```{r save_rdata, warning=FALSE,error=FALSE,message=FALSE}
-save(list=ls(), file="clusters_seurat_object.RData")
+And last lets save all the Seurat objects in our session.
+```{r save_rdata, eval=FALSE}
+save(list=grep('experiment', ls(), value = TRUE), file="clusters_seurat_object.RData")
 ```
 
 ## Get the next Rmd file
-```{r get_next_rmd, warning=FALSE,error=FALSE,message=FALSE, eval=FALSE}
-download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2021-August-Single-Cell-RNA-Seq-Analysis/master/data_analysis/scRNA_Workshop-PART6.Rmd", "scRNA_Workshop-PART6.Rmd")
+```{r get_next_rmd, eval=FALSE}
+download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-March-Single-Cell-RNA-Seq-Analysis/master/data_analysis/scRNA_Workshop-PART6.Rmd", "scRNA_Workshop-PART6.Rmd")
 ```
 
 ## Session Information
-```{r session_info, warning=FALSE,error=FALSE,message=FALSE}
+```{r session_info}
 sessionInfo()
 ```

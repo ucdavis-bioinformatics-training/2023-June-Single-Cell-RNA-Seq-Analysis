@@ -30,7 +30,7 @@ ScaleData - Scales and centers genes in the dataset. If variables are provided i
 ```{r scale_data, warning=FALSE,error=FALSE,message=FALSE}
 experiment.aggregate <- ScaleData(
   object = experiment.aggregate,
-  vars.to.regress = c("batchid", "S.Score", "G2M.Score", "percent.mito", "nFeature_RNA"))
+  vars.to.regress = c("S.Score", "G2M.Score", "percent.mito", "nFeature_RNA"))
 ```
 
 ## Dimensionality reduction with PCA
@@ -76,7 +76,7 @@ To overcome the extensive technical noise in any single gene, Seurat clusters ce
 ElbowPlot plots the standard deviations (or approximate singular values if running PCAFast) of the principle components for easy identification of an elbow in the graph. This elbow often corresponds well with the significant PCs and is much faster to run.  This is the traditional approach to selecting principal components.
 
 ```{r elbow, warning=FALSE,error=FALSE,message=FALSE}
-ElbowPlot(experiment.aggregate, ndims = 0:100)
+ElbowPlot(experiment.aggregate, ndims = 100)
 ```
 
 The JackStraw function randomly permutes a subset of data, and calculates projected PCA scores for these 'random' genes, then compares the PCA scores for the 'random' genes with the observed PCA scores to determine statistical signifance. End result is a p-value for each gene's association with each principal component. We identify significant PCs as those who have a strong enrichment of low p-value genes.
@@ -91,16 +91,16 @@ JackStrawPlot(object = experiment.aggregate, dims = 1:100) + theme(legend.positi
 ```
 
 ## Finally, lets save the filtered and normalized data
-```{r save_rdata, warning=FALSE,error=FALSE,message=FALSE}
+```{r save_rdata, eval=FALSE}
 save(experiment.aggregate, file="pca_sample_corrected.RData")
 ```
 
 ## Get the next Rmd file
-```{r get_next_rmd, warning=FALSE,error=FALSE,message=FALSE, eval=FALSE}
-download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2021-August-Single-Cell-RNA-Seq-Analysis/master/data_analysis/scRNA_Workshop-PART5.Rmd", "scRNA_Workshop-PART5.Rmd")
+```{r get_next_rmd, eval=FALSE}
+download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-March-Single-Cell-RNA-Seq-Analysis/master/data_analysis/scRNA_Workshop-PART5.Rmd", "scRNA_Workshop-PART5.Rmd")
 ```
 
 ## Session Information
-```{r session_info, warning=FALSE,error=FALSE,message=FALSE}
+```{r session_info}
 sessionInfo()
 ```

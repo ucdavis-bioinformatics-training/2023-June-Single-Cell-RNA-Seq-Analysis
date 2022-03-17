@@ -109,16 +109,12 @@ DimPlot(object = experiment.test.regress, group.by = "example_batchid", reductio
 
 1. Try a couple of PCA cutoffs (low and high) and compare the TSNE plots from the different methods.  Do they look meaningfully different?
 
-### Excercise
-
-Now go back to the original data without having been modified and see if a "batch effect" exists between the two actual batches
-
 ## Get the next Rmd file
-```{r get_next_rmd, warning=FALSE,error=FALSE,message=FALSE, eval=FALSE}
-download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2021-August-Single-Cell-RNA-Seq-Analysis/master/data_analysis/scRNA_Workshop-PART4.Rmd", "scRNA_Workshop-PART4.Rmd")
+```{r get_next_rmd, eval=FALSE}
+download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-March-Single-Cell-RNA-Seq-Analysis/master/data_analysis/scRNA_Workshop-PART4.Rmd", "scRNA_Workshop-PART4.Rmd")
 ```
 
 ## Session Information
-```{r sessioninfo, warning=FALSE,error=FALSE,message=FALSE}
+```{r sessioninfo}
 sessionInfo()
 ```

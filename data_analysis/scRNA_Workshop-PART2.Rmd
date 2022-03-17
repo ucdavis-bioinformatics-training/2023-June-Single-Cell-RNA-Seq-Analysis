@@ -62,23 +62,23 @@ plot ridgeplots of the same data
 RidgePlot(experiment.aggregate, features=c("nFeature_RNA","nCount_RNA", "percent.mito"), ncol = 2)
 ```
 
-Plot the distribution of number of cells each gene is represented by
+Plot the distribution of number of cells each gene is represented by.
 ```{r gene_range, warning=FALSE,error=FALSE,message=FALSE}
-plot(sort(Matrix::rowSums(GetAssayData(experiment.aggregate) >= 3)) , xlab="gene rank", ylab="number of cells", main="Cells per genes (reads/gene >= 3 )")
-```
+plot(sort(Matrix::rowSums(GetAssayData(experiment.aggregate) >= 3), decreasing = TRUE) , xlab="gene rank", ylab="number of cells", main="Cells per genes (reads/gene >= 3 )")
+```   
 
 
 Gene Plot, scatter plot of gene expression across cells, (colored by sample), drawing horizontal an verticale lines at proposed filtering cutoffs.
 
 
 ```{r relationships, warning=FALSE,error=FALSE,message=FALSE}
-FeatureScatter(experiment.aggregate, feature1 = "nCount_RNA", feature2 = "percent.mito") + geom_vline(xintercept = c(1000,12000)) + geom_hline(yintercept = 8)
+FeatureScatter(experiment.aggregate, feature1 = "nCount_RNA", feature2 = "percent.mito", shuffle = TRUE) + geom_vline(xintercept = c(1000,12000)) + geom_hline(yintercept = 8)
 
-FeatureScatter(experiment.aggregate, feature1 = "nFeature_RNA", feature2 = "percent.mito") + geom_vline(xintercept = 700) + geom_hline(yintercept = 8)
+FeatureScatter(experiment.aggregate, feature1 = "nFeature_RNA", feature2 = "percent.mito", shuffle = TRUE) + geom_vline(xintercept = 700) + geom_hline(yintercept = 8)
 
 FeatureScatter(
   experiment.aggregate, "nCount_RNA", "nFeature_RNA",
-  pt.size = 0.5)  + geom_vline(xintercept = c(1000,12000)) + geom_hline(yintercept = 700)
+  pt.size = 0.5, shuffle = TRUE)  + geom_vline(xintercept = c(1000,12000)) + geom_hline(yintercept = 700)
 
 ```
 
@@ -108,7 +108,7 @@ RidgePlot(experiment.aggregate, features=c("nFeature_RNA","nCount_RNA", "percent
 
 When creating the base Seurat object we did filter out some genes, recall _Keep all genes expressed in >= 10 cells_. After filtering cells and you may want to be more aggressive with the gene filter. Seurat doesn't supply such a function (that I can find), so below is a function that can do so, it filters genes requiring a min.value (log-normalized) in at least min.cells, here expression of 1 in at least 400 cells.
 
-```{r gene_filter_fun, warning=FALSE,error=FALSE,message=FALSE}
+```{r gene_filter_fun, eval=FALSE}
 experiment.aggregate
 FilterGenes <-
  function (object, min.value=1, min.cells = 0, genes = NULL) {
@@ -130,13 +130,6 @@ experiment.aggregate.genes
 rm(experiment.aggregate.genes)
 ```
 
-## FOR THIS WORKSHOP ONLY: Lets reduce the dataset down to 1000 cells per sample for time
-```{r reduce dataset, warning=FALSE,error=FALSE,message=FALSE}
-table(Idents(experiment.aggregate))
-experiment.aggregate <- experiment.aggregate[,unlist(sapply(split(seq_along(Cells(experiment.aggregate)), experiment.aggregate$orig.ident), sample, size=1000, simplify = F))]
-table(Idents(experiment.aggregate))
-```
-
 ## Next we want to normalize the data
 
 After filtering out cells from the dataset, the next step is to normalize the data. By default, we employ a global-scaling normalization method LogNormalize that normalizes the gene expression measurements for each cell by the total expression, multiplies this by a scale factor (10,000 by default), and then log-transforms the data.
@@ -155,40 +148,44 @@ experiment.aggregate <- NormalizeData(
 ### Calculate Cell-Cycle with Seurat, the list of genes comes with Seurat (only for human)
 [Dissecting the multicellular ecosystem of metastatic melanoma by single-cell RNA-seq](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4944528/)
 
-First need to convert to mouse symbols, we'll use Biomart for that too.
-```{r cellcycle, warning=FALSE,error=FALSE,message=FALSE}
-# Mouse Code
-# convertHumanGeneList <- function(x){
-#   require("biomaRt")
-#   human = useEnsembl("ensembl", dataset = "hsapiens_gene_ensembl", mirror = "uswest")
-#   mouse = useEnsembl("ensembl", dataset = "mmusculus_gene_ensembl", mirror = "uswest")
-# 
-#   genes = getLDS(attributes = c("hgnc_symbol"), filters = "hgnc_symbol", values = x , mart = human, attributesL = c("mgi_symbol"), martL = mouse, uniqueRows=T)
-# 
-#   humanx <- unique(genes[, 2])
-# 
-#   # Print the first 6 genes found to the screen
-#   print(head(humanx))
-#   return(humanx)
-# }
-# 
-# m.s.genes <- convertHumanGeneList(cc.genes.updated.2019$s.genes)
-# m.g2m.genes <- convertHumanGeneList(cc.genes.updated.2019$g2m.genes)
-# 
-# # Create our Seurat object and complete the initialization steps
-# experiment.aggregate <- CellCycleScoring(experiment.aggregate, s.features = m.s.genes, g2m.features = m.g2m.genes, set.ident = TRUE)
-
-# Human Code
+```{r}
+# this code is for human samples only!
 s.genes <- (cc.genes$s.genes)
 g2m.genes <- (cc.genes$g2m.genes)
 
-# Create our Seurat object and complete the initialization steps
-experiment.aggregate <- CellCycleScoring(experiment.aggregate, s.features = s.genes, g2m.features = g2m.genes, set.ident = TRUE)
+experiment.aggregate <- CellCycleScoring(experiment.aggregate,
+                                         s.features = s.genes,
+                                         g2m.features = g2m.genes,
+                                         set.ident = TRUE)
+table(experiment.aggregate@meta.data$Phase) %>%
+  kable(caption = "Number of Cells in each Cell Cycle Stage", col.names = c("Stage", "Count"), align = "c") %>%
+  kable_styling()
 ```
 
-#### Table of cell cycle (seurate)
+For mouse data, we would need to convert the gene lists from human genes to their mouse orthologs using Biomart. **Skip this code for the workshop data.**
 
-```{r cellcycle_table, warning=FALSE,error=FALSE,message=FALSE}
+```{r mouse_cellcycle, eval=FALSE}
+# Mouse Code DO NOT RUN
+convertHumanGeneList <- function(x){
+  require("biomaRt")
+  human = useEnsembl("ensembl", dataset = "hsapiens_gene_ensembl", mirror = "uswest")
+  mouse = useEnsembl("ensembl", dataset = "mmusculus_gene_ensembl", mirror = "uswest")
+
+  genes = getLDS(attributes = c("hgnc_symbol"), filters = "hgnc_symbol", values = x , mart = human, attributesL = c("mgi_symbol"), martL = mouse, uniqueRows=T)
+
+  humanx <- unique(genes[, 2])
+
+  # Print the first 6 genes found to the screen
+  print(head(humanx))
+  return(humanx)
+}
+
+m.s.genes <- convertHumanGeneList(cc.genes.updated.2019$s.genes)
+m.g2m.genes <- convertHumanGeneList(cc.genes.updated.2019$g2m.genes)
+
+# Create our Seurat object and complete the initialization steps
+experiment.aggregate <- CellCycleScoring(experiment.aggregate, s.features = m.s.genes, g2m.features = m.g2m.genes, set.ident = TRUE)
+
 table(experiment.aggregate@meta.data$Phase) %>% kable(caption = "Number of Cells in each Cell Cycle Stage", col.names = c("Stage", "Count"), align = "c") %>% kable_styling()
 ```
 
@@ -196,7 +193,7 @@ table(experiment.aggregate@meta.data$Phase) %>% kable(caption = "Number of Cells
 
 ```{r update_ident, warning=FALSE,error=FALSE,message=FALSE}
 table(Idents(experiment.aggregate))
-## So lets change it back to samplename
+## So lets change it back to sample name
 Idents(experiment.aggregate) <- "orig.ident"
 table(Idents(experiment.aggregate))
 ```
@@ -226,7 +223,7 @@ vfp1 <- LabelPoints(plot = vfp1, points = top10, repel = TRUE)
 vfp1
 ```
 
-Instead of using the variable genes function, lets instead assign to variable genes to a set of "minimally expressed" genes.
+FindVariableFeatures isn't the only way to set the "variable features" of a Seurat object. Another reasonable approach is to select a set of "minimally expressed" genes.
 
 ```{r our_variable_genes}
 dim(experiment.aggregate)
@@ -236,9 +233,7 @@ min.cells = 10
 num.cells <- Matrix::rowSums(GetAssayData(experiment.aggregate, slot = "count") > min.value)
 genes.use <- names(num.cells[which(num.cells >= min.cells)])
 length(genes.use)
-
 VariableFeatures(experiment.aggregate) <- genes.use
-
 ```
 
 
@@ -249,13 +244,13 @@ VariableFeatures(experiment.aggregate) <- genes.use
 
 
 ## Finally, lets save the filtered and normalized data
-```{r save_r, warning=FALSE,error=FALSE,message=FALSE}
+```{r save_r, eval=FALSE}
 save(experiment.aggregate, file="pre_sample_corrected.RData")
 ```
 
 ## Get the next Rmd file
-```{r retreive_rmd, warning=FALSE,error=FALSE,message=FALSE, eval=FALSE}
-download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2021-August-Single-Cell-RNA-Seq-Analysis/master/data_analysis/scRNA_Workshop-PART3.Rmd", "scRNA_Workshop-PART3.Rmd")
+```{r retreive_rmd, eval=FALSE}
+download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-March-Single-Cell-RNA-Seq-Analysis/master/data_analysis/scRNA_Workshop-PART3.Rmd", "scRNA_Workshop-PART3.Rmd")
 ```
 
 ## Session Information
