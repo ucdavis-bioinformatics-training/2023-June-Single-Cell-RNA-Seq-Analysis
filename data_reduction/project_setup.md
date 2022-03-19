@@ -72,11 +72,11 @@ function showResults(myq, qc, rc){
 </script>
 
 
-The dataset used in this course is from a local researcher Weici Zhang generated in the second half of 2020.
+The dataset used in this course is from Mysore V, Cullere X, Settles ML, Ji X, Kattan MW, Desjardins M, Durbin-Johnson B, Gilboa T, Baden LR, Walt DR, Lichtman AH, Jehi L, Mayadas TN. Protective heterologous T cell immunity in COVID-19 induced by the trivalent MMR and Tdap vaccine antigens. Med (N Y). 2021 Sep 10;2(9):1050-1071.e7. doi: 10.1016/j.medj.2021.08.004. Epub 2021 Aug 14. PMID: 34414383; PMCID: PMC8363466.
 
-I have manipulated the original samples to:
-1. combine samples into a single sample.
-2. reduce the number of reads for the example dataset to a more managable number for the course.
+In this study, antigen-presenting cells were exposed to SARS-CoV-2, MMR, or Tdap antigens and co-cultured with T cells from donors who were either COVID-19 convalescent, uninfected, or vaccinated against COVID-19. The resulting T cell activation was measured with immunologic assays and flow cytometry, and T cell receptor clonotyping and single-cell RNA sequencing were used to identify cross-reacting T cells.
+
+For the purposes of this workshop, we are using a subset of this data; one a sub-sample of one library composed of four samples.
 
 # Data Setup
 
@@ -86,48 +86,35 @@ Let's set up a project directory for the analysis, and talk a bit about project 
 
 ```bash
 cd
-mkdir -p /share/workshop/intro_scrnaseq/$USER/scrnaseq_example
+mkdir -p /share/workshop/scRNA_workshop/$USER/scrnaseq_example
 ```
 
 ---
 
-**2a\.** Next, go into that directory, create a raw data directory (we are going to call this 00-RawData) and cd into that directory. Lets then create symbolic links to the fastq files that contains the raw read data.
+**2a\.** Next, go into that directory, create a raw data directory (we are going to call this 00-RawData) and cd into that directory. Let's then create symbolic links to the fastq files that contains the raw read data.
 
 ```bash
-cd /share/workshop/intro_scrnaseq/$USER/scrnaseq_example
+cd /share/workshop/scRNA_workshop/$USER/scrnaseq_example
 mkdir 00-RawData
 cd 00-RawData/
-ln -s /share/workshop/intro_scrnaseq/raw_data/00-SmRawData/PBMC2sm_S18* .
+ln -s /share/workshop/scRNA_workshop/Data/Pool1_gex_S17_L004_R* .
 ```
 
 This directory now contains the reads for each "sample" (in this case just 1).
 
-**2b\.** lets create a sample sheet for the project, store sample names in a file called samples.txt
+**2b\.** Let's create a sample sheet for the project, and store sample names in a file called samples.txt
 
 ```bash
-echo PBMC2sm > ../samples.txt
+echo Pool1_gex > ../samples.txt
 cat ../samples.txt
 ```
 
 ---
-**3a\.** Now, take a look at the raw data directory.
+**3\.** Now, take a look at the raw data directory.
 
 ```bash
-ls /share/workshop/intro_scrnaseq/$USER/scrnaseq_example/00-RawData
+ls /share/workshop/scRNA_workshop/$USER/scrnaseq_example/00-RawData
 ```
-
-**3b\.** To see a list of the contents of each directory.
-
-```bash
-ls *
-```
-
-**3c\.** Lets get a better look at all the files in all of the directories.
-
-```bash
-ls -lah *
-```
-
 ---
 
 **4\.** View the contents of the files using the 'less' command, when gzipped used 'zless' (which is just the 'less' command for gzipped files, q to exit):
@@ -136,28 +123,34 @@ Read 1
 
 ```bash
 cd 00-RawData/
-zless PBMC2sm_S18_L003_R1_001.fastq.gz
+zless Pool1_gex_S17_L004_R1_001.fastq.gz
 ```
 
 and Read 2
 
 ```bash
-zless PBMC2sm_S18_L003_R2_001.fastq.gz
+zless Pool1_gex_S17_L004_R2_001.fastq.gz
 ```
 
 Make sure you can identify which lines correspond to a single read and which lines are the header, sequence, and quality values. Press 'q' to exit this screen. Then, let's figure out the number of reads in this file. A simple way to do that is to count the number of lines and divide by 4 (because the record of each read uses 4 lines). In order to do this use cat to output the uncompressed file and pipe that to "wc" to count the number of lines:
 
 ```bash
-zcat PBMC2sm_S18_L003_R1_001.fastq.gz | wc -l
+zcat Pool1_gex_S17_L004_R1_001.fastq.gz | wc -l
 ```
 
 Divide this number by 4 and you have the number of reads in this file. One more thing to try is to figure out the length of the reads without counting each nucleotide. First get the first 4 lines of the file (i.e. the first record):
 
 ```bash
-zcat PBMC2sm_S18_L003_R1_001.fastq.gz  | head -2 | tail -1
+zcat Pool1_gex_S17_L004_R1_001.fastq.gz  | head -4
 ```
 
-Note the header lines (1st and 3rd line) and sequence and quality lines (2nd and 4th) in each 4-line fastq block. Then, copy and paste the DNA sequence line into the following command (replace [sequence] with the line):
+Note the header lines (1st and 3rd line) and sequence and quality lines (2nd and 4th) in each 4-line fastq block. You can isolate the sequence line:
+
+```bash
+zcat Pool1_gex_S17_L004_R1_001.fastq.gz | head -2 | tail -1
+```
+
+Then, copy and paste the DNA sequence line into the following command (replace [sequence] with the line):
 
 ```bash
 echo -n [sequence] | wc -c
@@ -168,7 +161,7 @@ This will give you the length of the read.
 Also can do the bash one liner:
 
 ```bash
-echo -n $(zcat PBMC2sm_S18_L003_R1_001.fastq.gz  | head -2 | tail -1) | wc -c
+echo -n $(zcat Pool1_gex_S17_L004_R1_001.fastq.gz  | head -2 | tail -1) | wc -c
 ```
 
 See if you can figure out how this command works.
@@ -188,20 +181,20 @@ myQuestions1 = [
   {
     question: "How many reads are in the file?",
     answers: {
-      a: "8 Million",
-      b: "100 Million",
-      c: "10 Million",
-      d: "40 Million"
+      a: "200 Thousand",
+      b: "500 Thousand",
+      c: "1 Million",
+      d: "2 Million"
     },
-    correctAnswer: "c"
+    correctAnswer: "b"
   },
   {
     question: "What is the length of Read 1 and Read 2?",
     answers: {
-      a: "150 and 150",
-      b: "26 and 90",
-      c: "151 and 151",
-      d: "50 and 50"
+      a: "90 and 90",
+      b: "50 and 100",
+      c: "28 and 91",
+      d: "75 and 25"
     },
     correctAnswer: "c"
   }

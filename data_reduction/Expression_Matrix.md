@@ -1,12 +1,15 @@
 # Generating a Gene Expression Matrix
 
 Most analyses have two stages: data reduction and data analysis.
-Statistical analyses of scRNA-seq data take as their starting point an __expression matrix__, where each row represents a gene and each column represents a sample (in scRNAseq columns are cells). Each entry in the matrix represents the number of reads (proxy for expression level) of a particular gene in a given sample (cell). In most cases the number of unique reads (post umi filtering) assigned to that gene in that sample/cell. Generating the expression matrix often involves some, or all, of the following.
+
+Statistical analyses of scRNA-seq data take as their starting point an __expression matrix__, where each row represents a gene and each column represents a sample (in scRNAseq columns are cells). Each entry in the matrix represents the number of reads (proxy for expression level) of a particular gene in a given sample (cell). Generating the expression matrix often involves some, or all, of the following.
 
 <div class="figure" style="text-align: center">
 <img src="figures/flowchart2.png" alt="Flowchart of the scRNAseq analysis" width="65%" />
 <p class="caption">Flowchart of scRNAseq analysis</p>
 </div>
+
+Because we are working with 10x Genomics data, we will be using the 10x Cell Ranger pipeline to handle the first column (data reduction tasks).
 
 ### Preprocessing and mapping reads
 
@@ -17,23 +20,23 @@ Raw fastq files first need to be preprocessed, extracting any elements that are 
 * Unique Molecular Index (UMI) – Used to identify reads that arise during PCR replication
 * Sequencing Read – Used to identify the gene a read came from
 
-The remaining sequences are mapped to a reference genome/trancriptome. We tend to use the [STAR](https://github.com/alexdobin/STAR) aligner, for large full-transcript datasets from well annotated organisms (e.g. mouse, human), pseudo-alignment methods (e.g. [Kallisto](https://pachterlab.github.io/kallisto/), [Salmon](http://salmon.readthedocs.io/en/latest/salmon.html)) are also a good choice for alignment. For __full-length__ datasets with tens- or hundreds of thousands of reads per cell pseudo-aligners become appealing since their run-time can be several orders of magnitude less than traditional aligners.
+The remaining sequences are mapped to a reference genome/trancriptome. Cell Ranger is based on [STAR](https://github.com/alexdobin/STAR) aligner. Another good choice is a pseudo-alignment method (e.g. [Kallisto](https://pachterlab.github.io/kallisto/), [Salmon](http://salmon.readthedocs.io/en/latest/salmon.html)). For __full-length__ datasets with tens- or hundreds of thousands of reads per cell pseudo-aligners become appealing since their run-time can be several orders of magnitude less than traditional aligners.
 
 __Note__, if _spike-ins_ are used, the _spike-in_ sequences should be added to the reference sequence prior to mapping.
 
 ### Mapping QC
 
-After aligning sequence data to the genome we should evaluate the quality of the mapping. There are many ways to measure the mapping quality, including: percentage mapped, amount of reads which map to rRNA/tRNAs, proportion of uniquely mapped reads, reads mapping across splice junctions, read depth along the transcripts, etc. Methods developed for bulk RNAseq, such as [RSeQC](http://rseqc.sourceforge.net/) and [samtools](http://samtools.github.io/), are applicable to single-cell data:
+After aligning sequence data to the genome we should evaluate the quality of the mapping. There are many ways to measure the mapping quality, including: percentage mapped, amount of reads which map to rRNA/tRNAs, proportion of uniquely mapped reads, reads mapping across splice junctions, read depth along the transcripts, etc. Methods developed for bulk RNAseq, such as [RSeQC](http://rseqc.sourceforge.net/) and [samtools](http://samtools.github.io/), are applicable to single-cell data.
 
 ### Gene Counting
 
-STAR, Kallisto, and Salmon all quantify the expression level of each gene for
-each cell as a part of its output. If UMIs were used, duplicates need to be first marked and then gene expression levels recounted. The package [`UMI-tools`](https://github.com/CGATOxford/UMI-tools) can be used to process and correct UMIs.
+STAR (and by extension, Cell Ranger), Kallisto, and Salmon all quantify the expression level of each gene for
+each cell as a part of its output. If UMIs were used, duplicates need to be first marked and then gene expression levels recounted. The package [`UMI-tools`](https://github.com/CGATOxford/UMI-tools) can be used to process and correct UMIs. Cell Ranger handles UMI deduplication and cell barcode assignment internally.
 
 Specific steps to be performed are dependent on the type of library, the element layout of the read, and the sequencing parameters.
 
 
-[STAR](https://github.com/alexdobin/STAR), [Salmon](http://salmon.readthedocs.io/en/latest/salmon.html), [Kallisto/bustools](https://www.kallistobus.tools/) each have pipelines build specificlaly for processing single-cell datasets and 10X genomics data.
+[STAR](https://github.com/alexdobin/STAR), [Salmon](http://salmon.readthedocs.io/en/latest/salmon.html), [Kallisto/bustools](https://www.kallistobus.tools/) each have pipelines build specifically for processing single-cell datasets and 10X genomics data.
 
 
 ## scRNAseq Libraries
@@ -57,33 +60,30 @@ Generating scRNAseq libraries is currently an active area of research with sever
 
 Differences between the methods are in how they capture capture a cell and quantify gene expression (either __full-length__ or __tag-based__).
 
-__Full-length__ capture tries to achieve a uniform coverage of each transcript (many reads per transcript). __Tag-based__ protocols only capture either the 5'- or 3'-end of each tran script (single read per transcript). Choice in method determines what types of analyses the data can be used for. __Full-length__ capture can be used to distinguish different iso-forms, where __tag-based__ method is best used for only gene abundance.
+__Full-length__ capture tries to achieve a uniform coverage of each transcript (many reads per transcript). __Tag-based__ protocols only capture either the 5'- or 3'-end of each transcript (single read per transcript). Choice in method determines what types of analyses the data can be used for. __Full-length__ capture can be used to distinguish different iso-forms, where __tag-based__ method is best used for only gene abundance.
 
 * __Tag-based__ 3’ counting techniques
 	* 1 read per transcript
 	* Based on polyA
 	* Expression analysis only
-	* Fewer reads per cell needed neede (~20K reads/cell 10x V3+)
+	* Fewer reads per cell needed (~20K reads/cell 10x V3+)
 	* Less noise in expression patterns
 * __Full-length__
 	* Based on polyA
 	* Expression analysis
-	*  Splicing information
-	*  The more information desired beyond expression, the higher the reads needed per cell (~50K reads/cell to 10M reads/cell)
+	* Splicing information
+	* The more information desired beyond expression, the higher the reads needed per cell (~50K reads/cell to 10M reads/cell)
 
 
 For smaller experiments < 5000 cells, the R packages [`SingleCellExperiment`](http://bioconductor.org/packages/SingleCellExperiment), [`scater`](http://bioconductor.org/packages/scater/), [`SC3`](http://bioconductor.org/packages/release/bioc/html/SC3.html) are good choices. For larger experiments (> 5000 cells), the R package [`Seurat`](http://satijalab.org/seurat/) offers a complete solution.
 
 If you prefer Python, [`scanpy`](https://scanpy.readthedocs.io/en/stable/) is a good choice.
 
-
 A nice page keeping track of single-cell software can be found [here](https://github.com/seandavi/awesome-single-cell).
 
 ## 10X Genomics generation of expression matrix with cellranger
 
-[cellranger](https://support.10xgenomics.com/single-cell-gene-expression/software/pipelines/latest/what-is-cell-ranger)
-
-10X Genomics cellranger uses a fork of the [`STAR`](https://github.com/alexdobin/STAR) aligner, [`Orbit`](https://github.com/10XGenomics/orbit), to map reads to a genome after first preprocessing them (extracting cell and UMI sequences).
+10X Genomics [Cell Ranger](https://support.10xgenomics.com/single-cell-gene-expression/software/pipelines/latest/what-is-cell-ranger) uses a fork of the [`STAR`](https://github.com/alexdobin/STAR) aligner, [`Orbit`](https://github.com/10XGenomics/orbit), to map reads to a genome after first preprocessing them (extracting cell and UMI sequences).
 
 <div class="figure" style="text-align: center">
 <img src="figures/10xread.png" alt="Elements to a 10x read" width="80%" />
@@ -128,7 +128,7 @@ cellranger  version 6 has many sub-applications
 
 ### Read Trimming
 
-Cellranger only performs read trimming to 3' gene expression assays.
+Cell Ranger only performs read trimming to 3' gene expression assays.
 
 A full length cDNA construct is flanked by the 30 bp template switch oligo (TSO) sequence, AAGCAGTGGTATCAACGCAGAGTACATGGG, on the 5' end and poly-A on the 3' end. Some fraction of sequencing reads are expected to contain either or both of these sequences, depending on the fragment size distribution of the sequencing library. Reads derived from short RNA molecules are more likely to contain either or both TSO and poly-A sequence than longer RNA molecules.
 
@@ -139,13 +139,13 @@ Tags ts:i and pa:i in the output BAM files indicate the number of TSO nucleotide
 ### Alignment
 
 #### Genome Alignment
-cellranger uses an aligner called Orbit (a wrapper around STAR), which performs splicing-aware alignment of reads to the genome. cellranger uses the transcript annotation GTF to bucket the reads into exonic, intronic, and intergenic, and by whether the reads align (confidently) to the genome. A read is exonic if at least 50% of it intersects an exon, intronic if it is non-exonic and intersects an intron, and intergenic otherwise.
+Cell Ranger uses an aligner called Orbit (a wrapper around STAR), which performs splicing-aware alignment of reads to the genome. Cell Ranger uses the transcript annotation GTF to bucket the reads into exonic, intronic, and intergenic, and by whether the reads align (confidently) to the genome. A read is exonic if at least 50% of it intersects an exon, intronic if it is non-exonic and intersects an intron, and intergenic otherwise.
 
 #### MAPQ adjustment
 For reads that align to a single exonic locus but also align to 1 or more non-exonic loci, the exonic locus is prioritized and the read is considered to be confidently mapped to the exonic locus with MAPQ 255.
 
 #### Transcriptome Alignment
-cellranger further aligns exonic reads to annotated transcripts, looking for compatibility. A read that is compatible with the exons of an annotated transcript, and aligned to the same strand, is considered mapped to the transcriptome. If the read is compatible with a single gene annotation, it is considered uniquely (confidently) mapped to the transcriptome. Only reads that are confidently mapped to the transcriptome are used for UMI counting.
+Cell Ranger further aligns exonic reads to annotated transcripts, looking for compatibility. A read that is compatible with the exons of an annotated transcript, and aligned to the same strand, is considered mapped to the transcriptome. If the read is compatible with a single gene annotation, it is considered uniquely (confidently) mapped to the transcriptome. Only reads that are confidently mapped to the transcriptome are used for UMI counting.
 
 In certain cases, such as when the input to the assay consists of nuclei, there may be high levels of intronic reads generated by unspliced transcripts. In order to count these intronic reads, the cellranger count and cellranger multi pipelines can be run with the option 'include-introns'.
 
@@ -161,18 +161,18 @@ In certain cases, such as when the input to the assay consists of nuclei, there 
 
 ### Filtering cells (the 10x way)
 
-cellranger 3.0 introduced and improved cell-calling algorithm that is better able to identify populations of low RNA content cells, especially when low RNA content cells are mixed into a population of high RNA content cells. For example, tumor samples often contain large tumor cells mixed with smaller tumor infiltrating lymphocytes (TIL) and researchers may be particularly interested in the TIL population. The new algorithm is based on the EmptyDrops method (Lun et al., 2018).
+Cell Ranger 3.0 introduced and improved cell-calling algorithm that is better able to identify populations of low RNA content cells, especially when low RNA content cells are mixed into a population of high RNA content cells. For example, tumor samples often contain large tumor cells mixed with smaller tumor infiltrating lymphocytes (TIL) and researchers may be particularly interested in the TIL population. The new algorithm is based on the EmptyDrops method (Lun et al., 2018).
 
 The algorithm has two key steps:
 
 1. It uses a cutoff based on total UMI counts of each barcode to identify cells. This step identifies the primary mode of high RNA content cells.
 2. Then the algorithm uses the RNA profile of each remaining barcode to determine if it is an “empty" or a cell containing partition. This second step captures low RNA content cells whose total UMI counts may be similar to empty GEMs.
 
-In the first step, the original cellranger cell calling algorithm is used to identify the primary mode of high RNA content cells, using a cutoff based on the total UMI count for each barcode. cellranger takes as input the expected number of recovered cells, N (see --expect-cells). Let m be the 99th percentile of the top N barcodes by total UMI counts. All barcodes whose total UMI counts exceed m/10 are called as cells in the first pass.
+In the first step, the original  cell calling algorithm is used to identify the primary mode of high RNA content cells, using a cutoff based on the total UMI count for each barcode. Cell Ranger takes as input the expected number of recovered cells, N (see --expect-cells). Let m be the 99th percentile of the top N barcodes by total UMI counts. All barcodes whose total UMI counts exceed m/10 are called as cells in the first pass.
 
 In the second step, a set of barcodes with low UMI counts that likely represent ‘empty’ GEM partitions is selected. A model of the RNA profile of selected barcodes is created. This model, called the background model, is a multinomial distribution over genes. It uses Simple Good-Turing smoothing to provide a non-zero model estimate for genes that were not observed in the representative empty GEM set. Finally, the RNA profile of each barcode not called as a cell in the first step is compared to the background model. Barcodes whose RNA profile strongly disagrees with the background model are added to the set of positive cell calls. This second step identifies cells that are clearly distinguishable from the profile of empty GEMs, even though they may have much lower RNA content than the largest cells in the experiment.
 
-Below is an example of a challenging cell-calling scenario where 300 high RNA content 293T cells are mixed with 2000 low RNA content PBMC cells. On the left is the cell calling result with the cell calling algorithm prior to cellranger 3.0 and on the right is the current cellranger 3.0 result. You can see that low RNA content cells are successfully identified by the new algorithm.
+Below is an example of a challenging cell-calling scenario where 300 high RNA content 293T cells are mixed with 2000 low RNA content PBMC cells. On the left is the cell calling result with the cell calling algorithm prior to Cell Ranger 3.0 and on the right is the current Cell Ranger 3.0 result. You can see that low RNA content cells are successfully identified by the new algorithm.
 
 <p float="center">
   <img src="figures/knee-plot-old-cell-calling.png" width="400" />
@@ -183,10 +183,10 @@ Below is an example of a challenging cell-calling scenario where 300 high RNA co
 
 | Type	|		| Description |
 |:----- |:---		|:------ |
-| raw_feature_bc_matrix	| | folder containing gene-barcode matrices	Contains every barcode from fixed list of known-good barcode sequences that have at least 1 read. This includes background and non-cellular barcodes. |
-| filtered_feature_bc_matrix | | folder containing gene-barcode matrices	Contains only detected cellular barcodes. |
+| raw_feature_bc_matrix	| | Folder containing gene-barcode matrices.	Contains every barcode from fixed list of known-good barcode sequences that have at least 1 read. This includes background and non-cellular barcodes. |
+| filtered_feature_bc_matrix | | Folder containing gene-barcode matrices.	Contains only detected cellular barcodes. |
 
-With 3 files needed to completely describe each gene x cell matrix
+Each of these folders contains three files needed to completely describe each gene x cell matrix:
 
 - matrix.mtx.gz
 - features.tsv.gz
@@ -200,6 +200,7 @@ With 3 files needed to completely describe each gene x cell matrix
 | raw_feature_bc_matrix.h5	| | hdf5 file with gene-barcode matrices	Contains every barcode from fixed list of known-good barcode sequences that have at least 1 read. This includes background and non-cellular barcodes. |
 | filtered_feature_bc_matrix.h5 | | hdf5 file with gene-barcode matrices	Contains only detected cellular barcodes. |
 
+HDF5 is a file format designed to preserve a hierarchical, filesystem-like organization of large amounts of data:
 
 ```
 (root)
@@ -222,11 +223,11 @@ With 3 files needed to completely describe each gene x cell matrix
         └─ sequence [Feature Barcode only]
 ```
 
-Can be read into R or Python for downstream processing.
+The result is a single file completely describing the gene x cell matrix, which can be read into R or Python for downstream processing.
 
 The hdf5 has a number of advantages we'll talk more about when we get into data analysis.
 
-### Bam output
+### BAM output
 
 10x Chromium cellular and molecular barcode information for each read is stored as TAG fields:
 
@@ -283,9 +284,9 @@ Cell Ranger Version 6
 A01102:107:HHM5TDSXY:3:1128:6659:34601	147	chr1	1014050	255	151M	=	1013467	-734	TCGGTGTCAGAGCTGAAGGCGCAGATCACCCAGAAGATCGGCGTGCACGCCTTCCAGCAGCGTCTGGCTGTCCACCCGAGCGGTGTGGCGCTGCAGGACAGGGTCCCCCTTGCCAGCCAGGGCCTGGGCCCCGGCAGCACGGTCCTGCTGG	FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF	NH:i:1	HI:i:1	AS:i:249	nM:i:2	RG:Z:PBMC2sm:0:1:HHM5TDSXY:3	TX:Z:ENST00000624652,+271,151M;ENST00000624697,+296,151M;ENST00000649529,+146,151M	GX:Z:ENSG00000187608	GN:Z:ISG15	fx:Z:ENSG00000187608	RE:A:E	xf:i:25	CR:Z:CCGTGGAGTCAGAGGT	CY:Z:FFFFFF:FFFFFFFFF	CB:Z:CCGTGGAGTCAGAGGT-1	UR:Z:CCACGGGGAT	UY:Z:FFFFFFFFFF	UB:Z:CCACGGGGAT
 ```
 
-### 10X genomics sample report
+### 10X Genomics sample report
 
-Summary of the alignment and assignment of reads to cells and genes are present in the metrics_summary.csv.
+A summary of the alignment and assignment of reads to cells and genes is present in the metrics_summary.csv.
 
 | Metric	| Description |
 |:----- 		|:------ |
@@ -312,7 +313,7 @@ Summary of the alignment and assignment of reads to cells and genes are present 
 
 ### 10X genomics html reports
 
-Cell ranger does produce a "pretty" html report with the same statistics and some "analysis".
+Cell Ranger does produce a more readable HTML report with the same statistics and some "analysis".
 
 [Cell Ranger V6 web summary](web_summary.html)
 
@@ -321,21 +322,21 @@ Cell ranger does produce a "pretty" html report with the same statistics and som
 1. Log into tadpole with the username/password
 
     ```bash
-    cd /share/workshop/intro_scrnaseq/$USER/scrnaseq_example
+    cd /share/workshop/scRNA_workshop/$USER/scrnaseq_example
     ```
 
 2. Load and review cellranger's sub-applications and help docs
 
     ```bash
-    export PATH=/share/workshop/intro_scrnaseq/software/cellranger-6.0.2/bin:$PATH
+    export PATH=/share/workshop/scRNA_workshop/software/cellranger-6.1.2/bin:$PATH
     ```
 
-3. Review the [cellranger-counts.sh](https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2021-August-Single-Cell-RNA-Seq-Analysis/master/software_scripts/scripts/cellranger-counts.sh) script used to map reads in the fastq files.
+3. Review the [cellranger-counts.sh](https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-March-Single-Cell-RNA-Seq-Analysis/main/software_scripts/scripts/cellranger-counts.sh) script used to map reads in the fastq files.
 
 4. Copy contents of the script to your **scrnaseq_example** folder and do a test run.
 
     ```bash
-    wget https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2021-August-Single-Cell-RNA-Seq-Analysis/master/software_scripts/scripts/cellranger-counts.sh cellranger-counts.sh
+    wget https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-March-Single-Cell-RNA-Seq-Analysis/main/software_scripts/scripts/cellranger-counts.sh cellranger-counts.sh
     ```
 
     update the email address in the script if you like.
@@ -423,7 +424,7 @@ See [Feature Barcode Analysis](https://support.10xgenomics.com/single-cell-gene-
 
 #### Cellranger multi
 
-Cellranger 6.0 introduced the multi pipeline wich is requried for use with cellplex, can can be used to 'join' features, vdj, and counts into a single analysis.
+Cell Ranger 6.0 introduced the multi pipeline wich is requried for use with cellplex, can can be used to 'join' features, vdj, and counts into a single analysis.
 
 cellranger multi requires and id for output and a configuration csv (which really isn't a csv).
 

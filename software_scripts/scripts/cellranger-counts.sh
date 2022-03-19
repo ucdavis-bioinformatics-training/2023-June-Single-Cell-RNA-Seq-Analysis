@@ -30,14 +30,14 @@ echo "Allocated memory: " $MEM
 #module load cellranger/6.0.1
 
 ## b) or, by placing the location of the executables on the path (edit to your location)
-export PATH=/share/workshop/intro_scrnaseq/software/cellranger-6.0.2/bin:$PATH
+export PATH=/share/workshop/intro_scrnaseq/software/cellranger-6.1.2/bin:$PATH
 
 ## c) or if they are already on the path, do nothing
 
 ## Set the parameters for the run
-basedir="/share/workshop/intro_scrnaseq"
+basedir="/share/workshop/scRNA_workshop"
 transcriptome=${basedir}/software/refdata-gex-GRCh38-2020-A
-fastqs="/share/workshop/intro_scrnaseq/${USER}/scrnaseq_example/00-RawData"
+fastqs=${basedir}/${USER}/scrnaseq_example/00-RawData
 
 
 ## provide the script the row # of the sample to be run
