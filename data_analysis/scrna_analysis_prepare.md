@@ -1,14 +1,16 @@
 ### Create a new RStudio project
 
-Open RStudio and create a new project, for more info see (Using-Projects)[https://support.rstudio.com/hc/en-us/articles/200526207-Using-Projects]
+Open RStudio and create a new project, for more info see [Using-Projects](https://support.rstudio.com/hc/en-us/articles/200526207-Using-Projects):
 
-* File > New Project > New Directory > New Project (name the new directory, Ex. Differential_Expression) and check "use renv with this project" if present.
+*File > New Project > New Directory > New Project*
 
-Learn more about (renv)[https://rstudio.github.io/renv/articles/renv.html]
+Name the new directory (e.g. Differential_Expression), and check "use renv with this project" if present.
 
-Set some options and make sure the packages Seurat, sva, ggplot2, dplyr, limma, topGO, WGCNA are installed (if not install it), and then load them and verify they all loaded correctly.
+Learn more about [renv](https://rstudio.github.io/renv/articles/renv.html).
 
-In the R console run the following commands
+Run the following commands to set some options and make sure the packages Seurat, sva, ggplot2, dplyr, limma, and topGO are installed (if not install it), and then load them and verify they all loaded correctly.
+
+**In the R console** run the following commands:
 ```r
 if (!requireNamespace("BiocManager", quietly = TRUE)){
     install.packages("BiocManager")
@@ -74,7 +76,7 @@ if (!any(rownames(installed.packages()) == "scran")){
   BiocManager::install("scran")
 }
 
-## All of thse should now load without error.
+## All of these should now load without error.
 
 library(rmarkdown)
 library(tinytex)
@@ -108,13 +110,11 @@ In the R console run the following command to download and extract the dataset (
 
 ```r
 options(timeout=1200)
-download.file("https://bioshare.bioinformatics.ucdavis.edu/bioshare/download/4vn7r610cf5d5dv/intro2singlecell_March2021.zip", "intro2singlecell_March2021.zip")
-system("unzip intro2singlecell_March2021.zip") # works in Linux and Mac, not sure about Windows"
+download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-March-Single-Cell-RNA-Seq-Analysis/main/data_analysis/expression_data_cellranger.zip", "expression_data_cellranger.zip")
+system("unzip expression_data_cellranger.zip") # works in Linux and Mac, not sure about Windows"
 ```
 
 If you timed out on the download, increase 1200 to something higher. If the system command didn't work to extract the zip file, navigate to the folder you downloaded the data in and manually unzip the archive file
-
-**The Dataset will only be available for download during this course**
 
 ### Edit the file YAML portion
 
