@@ -74,10 +74,6 @@ if (!any(rownames(installed.packages()) == "scran")){
   BiocManager::install("scran")
 }
 
-if (!any(rownames(installed.packages()) == "WGCNA")){
-  BiocManager::install("WGCNA")
-}
-
 ## All of thse should now load without error.
 
 library(rmarkdown)
@@ -95,7 +91,6 @@ library(topGO)
 library(org.Hs.eg.db)
 library(sva)
 library(scran)
-library(WGCNA)
 
 sessionInfo()
 ```
@@ -104,7 +99,7 @@ sessionInfo()
 
 In the R console run the following command to download part 1 of data analysis
 ```r
-download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2021-August-Single-Cell-RNA-Seq-Analysis/master/data_analysis/scRNA_Workshop-PART1.Rmd", "scRNA_Workshop-PART1.Rmd")
+download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-March-Single-Cell-RNA-Seq-Analysis/main/data_analysis/scRNA_Workshop-PART1.Rmd", "scRNA_Workshop-PART1.Rmd")
 ```
 
 ### Download the data for the workshop, extract it.
@@ -140,4 +135,4 @@ Your RStudio should look something like this
 <img src="figures/RStudio.png" alt="RStudio" width="80%"/>
 
 
-Now spend a few minutes navigating through our data, how may samples are there? Find the hdf5 file and the matrix files. View the html files and lets discuss.
+Now spend a few minutes navigating through our data. How may samples are there? Find the hdf5 file and the matrix files. View the HTML files and let's discuss.
