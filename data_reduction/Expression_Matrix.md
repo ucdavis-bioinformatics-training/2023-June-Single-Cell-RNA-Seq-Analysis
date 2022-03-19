@@ -358,7 +358,7 @@ which actually runs cellranger, takes a little while to run, so for the sake of 
 
     ```bash
     cd /share/workshop/scRNA_workshop/$USER/scrnaseq_example
-    ln -s /share/workshop/scRNA_workshop/raw_data/Pool1_gex Pool1_gex_copy
+    ln -s /share/workshop/scRNA_workshop/cellranger_out/Pool1_gex Pool1_gex_copy
     ```
 
 	1. In the folder Pool1_gex_copy, which output folders/files were generated from this script?
