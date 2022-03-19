@@ -5,7 +5,7 @@
 #SBATCH --ntasks=4 # Number of cores
 #SBATCH --mem=10000 # Memory pool for all cores (see also --mem-per-cpu)
 #SBATCH --partition=production # Partition to submit to
-#SBATCH --reservation=workshop
+#SBATCH --reservation=scrnareq
 #SBATCH --account=workshop
 #SBATCH --output=counts-cellrngr.out # File to which STDOUT will be written
 #SBATCH --error=counts-cellrngr.err # File to which STDERR will be written
@@ -30,7 +30,7 @@ echo "Allocated memory: " $MEM
 #module load cellranger/6.0.1
 
 ## b) or, by placing the location of the executables on the path (edit to your location)
-export PATH=/share/workshop/intro_scrnaseq/software/cellranger-6.1.2/bin:$PATH
+export PATH=/share/workshop/scRNA_workshop/software/cellranger-6.1.2/bin:$PATH
 
 ## c) or if they are already on the path, do nothing
 
