@@ -358,10 +358,10 @@ which actually runs cellranger, takes a little while to run, so for the sake of 
 
     ```bash
     cd /share/workshop/scRNA_workshop/$USER/scrnaseq_example
-    ln -s /share/workshop/scRNA_workshop/raw_data/PBMC2sm PBMC2sm_copy
+    ln -s /share/workshop/scRNA_workshop/raw_data/Pool1_gex Pool1_gex_copy
     ```
 
-	1. In the folder PBMC2sm_copy, which output folders/files were generated from this script?
+	1. In the folder Pool1_gex_copy, which output folders/files were generated from this script?
 	2. Review the metrics_summary.csv file
 		1. What where the total number of reads in this sample?
 		2. Reads Mapped Confidently to transcriptome?
@@ -370,8 +370,8 @@ which actually runs cellranger, takes a little while to run, so for the sake of 
 		5. Median UMI Counts per Cell?
 	3. head the files under raw_gene_bc_matrices and filtered_gene_bc_matrices
     4. Transfer the html file to your computer
-    5. Transfer the matrix files and hdf5 file to your computer. (We will not use however.).
-	6. If time remain, actually run the script.
+    5. Transfer the matrix files and hdf5 file to your computer. (However, we will be using data from the entirety of Pool 1 instead of this subset).
+	6. If time remains, uncomment the `eval $call` line to run the script.
 
 ### Cellranger features and multi pipeline
 
@@ -424,11 +424,11 @@ See [Feature Barcode Analysis](https://support.10xgenomics.com/single-cell-gene-
 
 #### Cellranger multi
 
-Cell Ranger 6.0 introduced the multi pipeline wich is requried for use with cellplex, can can be used to 'join' features, vdj, and counts into a single analysis.
+Cell Ranger 6.0 introduced the multi pipeline which is required for use with CellPlex, and can can be used to 'join' features, V(D)J, and counts into a single analysis.
 
-cellranger multi requires and id for output and a configuration csv (which really isn't a csv).
+cellranger multi requires an ID for output and a configuration csv (which really isn't a csv).
 
-Multi Config CSV
+##### Multi Config CSV
 
 Section: [gene-expression]
 
