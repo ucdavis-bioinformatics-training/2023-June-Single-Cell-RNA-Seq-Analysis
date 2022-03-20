@@ -6,7 +6,7 @@ output:
       keep_md: TRUE
 ---
 
-Last Updated: March 23 2021, 5pm
+Last Updated: March 20 2022
 
 # Part 1: Loading data from CellRanger into R
 
@@ -18,7 +18,7 @@ Our first Markdown document concentrates on getting data into R and setting up o
 
 The **expression_data_cellranger.zip** file contains the single cell matrix files and HDF5 files for four T cell samples from [Mysore et al., 2021](https://www.cell.com/med/fulltext/S2666-6340(21)00289-0).
 
-We start each markdown document with loading needed libraries for R
+We start each markdown document with loading needed libraries for R:
 
 
 ```{r, warning=FALSE,error=FALSE,message=FALSE}
@@ -97,7 +97,7 @@ str(d10x.data)
 
 If you don't have the needed hdf5 libraries you can read in the matrix files like such
 
-```{r load_data_matrix, warning=FALSE,error=FALSE, message=FALSE, eval=FALSE}
+```{r load_data_matrix, eval=FALSE}
 d10x.data <- sapply(ids, function(i){
   d10x <- Read10X(file.path(dataset_loc, i, "/outs","raw_feature_bc_matrix"))
   colnames(d10x) <- paste(sapply(strsplit(colnames(d10x), split="-"), '[[', 1L), i, sep="-")
@@ -137,7 +137,7 @@ plot_cellranger_cells(3)
 plot_cellranger_cells(4)
 ```
 
-```{r fig_barcode_umi, eval=FALSE}
+```{r fig_barcode_umi_original, eval=FALSE}
 cr_filtered_cells <- as.numeric(gsub(",","",as.character(unlist(sequencing.metrics["Estimated Number of Cells",]))))
 
 plot_cellranger_cells <- function(ind){
@@ -215,14 +215,14 @@ head(experiment.aggregate[[]])
 
 ## Finally, save the original object and view the object.
 
-Original dataset in Seurat class, with no filtering
+Original data set in Seurat class, with no filtering
 ```{r save, eval=FALSE}
 save(experiment.aggregate,file="original_seurat_object.RData")
 ```
 
 ## Get the next Rmd file
 ```{r getnextfile, eval=FALSE}
-download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-March-Single-Cell-RNA-Seq-Analysis/master/data_analysis/scRNA_Workshop-PART2.Rmd", "scRNA_Workshop-PART2.Rmd")
+download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-March-Single-Cell-RNA-Seq-Analysis/main/data_analysis/scRNA_Workshop-PART2.Rmd", "scRNA_Workshop-PART2.Rmd")
 ```
 
 ## Session Information
