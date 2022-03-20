@@ -43,6 +43,12 @@ Specific steps to be performed are dependent on the type of library, the element
 
 Generating scRNAseq libraries is currently an active area of research with several protocols being published in the last few years, including:
 
+<div class="figure" style="text-align: center">
+<img src="figures/flowchartprotocols.png" alt="Flowchart of the scRNAseq protocols" width="65%" />
+<p class="caption">Flowchart of scRNAseq library prep protocols</p>
+</div>
+
+
 * CEL-seq Hashimshony, 2012
 * CEL-seq2 Hashimshony, 2016
 * DroNC-seq Habib, 2017
