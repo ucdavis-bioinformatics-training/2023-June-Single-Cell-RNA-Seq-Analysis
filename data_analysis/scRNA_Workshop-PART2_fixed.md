@@ -6,7 +6,7 @@ output:
       keep_md: TRUE
 ---
 
-Last Updated: March 23 2021, 5pm
+Last Updated: March 20 2022
 
 # Part 2: Some QA/QC, filtering and normalization
 
@@ -28,7 +28,7 @@ experiment.aggregate
 ```
 
 <div class='r_output'> An object of class Seurat 
- 36601 features across 29696 samples within 1 assay 
+ 36601 features across 5803 samples within 1 assay 
  Active assay: RNA (36601 features, 0 variable features)
 </div>
 ```r
@@ -50,159 +50,159 @@ kable(do.call("cbind", tapply(experiment.aggregate$nFeature_RNA,
  <thead>
   <tr>
    <th style="text-align:left;">   </th>
-   <th style="text-align:right;"> PBMC2 </th>
-   <th style="text-align:right;"> PBMC3 </th>
-   <th style="text-align:right;"> T021PBMC </th>
-   <th style="text-align:right;"> T022PBMC </th>
+   <th style="text-align:right;"> conv_COVID </th>
+   <th style="text-align:right;"> conv_MMR </th>
+   <th style="text-align:right;"> conv_Tdap </th>
+   <th style="text-align:right;"> norm_COVID </th>
   </tr>
  </thead>
 <tbody>
   <tr>
    <td style="text-align:left;"> 0% </td>
+   <td style="text-align:right;"> 302.0 </td>
    <td style="text-align:right;"> 300.0 </td>
-   <td style="text-align:right;"> 300.00 </td>
-   <td style="text-align:right;"> 300.0 </td>
-   <td style="text-align:right;"> 300.00 </td>
+   <td style="text-align:right;"> 307.00 </td>
+   <td style="text-align:right;"> 302 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 5% </td>
-   <td style="text-align:right;"> 311.0 </td>
-   <td style="text-align:right;"> 364.00 </td>
-   <td style="text-align:right;"> 445.0 </td>
-   <td style="text-align:right;"> 618.35 </td>
+   <td style="text-align:right;"> 669.2 </td>
+   <td style="text-align:right;"> 657.4 </td>
+   <td style="text-align:right;"> 675.85 </td>
+   <td style="text-align:right;"> 430 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 10% </td>
-   <td style="text-align:right;"> 321.0 </td>
-   <td style="text-align:right;"> 459.30 </td>
-   <td style="text-align:right;"> 598.0 </td>
-   <td style="text-align:right;"> 884.40 </td>
+   <td style="text-align:right;"> 846.4 </td>
+   <td style="text-align:right;"> 847.0 </td>
+   <td style="text-align:right;"> 873.20 </td>
+   <td style="text-align:right;"> 530 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 15% </td>
-   <td style="text-align:right;"> 334.0 </td>
-   <td style="text-align:right;"> 563.00 </td>
-   <td style="text-align:right;"> 808.0 </td>
-   <td style="text-align:right;"> 1181.20 </td>
+   <td style="text-align:right;"> 1011.1 </td>
+   <td style="text-align:right;"> 964.0 </td>
+   <td style="text-align:right;"> 1021.00 </td>
+   <td style="text-align:right;"> 627 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 20% </td>
-   <td style="text-align:right;"> 347.0 </td>
-   <td style="text-align:right;"> 678.60 </td>
-   <td style="text-align:right;"> 1030.0 </td>
-   <td style="text-align:right;"> 1356.40 </td>
+   <td style="text-align:right;"> 1160.2 </td>
+   <td style="text-align:right;"> 1067.6 </td>
+   <td style="text-align:right;"> 1167.60 </td>
+   <td style="text-align:right;"> 728 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 25% </td>
-   <td style="text-align:right;"> 365.0 </td>
-   <td style="text-align:right;"> 825.00 </td>
-   <td style="text-align:right;"> 1190.0 </td>
-   <td style="text-align:right;"> 1452.00 </td>
+   <td style="text-align:right;"> 1323.0 </td>
+   <td style="text-align:right;"> 1199.0 </td>
+   <td style="text-align:right;"> 1350.75 </td>
+   <td style="text-align:right;"> 815 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 30% </td>
-   <td style="text-align:right;"> 393.0 </td>
-   <td style="text-align:right;"> 969.90 </td>
-   <td style="text-align:right;"> 1276.0 </td>
-   <td style="text-align:right;"> 1527.00 </td>
+   <td style="text-align:right;"> 1522.6 </td>
+   <td style="text-align:right;"> 1375.2 </td>
+   <td style="text-align:right;"> 1618.60 </td>
+   <td style="text-align:right;"> 889 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 35% </td>
-   <td style="text-align:right;"> 439.0 </td>
-   <td style="text-align:right;"> 1091.00 </td>
-   <td style="text-align:right;"> 1334.0 </td>
-   <td style="text-align:right;"> 1588.00 </td>
+   <td style="text-align:right;"> 1876.8 </td>
+   <td style="text-align:right;"> 1638.5 </td>
+   <td style="text-align:right;"> 1908.25 </td>
+   <td style="text-align:right;"> 940 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 40% </td>
-   <td style="text-align:right;"> 509.0 </td>
-   <td style="text-align:right;"> 1207.00 </td>
-   <td style="text-align:right;"> 1390.0 </td>
-   <td style="text-align:right;"> 1646.00 </td>
+   <td style="text-align:right;"> 2123.0 </td>
+   <td style="text-align:right;"> 1982.6 </td>
+   <td style="text-align:right;"> 2119.00 </td>
+   <td style="text-align:right;"> 987 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 45% </td>
-   <td style="text-align:right;"> 613.0 </td>
-   <td style="text-align:right;"> 1312.00 </td>
-   <td style="text-align:right;"> 1438.0 </td>
-   <td style="text-align:right;"> 1695.00 </td>
+   <td style="text-align:right;"> 2328.3 </td>
+   <td style="text-align:right;"> 2190.6 </td>
+   <td style="text-align:right;"> 2282.95 </td>
+   <td style="text-align:right;"> 1018 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 50% </td>
-   <td style="text-align:right;"> 697.0 </td>
-   <td style="text-align:right;"> 1412.00 </td>
-   <td style="text-align:right;"> 1481.0 </td>
-   <td style="text-align:right;"> 1741.00 </td>
+   <td style="text-align:right;"> 2472.0 </td>
+   <td style="text-align:right;"> 2370.0 </td>
+   <td style="text-align:right;"> 2451.50 </td>
+   <td style="text-align:right;"> 1062 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 55% </td>
-   <td style="text-align:right;"> 772.0 </td>
-   <td style="text-align:right;"> 1521.65 </td>
-   <td style="text-align:right;"> 1528.0 </td>
-   <td style="text-align:right;"> 1788.85 </td>
+   <td style="text-align:right;"> 2605.7 </td>
+   <td style="text-align:right;"> 2518.0 </td>
+   <td style="text-align:right;"> 2567.05 </td>
+   <td style="text-align:right;"> 1105 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 60% </td>
-   <td style="text-align:right;"> 842.0 </td>
-   <td style="text-align:right;"> 1629.80 </td>
-   <td style="text-align:right;"> 1573.0 </td>
-   <td style="text-align:right;"> 1843.00 </td>
+   <td style="text-align:right;"> 2756.4 </td>
+   <td style="text-align:right;"> 2667.0 </td>
+   <td style="text-align:right;"> 2679.80 </td>
+   <td style="text-align:right;"> 1128 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 65% </td>
-   <td style="text-align:right;"> 920.0 </td>
-   <td style="text-align:right;"> 1753.00 </td>
-   <td style="text-align:right;"> 1620.0 </td>
-   <td style="text-align:right;"> 1894.55 </td>
+   <td style="text-align:right;"> 2872.1 </td>
+   <td style="text-align:right;"> 2835.3 </td>
+   <td style="text-align:right;"> 2820.15 </td>
+   <td style="text-align:right;"> 1165 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 70% </td>
-   <td style="text-align:right;"> 1000.0 </td>
-   <td style="text-align:right;"> 1883.10 </td>
-   <td style="text-align:right;"> 1668.3 </td>
-   <td style="text-align:right;"> 1950.90 </td>
+   <td style="text-align:right;"> 2994.8 </td>
+   <td style="text-align:right;"> 3019.6 </td>
+   <td style="text-align:right;"> 2971.70 </td>
+   <td style="text-align:right;"> 1205 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 75% </td>
-   <td style="text-align:right;"> 1100.0 </td>
-   <td style="text-align:right;"> 2022.00 </td>
-   <td style="text-align:right;"> 1726.0 </td>
-   <td style="text-align:right;"> 2021.00 </td>
+   <td style="text-align:right;"> 3155.0 </td>
+   <td style="text-align:right;"> 3173.5 </td>
+   <td style="text-align:right;"> 3144.50 </td>
+   <td style="text-align:right;"> 1246 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 80% </td>
-   <td style="text-align:right;"> 1211.0 </td>
-   <td style="text-align:right;"> 2212.00 </td>
-   <td style="text-align:right;"> 1802.0 </td>
-   <td style="text-align:right;"> 2114.00 </td>
+   <td style="text-align:right;"> 3347.0 </td>
+   <td style="text-align:right;"> 3327.8 </td>
+   <td style="text-align:right;"> 3304.80 </td>
+   <td style="text-align:right;"> 1280 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 85% </td>
-   <td style="text-align:right;"> 1327.0 </td>
-   <td style="text-align:right;"> 2395.00 </td>
-   <td style="text-align:right;"> 1905.0 </td>
-   <td style="text-align:right;"> 2252.95 </td>
+   <td style="text-align:right;"> 3495.9 </td>
+   <td style="text-align:right;"> 3498.9 </td>
+   <td style="text-align:right;"> 3477.35 </td>
+   <td style="text-align:right;"> 1324 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 90% </td>
-   <td style="text-align:right;"> 1473.0 </td>
-   <td style="text-align:right;"> 2641.00 </td>
-   <td style="text-align:right;"> 2075.1 </td>
-   <td style="text-align:right;"> 2508.00 </td>
+   <td style="text-align:right;"> 3704.8 </td>
+   <td style="text-align:right;"> 3735.8 </td>
+   <td style="text-align:right;"> 3712.90 </td>
+   <td style="text-align:right;"> 1376 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 95% </td>
-   <td style="text-align:right;"> 1717.7 </td>
-   <td style="text-align:right;"> 2997.70 </td>
-   <td style="text-align:right;"> 2451.0 </td>
-   <td style="text-align:right;"> 3013.25 </td>
+   <td style="text-align:right;"> 3989.3 </td>
+   <td style="text-align:right;"> 4117.3 </td>
+   <td style="text-align:right;"> 4071.35 </td>
+   <td style="text-align:right;"> 1462 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 100% </td>
-   <td style="text-align:right;"> 6260.0 </td>
-   <td style="text-align:right;"> 6303.00 </td>
-   <td style="text-align:right;"> 5145.0 </td>
-   <td style="text-align:right;"> 6407.00 </td>
+   <td style="text-align:right;"> 6251.0 </td>
+   <td style="text-align:right;"> 6718.0 </td>
+   <td style="text-align:right;"> 5395.00 </td>
+   <td style="text-align:right;"> 3336 </td>
   </tr>
 </tbody>
 </table>
@@ -220,159 +220,159 @@ kable(do.call("cbind", tapply(experiment.aggregate$nCount_RNA,
  <thead>
   <tr>
    <th style="text-align:left;">   </th>
-   <th style="text-align:right;"> PBMC2 </th>
-   <th style="text-align:right;"> PBMC3 </th>
-   <th style="text-align:right;"> T021PBMC </th>
-   <th style="text-align:right;"> T022PBMC </th>
+   <th style="text-align:right;"> conv_COVID </th>
+   <th style="text-align:right;"> conv_MMR </th>
+   <th style="text-align:right;"> conv_Tdap </th>
+   <th style="text-align:right;"> norm_COVID </th>
   </tr>
  </thead>
 <tbody>
   <tr>
    <td style="text-align:left;"> 0% </td>
-   <td style="text-align:right;"> 364.00 </td>
-   <td style="text-align:right;"> 387.00 </td>
-   <td style="text-align:right;"> 408.00 </td>
-   <td style="text-align:right;"> 415.00 </td>
+   <td style="text-align:right;"> 394.0 </td>
+   <td style="text-align:right;"> 392.0 </td>
+   <td style="text-align:right;"> 397.00 </td>
+   <td style="text-align:right;"> 410 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 5% </td>
-   <td style="text-align:right;"> 431.00 </td>
-   <td style="text-align:right;"> 616.15 </td>
-   <td style="text-align:right;"> 700.00 </td>
-   <td style="text-align:right;"> 1068.40 </td>
+   <td style="text-align:right;"> 1021.5 </td>
+   <td style="text-align:right;"> 992.0 </td>
+   <td style="text-align:right;"> 1020.85 </td>
+   <td style="text-align:right;"> 653 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 10% </td>
-   <td style="text-align:right;"> 455.00 </td>
-   <td style="text-align:right;"> 797.00 </td>
-   <td style="text-align:right;"> 1020.00 </td>
-   <td style="text-align:right;"> 1673.40 </td>
+   <td style="text-align:right;"> 1481.2 </td>
+   <td style="text-align:right;"> 1429.0 </td>
+   <td style="text-align:right;"> 1493.00 </td>
+   <td style="text-align:right;"> 838 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 15% </td>
-   <td style="text-align:right;"> 482.00 </td>
-   <td style="text-align:right;"> 1008.00 </td>
-   <td style="text-align:right;"> 1514.00 </td>
-   <td style="text-align:right;"> 2617.15 </td>
+   <td style="text-align:right;"> 1882.1 </td>
+   <td style="text-align:right;"> 1730.0 </td>
+   <td style="text-align:right;"> 1844.00 </td>
+   <td style="text-align:right;"> 1004 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 20% </td>
-   <td style="text-align:right;"> 513.00 </td>
-   <td style="text-align:right;"> 1287.00 </td>
-   <td style="text-align:right;"> 2235.00 </td>
-   <td style="text-align:right;"> 3268.20 </td>
+   <td style="text-align:right;"> 2241.4 </td>
+   <td style="text-align:right;"> 2028.4 </td>
+   <td style="text-align:right;"> 2300.00 </td>
+   <td style="text-align:right;"> 1168 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 25% </td>
-   <td style="text-align:right;"> 556.25 </td>
-   <td style="text-align:right;"> 1640.25 </td>
-   <td style="text-align:right;"> 2808.00 </td>
-   <td style="text-align:right;"> 3648.75 </td>
+   <td style="text-align:right;"> 2797.5 </td>
+   <td style="text-align:right;"> 2455.5 </td>
+   <td style="text-align:right;"> 2858.25 </td>
+   <td style="text-align:right;"> 1347 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 30% </td>
-   <td style="text-align:right;"> 630.00 </td>
-   <td style="text-align:right;"> 2024.00 </td>
-   <td style="text-align:right;"> 3135.00 </td>
-   <td style="text-align:right;"> 3923.10 </td>
+   <td style="text-align:right;"> 3858.0 </td>
+   <td style="text-align:right;"> 2969.0 </td>
+   <td style="text-align:right;"> 4028.20 </td>
+   <td style="text-align:right;"> 1553 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 35% </td>
-   <td style="text-align:right;"> 745.55 </td>
-   <td style="text-align:right;"> 2389.05 </td>
-   <td style="text-align:right;"> 3348.00 </td>
-   <td style="text-align:right;"> 4157.45 </td>
+   <td style="text-align:right;"> 5685.3 </td>
+   <td style="text-align:right;"> 4249.1 </td>
+   <td style="text-align:right;"> 6007.75 </td>
+   <td style="text-align:right;"> 1858 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 40% </td>
-   <td style="text-align:right;"> 894.00 </td>
-   <td style="text-align:right;"> 2743.40 </td>
-   <td style="text-align:right;"> 3520.00 </td>
-   <td style="text-align:right;"> 4363.80 </td>
+   <td style="text-align:right;"> 7320.6 </td>
+   <td style="text-align:right;"> 6444.2 </td>
+   <td style="text-align:right;"> 7485.20 </td>
+   <td style="text-align:right;"> 2026 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 45% </td>
-   <td style="text-align:right;"> 1035.00 </td>
-   <td style="text-align:right;"> 3066.35 </td>
-   <td style="text-align:right;"> 3682.05 </td>
-   <td style="text-align:right;"> 4559.15 </td>
+   <td style="text-align:right;"> 8346.0 </td>
+   <td style="text-align:right;"> 7825.1 </td>
+   <td style="text-align:right;"> 8602.00 </td>
+   <td style="text-align:right;"> 2172 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 50% </td>
-   <td style="text-align:right;"> 1156.00 </td>
-   <td style="text-align:right;"> 3398.50 </td>
-   <td style="text-align:right;"> 3830.00 </td>
-   <td style="text-align:right;"> 4752.00 </td>
+   <td style="text-align:right;"> 9222.0 </td>
+   <td style="text-align:right;"> 8914.0 </td>
+   <td style="text-align:right;"> 9479.00 </td>
+   <td style="text-align:right;"> 2288 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 55% </td>
-   <td style="text-align:right;"> 1286.00 </td>
-   <td style="text-align:right;"> 3784.65 </td>
-   <td style="text-align:right;"> 3973.00 </td>
-   <td style="text-align:right;"> 4930.85 </td>
+   <td style="text-align:right;"> 10050.1 </td>
+   <td style="text-align:right;"> 9685.4 </td>
+   <td style="text-align:right;"> 10240.95 </td>
+   <td style="text-align:right;"> 2384 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 60% </td>
-   <td style="text-align:right;"> 1451.00 </td>
-   <td style="text-align:right;"> 4210.80 </td>
-   <td style="text-align:right;"> 4125.40 </td>
-   <td style="text-align:right;"> 5121.20 </td>
+   <td style="text-align:right;"> 10834.0 </td>
+   <td style="text-align:right;"> 10649.2 </td>
+   <td style="text-align:right;"> 11206.60 </td>
+   <td style="text-align:right;"> 2521 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 65% </td>
-   <td style="text-align:right;"> 1659.00 </td>
-   <td style="text-align:right;"> 4684.95 </td>
-   <td style="text-align:right;"> 4293.85 </td>
-   <td style="text-align:right;"> 5336.20 </td>
+   <td style="text-align:right;"> 11821.5 </td>
+   <td style="text-align:right;"> 11633.1 </td>
+   <td style="text-align:right;"> 12141.35 </td>
+   <td style="text-align:right;"> 2681 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 70% </td>
-   <td style="text-align:right;"> 1936.10 </td>
-   <td style="text-align:right;"> 5279.00 </td>
-   <td style="text-align:right;"> 4483.00 </td>
-   <td style="text-align:right;"> 5582.00 </td>
+   <td style="text-align:right;"> 12781.0 </td>
+   <td style="text-align:right;"> 12799.6 </td>
+   <td style="text-align:right;"> 13170.80 </td>
+   <td style="text-align:right;"> 2890 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 75% </td>
-   <td style="text-align:right;"> 2315.75 </td>
-   <td style="text-align:right;"> 5940.75 </td>
-   <td style="text-align:right;"> 4696.50 </td>
-   <td style="text-align:right;"> 5847.25 </td>
+   <td style="text-align:right;"> 13934.0 </td>
+   <td style="text-align:right;"> 13752.0 </td>
+   <td style="text-align:right;"> 14181.00 </td>
+   <td style="text-align:right;"> 3092 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 80% </td>
-   <td style="text-align:right;"> 2810.00 </td>
-   <td style="text-align:right;"> 6852.80 </td>
-   <td style="text-align:right;"> 4989.00 </td>
-   <td style="text-align:right;"> 6211.20 </td>
+   <td style="text-align:right;"> 14956.2 </td>
+   <td style="text-align:right;"> 15047.2 </td>
+   <td style="text-align:right;"> 15545.00 </td>
+   <td style="text-align:right;"> 3354 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 85% </td>
-   <td style="text-align:right;"> 3373.15 </td>
-   <td style="text-align:right;"> 7873.65 </td>
-   <td style="text-align:right;"> 5468.30 </td>
-   <td style="text-align:right;"> 6772.75 </td>
+   <td style="text-align:right;"> 16350.6 </td>
+   <td style="text-align:right;"> 16541.7 </td>
+   <td style="text-align:right;"> 16942.25 </td>
+   <td style="text-align:right;"> 3508 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 90% </td>
-   <td style="text-align:right;"> 3905.40 </td>
-   <td style="text-align:right;"> 9212.70 </td>
-   <td style="text-align:right;"> 6174.10 </td>
-   <td style="text-align:right;"> 7907.60 </td>
+   <td style="text-align:right;"> 18092.6 </td>
+   <td style="text-align:right;"> 18609.8 </td>
+   <td style="text-align:right;"> 18735.90 </td>
+   <td style="text-align:right;"> 3810 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 95% </td>
-   <td style="text-align:right;"> 4857.35 </td>
-   <td style="text-align:right;"> 11522.20 </td>
-   <td style="text-align:right;"> 7717.55 </td>
-   <td style="text-align:right;"> 10940.50 </td>
+   <td style="text-align:right;"> 20486.6 </td>
+   <td style="text-align:right;"> 21617.9 </td>
+   <td style="text-align:right;"> 22126.75 </td>
+   <td style="text-align:right;"> 4173 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 100% </td>
-   <td style="text-align:right;"> 53960.00 </td>
-   <td style="text-align:right;"> 45925.00 </td>
-   <td style="text-align:right;"> 40004.00 </td>
-   <td style="text-align:right;"> 65032.00 </td>
+   <td style="text-align:right;"> 51229.0 </td>
+   <td style="text-align:right;"> 63454.0 </td>
+   <td style="text-align:right;"> 48334.00 </td>
+   <td style="text-align:right;"> 13527 </td>
   </tr>
 </tbody>
 </table>
@@ -389,10 +389,10 @@ kable(round(do.call("cbind", tapply(experiment.aggregate$percent.mito, Idents(ex
  <thead>
   <tr>
    <th style="text-align:left;">   </th>
-   <th style="text-align:right;"> PBMC2 </th>
-   <th style="text-align:right;"> PBMC3 </th>
-   <th style="text-align:right;"> T021PBMC </th>
-   <th style="text-align:right;"> T022PBMC </th>
+   <th style="text-align:right;"> conv_COVID </th>
+   <th style="text-align:right;"> conv_MMR </th>
+   <th style="text-align:right;"> conv_Tdap </th>
+   <th style="text-align:right;"> norm_COVID </th>
   </tr>
  </thead>
 <tbody>
@@ -401,147 +401,147 @@ kable(round(do.call("cbind", tapply(experiment.aggregate$percent.mito, Idents(ex
    <td style="text-align:right;"> 0.000 </td>
    <td style="text-align:right;"> 0.000 </td>
    <td style="text-align:right;"> 0.000 </td>
-   <td style="text-align:right;"> 0.000 </td>
+   <td style="text-align:right;"> 1.473 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 5% </td>
-   <td style="text-align:right;"> 0.170 </td>
-   <td style="text-align:right;"> 0.901 </td>
-   <td style="text-align:right;"> 1.297 </td>
-   <td style="text-align:right;"> 0.857 </td>
+   <td style="text-align:right;"> 0.197 </td>
+   <td style="text-align:right;"> 0.272 </td>
+   <td style="text-align:right;"> 0.238 </td>
+   <td style="text-align:right;"> 2.678 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 10% </td>
-   <td style="text-align:right;"> 0.433 </td>
-   <td style="text-align:right;"> 1.193 </td>
-   <td style="text-align:right;"> 1.544 </td>
-   <td style="text-align:right;"> 1.025 </td>
+   <td style="text-align:right;"> 0.281 </td>
+   <td style="text-align:right;"> 0.364 </td>
+   <td style="text-align:right;"> 0.307 </td>
+   <td style="text-align:right;"> 3.008 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 15% </td>
-   <td style="text-align:right;"> 0.760 </td>
-   <td style="text-align:right;"> 1.450 </td>
-   <td style="text-align:right;"> 1.736 </td>
-   <td style="text-align:right;"> 1.137 </td>
+   <td style="text-align:right;"> 0.342 </td>
+   <td style="text-align:right;"> 0.452 </td>
+   <td style="text-align:right;"> 0.364 </td>
+   <td style="text-align:right;"> 3.272 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 20% </td>
-   <td style="text-align:right;"> 1.107 </td>
-   <td style="text-align:right;"> 1.627 </td>
-   <td style="text-align:right;"> 1.894 </td>
-   <td style="text-align:right;"> 1.247 </td>
+   <td style="text-align:right;"> 0.389 </td>
+   <td style="text-align:right;"> 0.529 </td>
+   <td style="text-align:right;"> 0.425 </td>
+   <td style="text-align:right;"> 3.487 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 25% </td>
-   <td style="text-align:right;"> 1.452 </td>
-   <td style="text-align:right;"> 1.811 </td>
-   <td style="text-align:right;"> 2.033 </td>
-   <td style="text-align:right;"> 1.341 </td>
+   <td style="text-align:right;"> 0.442 </td>
+   <td style="text-align:right;"> 0.598 </td>
+   <td style="text-align:right;"> 0.484 </td>
+   <td style="text-align:right;"> 3.678 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 30% </td>
-   <td style="text-align:right;"> 1.795 </td>
-   <td style="text-align:right;"> 1.996 </td>
-   <td style="text-align:right;"> 2.183 </td>
-   <td style="text-align:right;"> 1.431 </td>
+   <td style="text-align:right;"> 0.504 </td>
+   <td style="text-align:right;"> 0.669 </td>
+   <td style="text-align:right;"> 0.553 </td>
+   <td style="text-align:right;"> 3.878 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 35% </td>
-   <td style="text-align:right;"> 2.144 </td>
-   <td style="text-align:right;"> 2.187 </td>
-   <td style="text-align:right;"> 2.317 </td>
-   <td style="text-align:right;"> 1.523 </td>
+   <td style="text-align:right;"> 0.568 </td>
+   <td style="text-align:right;"> 0.746 </td>
+   <td style="text-align:right;"> 0.615 </td>
+   <td style="text-align:right;"> 4.091 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 40% </td>
-   <td style="text-align:right;"> 2.560 </td>
-   <td style="text-align:right;"> 2.376 </td>
-   <td style="text-align:right;"> 2.450 </td>
-   <td style="text-align:right;"> 1.609 </td>
+   <td style="text-align:right;"> 0.622 </td>
+   <td style="text-align:right;"> 0.834 </td>
+   <td style="text-align:right;"> 0.691 </td>
+   <td style="text-align:right;"> 4.264 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 45% </td>
-   <td style="text-align:right;"> 3.045 </td>
-   <td style="text-align:right;"> 2.577 </td>
-   <td style="text-align:right;"> 2.583 </td>
-   <td style="text-align:right;"> 1.700 </td>
+   <td style="text-align:right;"> 0.689 </td>
+   <td style="text-align:right;"> 0.931 </td>
+   <td style="text-align:right;"> 0.767 </td>
+   <td style="text-align:right;"> 4.547 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 50% </td>
-   <td style="text-align:right;"> 3.598 </td>
-   <td style="text-align:right;"> 2.795 </td>
-   <td style="text-align:right;"> 2.731 </td>
-   <td style="text-align:right;"> 1.798 </td>
+   <td style="text-align:right;"> 0.773 </td>
+   <td style="text-align:right;"> 1.037 </td>
+   <td style="text-align:right;"> 0.868 </td>
+   <td style="text-align:right;"> 4.769 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 55% </td>
-   <td style="text-align:right;"> 4.193 </td>
-   <td style="text-align:right;"> 3.010 </td>
-   <td style="text-align:right;"> 2.893 </td>
-   <td style="text-align:right;"> 1.902 </td>
+   <td style="text-align:right;"> 0.857 </td>
+   <td style="text-align:right;"> 1.150 </td>
+   <td style="text-align:right;"> 0.979 </td>
+   <td style="text-align:right;"> 5.026 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 60% </td>
-   <td style="text-align:right;"> 4.878 </td>
-   <td style="text-align:right;"> 3.268 </td>
-   <td style="text-align:right;"> 3.060 </td>
-   <td style="text-align:right;"> 2.028 </td>
+   <td style="text-align:right;"> 0.964 </td>
+   <td style="text-align:right;"> 1.256 </td>
+   <td style="text-align:right;"> 1.119 </td>
+   <td style="text-align:right;"> 5.352 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 65% </td>
-   <td style="text-align:right;"> 5.556 </td>
-   <td style="text-align:right;"> 3.548 </td>
-   <td style="text-align:right;"> 3.261 </td>
-   <td style="text-align:right;"> 2.167 </td>
+   <td style="text-align:right;"> 1.082 </td>
+   <td style="text-align:right;"> 1.468 </td>
+   <td style="text-align:right;"> 1.274 </td>
+   <td style="text-align:right;"> 5.731 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 70% </td>
-   <td style="text-align:right;"> 6.326 </td>
-   <td style="text-align:right;"> 3.865 </td>
-   <td style="text-align:right;"> 3.505 </td>
-   <td style="text-align:right;"> 2.337 </td>
+   <td style="text-align:right;"> 1.247 </td>
+   <td style="text-align:right;"> 1.772 </td>
+   <td style="text-align:right;"> 1.567 </td>
+   <td style="text-align:right;"> 6.177 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 75% </td>
-   <td style="text-align:right;"> 7.135 </td>
-   <td style="text-align:right;"> 4.287 </td>
-   <td style="text-align:right;"> 3.810 </td>
-   <td style="text-align:right;"> 2.560 </td>
+   <td style="text-align:right;"> 1.563 </td>
+   <td style="text-align:right;"> 2.503 </td>
+   <td style="text-align:right;"> 1.974 </td>
+   <td style="text-align:right;"> 6.914 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 80% </td>
-   <td style="text-align:right;"> 8.255 </td>
-   <td style="text-align:right;"> 4.831 </td>
-   <td style="text-align:right;"> 4.220 </td>
-   <td style="text-align:right;"> 2.841 </td>
+   <td style="text-align:right;"> 2.140 </td>
+   <td style="text-align:right;"> 3.562 </td>
+   <td style="text-align:right;"> 2.752 </td>
+   <td style="text-align:right;"> 7.943 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 85% </td>
-   <td style="text-align:right;"> 9.867 </td>
-   <td style="text-align:right;"> 5.667 </td>
-   <td style="text-align:right;"> 4.785 </td>
-   <td style="text-align:right;"> 3.369 </td>
+   <td style="text-align:right;"> 3.229 </td>
+   <td style="text-align:right;"> 4.814 </td>
+   <td style="text-align:right;"> 4.213 </td>
+   <td style="text-align:right;"> 9.243 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 90% </td>
-   <td style="text-align:right;"> 13.351 </td>
-   <td style="text-align:right;"> 7.015 </td>
-   <td style="text-align:right;"> 5.807 </td>
-   <td style="text-align:right;"> 4.363 </td>
+   <td style="text-align:right;"> 4.496 </td>
+   <td style="text-align:right;"> 6.796 </td>
+   <td style="text-align:right;"> 5.921 </td>
+   <td style="text-align:right;"> 11.608 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 95% </td>
-   <td style="text-align:right;"> 19.802 </td>
-   <td style="text-align:right;"> 9.943 </td>
-   <td style="text-align:right;"> 8.575 </td>
-   <td style="text-align:right;"> 7.221 </td>
+   <td style="text-align:right;"> 7.490 </td>
+   <td style="text-align:right;"> 8.849 </td>
+   <td style="text-align:right;"> 9.446 </td>
+   <td style="text-align:right;"> 14.417 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 100% </td>
-   <td style="text-align:right;"> 66.956 </td>
-   <td style="text-align:right;"> 64.033 </td>
-   <td style="text-align:right;"> 58.654 </td>
-   <td style="text-align:right;"> 64.962 </td>
+   <td style="text-align:right;"> 20.332 </td>
+   <td style="text-align:right;"> 43.994 </td>
+   <td style="text-align:right;"> 48.264 </td>
+   <td style="text-align:right;"> 23.400 </td>
   </tr>
 </tbody>
 </table>
@@ -557,7 +557,7 @@ VlnPlot(
 
 ![](scRNA_Workshop-PART2_files/figure-html/violins-1.png)<!-- -->
 
-plot ridgeplots of the same data
+plot ridge plots of the same data
 
 
 ```r
@@ -566,10 +566,10 @@ RidgePlot(experiment.aggregate, features=c("nFeature_RNA","nCount_RNA", "percent
 
 ![](scRNA_Workshop-PART2_files/figure-html/ridgeplot_pre-1.png)<!-- -->
 
-Plot the distribution of number of cells each gene is represented by
+Plot the distribution of number of cells each gene is represented by.
 
 ```r
-plot(sort(Matrix::rowSums(GetAssayData(experiment.aggregate) >= 3)) , xlab="gene rank", ylab="number of cells", main="Cells per genes (reads/gene >= 3 )")
+plot(sort(Matrix::rowSums(GetAssayData(experiment.aggregate) >= 3), decreasing = TRUE) , xlab="gene rank", ylab="number of cells", main="Cells per genes (reads/gene >= 3 )")
 ```
 
 ![](scRNA_Workshop-PART2_files/figure-html/gene_range-1.png)<!-- -->
@@ -580,13 +580,13 @@ Gene Plot, scatter plot of gene expression across cells, (colored by sample), dr
 
 
 ```r
-FeatureScatter(experiment.aggregate, feature1 = "nCount_RNA", feature2 = "percent.mito") + geom_vline(xintercept = c(1000,12000)) + geom_hline(yintercept = 8)
+FeatureScatter(experiment.aggregate, feature1 = "nCount_RNA", feature2 = "percent.mito", shuffle = TRUE) + geom_vline(xintercept = c(1000,12000)) + geom_hline(yintercept = 8)
 ```
 
 ![](scRNA_Workshop-PART2_files/figure-html/relationships-1.png)<!-- -->
 
 ```r
-FeatureScatter(experiment.aggregate, feature1 = "nFeature_RNA", feature2 = "percent.mito") + geom_vline(xintercept = 700) + geom_hline(yintercept = 8)
+FeatureScatter(experiment.aggregate, feature1 = "nFeature_RNA", feature2 = "percent.mito", shuffle = TRUE) + geom_vline(xintercept = 700) + geom_hline(yintercept = 8)
 ```
 
 ![](scRNA_Workshop-PART2_files/figure-html/relationships-2.png)<!-- -->
@@ -594,7 +594,7 @@ FeatureScatter(experiment.aggregate, feature1 = "nFeature_RNA", feature2 = "perc
 ```r
 FeatureScatter(
   experiment.aggregate, "nCount_RNA", "nFeature_RNA",
-  pt.size = 0.5)  + geom_vline(xintercept = c(1000,12000)) + geom_hline(yintercept = 700)
+  pt.size = 0.5, shuffle = TRUE)  + geom_vline(xintercept = c(1000,12000)) + geom_hline(yintercept = 700)
 ```
 
 ![](scRNA_Workshop-PART2_files/figure-html/relationships-3.png)<!-- -->
@@ -609,8 +609,8 @@ table(experiment.aggregate$orig.ident)
 ```
 
 <div class='r_output'> 
-    PBMC2    PBMC3 T021PBMC T022PBMC 
-     8994     7304     8310     5088
+ conv_COVID   conv_MMR  conv_Tdap norm_COVID 
+       1415       1875       1612        901
 </div>
 ```r
 experiment.aggregate <- subset(experiment.aggregate, percent.mito <= 8)
@@ -623,7 +623,7 @@ experiment.aggregate
 ```
 
 <div class='r_output'> An object of class Seurat 
- 36601 features across 19874 samples within 1 assay 
+ 36601 features across 3343 samples within 1 assay 
  Active assay: RNA (36601 features, 0 variable features)
 </div>
 ```r
@@ -631,10 +631,10 @@ table(experiment.aggregate$orig.ident)
 ```
 
 <div class='r_output'> 
-    PBMC2    PBMC3 T021PBMC T022PBMC 
-     3096     5293     7017     4468
+ conv_COVID   conv_MMR  conv_Tdap norm_COVID 
+        793       1033        859        658
 </div>
-Lets se the ridgeplots now after filtering
+Lets se the ridge plots now after filtering
 
 ```r
 RidgePlot(experiment.aggregate, features=c("nFeature_RNA","nCount_RNA", "percent.mito"), ncol = 2)
@@ -648,13 +648,6 @@ When creating the base Seurat object we did filter out some genes, recall _Keep 
 
 ```r
 experiment.aggregate
-```
-
-<div class='r_output'> An object of class Seurat 
- 36601 features across 19874 samples within 1 assay 
- Active assay: RNA (36601 features, 0 variable features)
-</div>
-```r
 FilterGenes <-
  function (object, min.value=1, min.cells = 0, genes = NULL) {
    genes.use <- rownames(object)
@@ -672,35 +665,9 @@ FilterGenes <-
 
 experiment.aggregate.genes <- FilterGenes(object = experiment.aggregate, min.value = 1, min.cells = 400)
 experiment.aggregate.genes
-```
-
-<div class='r_output'> An object of class Seurat 
- 3390 features across 19874 samples within 1 assay 
- Active assay: RNA (3390 features, 0 variable features)
-</div>
-```r
 rm(experiment.aggregate.genes)
 ```
 
-## FOR THIS WORKSHOP ONLY: Lets reduce the dataset down to 1000 cells per sample for time
-
-```r
-table(Idents(experiment.aggregate))
-```
-
-<div class='r_output'> 
-    PBMC2    PBMC3 T021PBMC T022PBMC 
-     3096     5293     7017     4468
-</div>
-```r
-experiment.aggregate <- experiment.aggregate[,unlist(sapply(split(seq_along(Cells(experiment.aggregate)), experiment.aggregate$orig.ident), sample, size=1000, simplify = F))]
-table(Idents(experiment.aggregate))
-```
-
-<div class='r_output'> 
-    PBMC2    PBMC3 T021PBMC T022PBMC 
-     1000     1000     1000     1000
-</div>
 ## Next we want to normalize the data
 
 After filtering out cells from the dataset, the next step is to normalize the data. By default, we employ a global-scaling normalization method LogNormalize that normalizes the gene expression measurements for each cell by the total expression, multiplies this by a scale factor (10,000 by default), and then log-transforms the data.
@@ -721,43 +688,19 @@ experiment.aggregate <- NormalizeData(
 ### Calculate Cell-Cycle with Seurat, the list of genes comes with Seurat (only for human)
 [Dissecting the multicellular ecosystem of metastatic melanoma by single-cell RNA-seq](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4944528/)
 
-First need to convert to mouse symbols, we'll use Biomart for that too.
 
 ```r
-# Mouse Code
-# convertHumanGeneList <- function(x){
-#   require("biomaRt")
-#   human = useEnsembl("ensembl", dataset = "hsapiens_gene_ensembl", mirror = "uswest")
-#   mouse = useEnsembl("ensembl", dataset = "mmusculus_gene_ensembl", mirror = "uswest")
-# 
-#   genes = getLDS(attributes = c("hgnc_symbol"), filters = "hgnc_symbol", values = x , mart = human, attributesL = c("mgi_symbol"), martL = mouse, uniqueRows=T)
-# 
-#   humanx <- unique(genes[, 2])
-# 
-#   # Print the first 6 genes found to the screen
-#   print(head(humanx))
-#   return(humanx)
-# }
-# 
-# m.s.genes <- convertHumanGeneList(cc.genes.updated.2019$s.genes)
-# m.g2m.genes <- convertHumanGeneList(cc.genes.updated.2019$g2m.genes)
-# 
-# # Create our Seurat object and complete the initialization steps
-# experiment.aggregate <- CellCycleScoring(experiment.aggregate, s.features = m.s.genes, g2m.features = m.g2m.genes, set.ident = TRUE)
-
-# Human Code
+# this code is for human samples only!
 s.genes <- (cc.genes$s.genes)
 g2m.genes <- (cc.genes$g2m.genes)
 
-# Create our Seurat object and complete the initialization steps
-experiment.aggregate <- CellCycleScoring(experiment.aggregate, s.features = s.genes, g2m.features = g2m.genes, set.ident = TRUE)
-```
-
-#### Table of cell cycle (seurate)
-
-
-```r
-table(experiment.aggregate@meta.data$Phase) %>% kable(caption = "Number of Cells in each Cell Cycle Stage", col.names = c("Stage", "Count"), align = "c") %>% kable_styling()
+experiment.aggregate <- CellCycleScoring(experiment.aggregate,
+                                         s.features = s.genes,
+                                         g2m.features = g2m.genes,
+                                         set.ident = TRUE)
+table(experiment.aggregate@meta.data$Phase) %>%
+  kable(caption = "Number of Cells in each Cell Cycle Stage", col.names = c("Stage", "Count"), align = "c") %>%
+  kable_styling()
 ```
 
 <table class="table" style="margin-left: auto; margin-right: auto;">
@@ -771,18 +714,46 @@ table(experiment.aggregate@meta.data$Phase) %>% kable(caption = "Number of Cells
 <tbody>
   <tr>
    <td style="text-align:center;"> G1 </td>
-   <td style="text-align:center;"> 1676 </td>
+   <td style="text-align:center;"> 1072 </td>
   </tr>
   <tr>
    <td style="text-align:center;"> G2M </td>
-   <td style="text-align:center;"> 898 </td>
+   <td style="text-align:center;"> 1486 </td>
   </tr>
   <tr>
    <td style="text-align:center;"> S </td>
-   <td style="text-align:center;"> 1426 </td>
+   <td style="text-align:center;"> 785 </td>
   </tr>
 </tbody>
 </table>
+
+For mouse data, we would need to convert the gene lists from human genes to their mouse orthologs using Biomart. **Skip this code for the workshop data.**
+
+
+```r
+# Mouse Code DO NOT RUN
+convertHumanGeneList <- function(x){
+  require("biomaRt")
+  human = useEnsembl("ensembl", dataset = "hsapiens_gene_ensembl", mirror = "uswest")
+  mouse = useEnsembl("ensembl", dataset = "mmusculus_gene_ensembl", mirror = "uswest")
+
+  genes = getLDS(attributes = c("hgnc_symbol"), filters = "hgnc_symbol", values = x , mart = human, attributesL = c("mgi_symbol"), martL = mouse, uniqueRows=T)
+
+  humanx <- unique(genes[, 2])
+
+  # Print the first 6 genes found to the screen
+  print(head(humanx))
+  return(humanx)
+}
+
+m.s.genes <- convertHumanGeneList(cc.genes.updated.2019$s.genes)
+m.g2m.genes <- convertHumanGeneList(cc.genes.updated.2019$g2m.genes)
+
+# Create our Seurat object and complete the initialization steps
+experiment.aggregate <- CellCycleScoring(experiment.aggregate, s.features = m.s.genes, g2m.features = m.g2m.genes, set.ident = TRUE)
+
+table(experiment.aggregate@meta.data$Phase) %>% kable(caption = "Number of Cells in each Cell Cycle Stage", col.names = c("Stage", "Count"), align = "c") %>% kable_styling()
+```
 
 #### Fixing the defualt "Ident" in Seurat
 
@@ -792,18 +763,18 @@ table(Idents(experiment.aggregate))
 ```
 
 <div class='r_output'> 
-  G2M    S   G1 
-  898 1426 1676
+   G1    S  G2M 
+ 1072  785 1486
 </div>
 ```r
-## So lets change it back to samplename
+## So lets change it back to sample name
 Idents(experiment.aggregate) <- "orig.ident"
 table(Idents(experiment.aggregate))
 ```
 
 <div class='r_output'> 
-    PBMC2    PBMC3 T021PBMC T022PBMC 
-     1000     1000     1000     1000
+ conv_COVID   conv_MMR  conv_Tdap norm_COVID 
+        793       1033        859        658
 </div>
 
 ## Identify variable genes
@@ -832,8 +803,8 @@ top10 <- head(VariableFeatures(experiment.aggregate), 10)
 top10
 ```
 
-<div class='r_output'>  [1] "HBB"     "C1QB"    "C1QA"    "HBA2"    "PTGDS"   "HBA1"    "CCL4"   
-  [8] "C1QC"    "PPBP"    "TRBV7-2"
+<div class='r_output'>  [1] "CCL4L2"  "IL3"     "CCL4"    "CCL3"    "GEM"     "IFNG"    "CSF2"   
+  [8] "CCL20"   "XCL2"    "TRBV4-2"
 </div>
 ```r
 vfp1 <- VariableFeaturePlot(experiment.aggregate)
@@ -843,14 +814,14 @@ vfp1
 
 ![](scRNA_Workshop-PART2_files/figure-html/find_variable_genes-1.png)<!-- -->
 
-Instead of using the variable genes function, lets instead assign to variable genes to a set of "minimally expressed" genes.
+FindVariableFeatures isn't the only way to set the "variable features" of a Seurat object. Another reasonable approach is to select a set of "minimally expressed" genes.
 
 
 ```r
 dim(experiment.aggregate)
 ```
 
-<div class='r_output'> [1] 36601  4000
+<div class='r_output'> [1] 36601  3343
 </div>
 ```r
 min.value = 2
@@ -860,7 +831,7 @@ genes.use <- names(num.cells[which(num.cells >= min.cells)])
 length(genes.use)
 ```
 
-<div class='r_output'> [1] 3783
+<div class='r_output'> [1] 3941
 </div>
 ```r
 VariableFeatures(experiment.aggregate) <- genes.use
@@ -882,7 +853,7 @@ save(experiment.aggregate, file="pre_sample_corrected.RData")
 ## Get the next Rmd file
 
 ```r
-download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2021-August-Single-Cell-RNA-Seq-Analysis/master/data_analysis/scRNA_Workshop-PART3.Rmd", "scRNA_Workshop-PART3.Rmd")
+download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-March-Single-Cell-RNA-Seq-Analysis/main/data_analysis/scRNA_Workshop-PART3.Rmd", "scRNA_Workshop-PART3.Rmd")
 ```
 
 ## Session Information
@@ -891,13 +862,13 @@ download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training
 sessionInfo()
 ```
 
-<div class='r_output'> R version 4.0.3 (2020-10-10)
- Platform: x86_64-apple-darwin17.0 (64-bit)
- Running under: macOS Big Sur 10.16
+<div class='r_output'> R version 4.1.2 (2021-11-01)
+ Platform: aarch64-apple-darwin20 (64-bit)
+ Running under: macOS Monterey 12.0.1
  
  Matrix products: default
- BLAS:   /Library/Frameworks/R.framework/Versions/4.0/Resources/lib/libRblas.dylib
- LAPACK: /Library/Frameworks/R.framework/Versions/4.0/Resources/lib/libRlapack.dylib
+ BLAS:   /Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/lib/libRblas.0.dylib
+ LAPACK: /Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/lib/libRlapack.dylib
  
  locale:
  [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
@@ -906,55 +877,58 @@ sessionInfo()
  [1] stats     graphics  grDevices utils     datasets  methods   base     
  
  other attached packages:
- [1] kableExtra_1.3.4   knitr_1.31         ggplot2_3.3.3      biomaRt_2.44.4    
- [5] SeuratObject_4.0.0 Seurat_4.0.1      
+ [1] kableExtra_1.3.4   knitr_1.37         ggplot2_3.3.5      biomaRt_2.50.3    
+ [5] SeuratObject_4.0.4 Seurat_4.1.0      
  
  loaded via a namespace (and not attached):
-   [1] systemfonts_1.0.1     BiocFileCache_1.12.1  plyr_1.8.6           
-   [4] igraph_1.2.6          lazyeval_0.2.2        splines_4.0.3        
-   [7] listenv_0.8.0         scattermore_0.7       digest_0.6.27        
-  [10] htmltools_0.5.1.1     fansi_0.4.2           magrittr_2.0.1       
-  [13] memoise_2.0.0         tensor_1.5            cluster_2.1.1        
-  [16] ROCR_1.0-11           globals_0.14.0        matrixStats_0.58.0   
-  [19] svglite_2.0.0         askpass_1.1           spatstat.sparse_2.0-0
-  [22] prettyunits_1.1.1     colorspace_2.0-0      rvest_1.0.0          
-  [25] blob_1.2.1            rappdirs_0.3.3        ggrepel_0.9.1        
-  [28] xfun_0.22             dplyr_1.0.5           crayon_1.4.1         
-  [31] jsonlite_1.7.2        spatstat.data_2.1-0   survival_3.2-10      
-  [34] zoo_1.8-9             glue_1.4.2            polyclip_1.10-0      
-  [37] gtable_0.3.0          webshot_0.5.2         leiden_0.3.7         
-  [40] future.apply_1.7.0    BiocGenerics_0.34.0   abind_1.4-5          
-  [43] scales_1.1.1          DBI_1.1.1             miniUI_0.1.1.1       
-  [46] Rcpp_1.0.6            viridisLite_0.3.0     xtable_1.8-4         
-  [49] progress_1.2.2        reticulate_1.18       spatstat.core_2.0-0  
-  [52] bit_4.0.4             stats4_4.0.3          htmlwidgets_1.5.3    
-  [55] httr_1.4.2            RColorBrewer_1.1-2    ellipsis_0.3.1       
-  [58] ica_1.0-2             farver_2.1.0          pkgconfig_2.0.3      
-  [61] XML_3.99-0.6          sass_0.3.1            uwot_0.1.10          
-  [64] dbplyr_2.1.0          deldir_0.2-10         utf8_1.2.1           
-  [67] labeling_0.4.2        tidyselect_1.1.0      rlang_0.4.10         
-  [70] reshape2_1.4.4        later_1.1.0.1         AnnotationDbi_1.50.3 
-  [73] munsell_0.5.0         tools_4.0.3           cachem_1.0.4         
-  [76] generics_0.1.0        RSQLite_2.2.4         ggridges_0.5.3       
-  [79] evaluate_0.14         stringr_1.4.0         fastmap_1.1.0        
-  [82] yaml_2.2.1            goftest_1.2-2         bit64_4.0.5          
-  [85] fitdistrplus_1.1-3    purrr_0.3.4           RANN_2.6.1           
-  [88] pbapply_1.4-3         future_1.21.0         nlme_3.1-152         
-  [91] mime_0.10             xml2_1.3.2            compiler_4.0.3       
-  [94] rstudioapi_0.13       plotly_4.9.3          curl_4.3             
-  [97] png_0.1-7             spatstat.utils_2.1-0  tibble_3.1.0         
- [100] bslib_0.2.4           stringi_1.5.3         highr_0.8            
- [103] lattice_0.20-41       Matrix_1.3-2          vctrs_0.3.6          
- [106] pillar_1.5.1          lifecycle_1.0.0       spatstat.geom_2.0-1  
- [109] lmtest_0.9-38         jquerylib_0.1.3       RcppAnnoy_0.0.18     
- [112] data.table_1.14.0     cowplot_1.1.1         irlba_2.3.3          
- [115] httpuv_1.5.5          patchwork_1.1.1       R6_2.5.0             
- [118] promises_1.2.0.1      KernSmooth_2.23-18    gridExtra_2.3        
- [121] IRanges_2.22.2        parallelly_1.24.0     codetools_0.2-18     
- [124] MASS_7.3-53.1         assertthat_0.2.1      openssl_1.4.3        
- [127] withr_2.4.1           sctransform_0.3.2     S4Vectors_0.26.1     
- [130] mgcv_1.8-34           parallel_4.0.3        hms_1.0.0            
- [133] grid_4.0.3            rpart_4.1-15          tidyr_1.1.3          
- [136] rmarkdown_2.7         Rtsne_0.15            Biobase_2.48.0       
- [139] shiny_1.6.0
+   [1] systemfonts_1.0.4      BiocFileCache_2.2.1    plyr_1.8.6            
+   [4] igraph_1.2.11          lazyeval_0.2.2         splines_4.1.2         
+   [7] listenv_0.8.0          scattermore_0.8        GenomeInfoDb_1.30.1   
+  [10] digest_0.6.29          htmltools_0.5.2        fansi_1.0.2           
+  [13] magrittr_2.0.2         memoise_2.0.1          tensor_1.5            
+  [16] cluster_2.1.2          ROCR_1.0-11            globals_0.14.0        
+  [19] Biostrings_2.62.0      matrixStats_0.61.0     svglite_2.1.0         
+  [22] spatstat.sparse_2.1-0  prettyunits_1.1.1      colorspace_2.0-3      
+  [25] rvest_1.0.2            rappdirs_0.3.3         blob_1.2.2            
+  [28] ggrepel_0.9.1          xfun_0.30              dplyr_1.0.8           
+  [31] crayon_1.5.0           RCurl_1.98-1.6         jsonlite_1.8.0        
+  [34] spatstat.data_2.1-2    survival_3.3-1         zoo_1.8-9             
+  [37] glue_1.6.2             polyclip_1.10-0        gtable_0.3.0          
+  [40] zlibbioc_1.40.0        XVector_0.34.0         webshot_0.5.2         
+  [43] leiden_0.3.9           future.apply_1.8.1     BiocGenerics_0.40.0   
+  [46] abind_1.4-5            scales_1.1.1           DBI_1.1.2             
+  [49] spatstat.random_2.1-0  miniUI_0.1.1.1         Rcpp_1.0.8.3          
+  [52] progress_1.2.2         viridisLite_0.4.0      xtable_1.8-4          
+  [55] reticulate_1.24        spatstat.core_2.4-0    bit_4.0.4             
+  [58] stats4_4.1.2           htmlwidgets_1.5.4      httr_1.4.2            
+  [61] RColorBrewer_1.1-2     ellipsis_0.3.2         ica_1.0-2             
+  [64] farver_2.1.0           pkgconfig_2.0.3        XML_3.99-0.9          
+  [67] dbplyr_2.1.1           sass_0.4.0             uwot_0.1.11           
+  [70] deldir_1.0-6           utf8_1.2.2             labeling_0.4.2        
+  [73] tidyselect_1.1.2       rlang_1.0.2            reshape2_1.4.4        
+  [76] later_1.3.0            AnnotationDbi_1.56.2   munsell_0.5.0         
+  [79] tools_4.1.2            cachem_1.0.6           cli_3.2.0             
+  [82] generics_0.1.2         RSQLite_2.2.10         ggridges_0.5.3        
+  [85] evaluate_0.15          stringr_1.4.0          fastmap_1.1.0         
+  [88] yaml_2.3.5             goftest_1.2-3          bit64_4.0.5           
+  [91] fitdistrplus_1.1-8     purrr_0.3.4            RANN_2.6.1            
+  [94] KEGGREST_1.34.0        pbapply_1.5-0          future_1.24.0         
+  [97] nlme_3.1-155           mime_0.12              xml2_1.3.3            
+ [100] compiler_4.1.2         rstudioapi_0.13        filelock_1.0.2        
+ [103] curl_4.3.2             plotly_4.10.0          png_0.1-7             
+ [106] spatstat.utils_2.3-0   tibble_3.1.6           bslib_0.3.1           
+ [109] stringi_1.7.6          highr_0.9              lattice_0.20-45       
+ [112] Matrix_1.4-0           vctrs_0.3.8            pillar_1.7.0          
+ [115] lifecycle_1.0.1        spatstat.geom_2.3-2    lmtest_0.9-39         
+ [118] jquerylib_0.1.4        RcppAnnoy_0.0.19       data.table_1.14.2     
+ [121] cowplot_1.1.1          bitops_1.0-7           irlba_2.3.5           
+ [124] httpuv_1.6.5           patchwork_1.1.1        R6_2.5.1              
+ [127] promises_1.2.0.1       KernSmooth_2.23-20     gridExtra_2.3         
+ [130] IRanges_2.28.0         parallelly_1.30.0      codetools_0.2-18      
+ [133] MASS_7.3-55            assertthat_0.2.1       withr_2.5.0           
+ [136] sctransform_0.3.3      S4Vectors_0.32.3       GenomeInfoDbData_1.2.7
+ [139] hms_1.1.1              mgcv_1.8-39            parallel_4.1.2        
+ [142] grid_4.1.2             rpart_4.1.16           tidyr_1.2.0           
+ [145] rmarkdown_2.13         Rtsne_0.15             Biobase_2.54.0        
+ [148] shiny_1.7.1
 </div>

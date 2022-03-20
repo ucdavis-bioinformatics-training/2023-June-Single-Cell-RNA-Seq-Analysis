@@ -6,7 +6,7 @@ output:
       keep_md: TRUE
 ---
 
-Last Updated: March 23 2021, 5pm
+Last Updated: March 20 2022
 
 # Part 2: Some QA/QC, filtering and normalization
 
@@ -56,7 +56,7 @@ VlnPlot(
   ncol = 1, pt.size = 0.3)
 ```
 
-plot ridgeplots of the same data
+plot ridge plots of the same data
 
 ```{r ridgeplot_pre, warning=FALSE,error=FALSE,message=FALSE}
 RidgePlot(experiment.aggregate, features=c("nFeature_RNA","nCount_RNA", "percent.mito"), ncol = 2)
@@ -86,7 +86,7 @@ FeatureScatter(
 
 We use the information above to filter out cells. Here we choose those that have percent mitochondrial genes max of 8%, unique UMI counts under 1,000 or greater than 12,000 and contain at least 700 features within them.
 
-```{r}
+```{r, cell_filtering, warning=FALSE,error=FALSE,message=FALSE}
 table(experiment.aggregate$orig.ident)
 
 experiment.aggregate <- subset(experiment.aggregate, percent.mito <= 8)
@@ -100,7 +100,7 @@ experiment.aggregate
 table(experiment.aggregate$orig.ident)
 ```
 
-Lets se the ridgeplots now after filtering
+Lets se the ridge plots now after filtering
 ```{r ridgeplot_post, warning=FALSE,error=FALSE,message=FALSE}
 RidgePlot(experiment.aggregate, features=c("nFeature_RNA","nCount_RNA", "percent.mito"), ncol = 2)
 ```
@@ -134,7 +134,7 @@ rm(experiment.aggregate.genes)
 
 After filtering out cells from the dataset, the next step is to normalize the data. By default, we employ a global-scaling normalization method LogNormalize that normalizes the gene expression measurements for each cell by the total expression, multiplies this by a scale factor (10,000 by default), and then log-transforms the data.
 
-```{r normalize_help, warning=FALSE,error=FALSE,message=FALSE, eval=FALSE}
+```{r normalize_help, eval=FALSE}
 ?NormalizeData
 ```
 
@@ -148,7 +148,7 @@ experiment.aggregate <- NormalizeData(
 ### Calculate Cell-Cycle with Seurat, the list of genes comes with Seurat (only for human)
 [Dissecting the multicellular ecosystem of metastatic melanoma by single-cell RNA-seq](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4944528/)
 
-```{r}
+```{r, cell_cycle_human, warning=FALSE,error=FALSE,message=FALSE}
 # this code is for human samples only!
 s.genes <- (cc.genes$s.genes)
 g2m.genes <- (cc.genes$g2m.genes)
@@ -164,7 +164,7 @@ table(experiment.aggregate@meta.data$Phase) %>%
 
 For mouse data, we would need to convert the gene lists from human genes to their mouse orthologs using Biomart. **Skip this code for the workshop data.**
 
-```{r mouse_cellcycle, eval=FALSE}
+```{r, cell_cycle_mouse, eval=FALSE}
 # Mouse Code DO NOT RUN
 convertHumanGeneList <- function(x){
   require("biomaRt")
@@ -203,7 +203,7 @@ table(Idents(experiment.aggregate))
 
 The function FindVariableFeatures identifies the most highly variable genes (default 2000 genes) by fitting a line to the relationship of log(variance) and log(mean) using loess smoothing, uses this information to standardize the data, then calculates the variance of the standardized data.  This helps avoid selecting genes that only appear variable due to their expression level.
 
-```{r fine_variable_genes_help, warning=FALSE,error=FALSE, message=FALSE, eval=FALSE}
+```{r, find_variable_genes_help, eval=FALSE}
 ?FindVariableFeatures
 ```
 
@@ -225,7 +225,7 @@ vfp1
 
 FindVariableFeatures isn't the only way to set the "variable features" of a Seurat object. Another reasonable approach is to select a set of "minimally expressed" genes.
 
-```{r our_variable_genes}
+```{r, minimally_expressed_genes, warning=FALSE,error=FALSE,message=FALSE}
 dim(experiment.aggregate)
 
 min.value = 2
@@ -250,7 +250,7 @@ save(experiment.aggregate, file="pre_sample_corrected.RData")
 
 ## Get the next Rmd file
 ```{r retreive_rmd, eval=FALSE}
-download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-March-Single-Cell-RNA-Seq-Analysis/master/data_analysis/scRNA_Workshop-PART3.Rmd", "scRNA_Workshop-PART3.Rmd")
+download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-March-Single-Cell-RNA-Seq-Analysis/main/data_analysis/scRNA_Workshop-PART3.Rmd", "scRNA_Workshop-PART3.Rmd")
 ```
 
 ## Session Information
