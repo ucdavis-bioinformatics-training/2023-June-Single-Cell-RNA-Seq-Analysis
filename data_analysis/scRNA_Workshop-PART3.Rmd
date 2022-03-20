@@ -51,12 +51,12 @@ rm(mat)
 
 ## Exploring Batch effects, none, Seurat [vars.to.regress]
 
-First lets view the data without any corrections
+First let's view the data without any corrections.
 
 ## PCA in prep for tSNE
 
-ScaleData - Scales and centers genes in the dataset.
-```{r scaledata_help, warning=FALSE,error=FALSE,message=FALSE, eval=FALSE}
+ScaleData - Scales and centers genes in the data set.
+```{r scaledata_help, eval=FALSE}
 ?ScaleData
 ```
 
@@ -68,23 +68,23 @@ experiment.test.noc <- ScaleData(object = experiment.test)
 ### Run PCA
 ```{r pca_none, warning=FALSE,error=FALSE,message=FALSE, fig.align="center", fig.caption="Uncorrected PCA plot"}
 experiment.test.noc <- RunPCA(object = experiment.test.noc)
-DimPlot(object = experiment.test.noc, group.by = "example_batchid", reduction = "pca")
-DimPlot(object = experiment.test.noc, group.by = "example_batchid", dims = c(2,3), reduction = "pca")
+DimPlot(object = experiment.test.noc, group.by = "example_batchid", reduction = "pca", shuffle = TRUE)
+DimPlot(object = experiment.test.noc, group.by = "example_batchid", dims = c(2,3), reduction = "pca", shuffle = TRUE)
 ```
 
-PCA Elbow plot to determine how many principal components to use in downstream analyses.  Components after the "elbow" in the plot generally explain little additional variability in the data.
+A PCA Elbow may be used to plot to explore how many principal components to use in downstream analyses. Components after the "elbow" in the plot generally explain little additional variability in the data.
 
 ```{r pca_elbow, warning=FALSE,error=FALSE,message=FALSE}
 ElbowPlot(experiment.test.noc)
 ```
 
-We use 10 components in downstream analyses. Using more components more closely approximates the full data set but increases run time.
+We will use 10 components in downstream analyses. Using more components more closely approximates the full data set but increases run time.
 
 ### TSNE Plot
 ```{r tsne, warning=FALSE,error=FALSE,message=FALSE, fig.align="center", fig.caption="Uncorrected TSNE plot"}
 pcs.use <- 10
 experiment.test.noc <- RunTSNE(object = experiment.test.noc, dims = 1:pcs.use)
-DimPlot(object = experiment.test.noc,  group.by = "example_batchid")
+DimPlot(object = experiment.test.noc,  group.by = "example_batchid", shuffle = TRUE)
 ```
 
 ## Correct for sample to sample differences (seurat)
@@ -96,7 +96,7 @@ experiment.test.regress <- ScaleData(object = experiment.test,
 
 experiment.test.regress <- RunPCA(object =experiment.test.regress,features=rownames(experiment.test.noc))
 
-DimPlot(object = experiment.test.regress, group.by = "example_batchid", reduction = "pca")
+DimPlot(object = experiment.test.regress, group.by = "example_batchid", reduction = "pca", shuffle = TRUE)
 ```
 
 ### Corrected TSNE Plot
@@ -111,7 +111,7 @@ DimPlot(object = experiment.test.regress, group.by = "example_batchid", reductio
 
 ## Get the next Rmd file
 ```{r get_next_rmd, eval=FALSE}
-download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-March-Single-Cell-RNA-Seq-Analysis/master/data_analysis/scRNA_Workshop-PART4.Rmd", "scRNA_Workshop-PART4.Rmd")
+download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-March-Single-Cell-RNA-Seq-Analysis/main/data_analysis/scRNA_Workshop-PART4.Rmd", "scRNA_Workshop-PART4.Rmd")
 ```
 
 ## Session Information
