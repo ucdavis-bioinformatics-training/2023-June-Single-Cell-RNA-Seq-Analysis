@@ -110,7 +110,7 @@ In the R console run the following command to download and extract the dataset (
 
 ```r
 options(timeout=1200)
-download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-March-Single-Cell-RNA-Seq-Analysis/main/data_analysis/expression_data_cellranger.zip", "expression_data_cellranger.zip")
+download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-March-Single-Cell-RNA-Seq-Analysis/main/datasets/expression_data_cellranger.zip", "expression_data_cellranger.zip")
 system("unzip expression_data_cellranger.zip") # works in Linux and Mac, not sure about Windows"
 ```
 
