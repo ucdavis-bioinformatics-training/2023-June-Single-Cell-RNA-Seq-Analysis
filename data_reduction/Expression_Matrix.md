@@ -112,8 +112,8 @@ cellranger  version 6 has many sub-applications
 5. cellranger aggr
 6. cellranger reanalyze
 7. cellranger mat2csv
-8. targeted-compare
-9. targeted-depth
+8. cellranger targeted-compare
+9. cellranger targeted-depth
 
 10. cellranger mkref
 11. cellranger mkgtf
