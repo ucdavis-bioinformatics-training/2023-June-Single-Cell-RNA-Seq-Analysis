@@ -36,7 +36,7 @@ each cell as a part of its output. If UMIs were used, duplicates need to be firs
 Specific steps to be performed are dependent on the type of library, the element layout of the read, and the sequencing parameters.
 
 
-[STAR](https://github.com/alexdobin/STAR), [Salmon](http://salmon.readthedocs.io/en/latest/salmon.html), [Kallisto/bustools](https://www.kallistobus.tools/) each have pipelines build specifically for processing single-cell datasets and 10X genomics data.
+[STAR](https://github.com/alexdobin/STAR), [Alevin](https://salmon.readthedocs.io/en/latest/alevin.html), [Kallisto/bustools](https://www.kallistobus.tools/) each have pipelines build specifically for processing single-cell datasets and 10X genomics data.
 
 
 ## scRNAseq Libraries
