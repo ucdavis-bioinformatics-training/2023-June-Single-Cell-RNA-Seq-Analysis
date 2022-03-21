@@ -53,7 +53,14 @@ We ask for a little more patience as this process is also new to us, but we are 
 
 ### Workshop Goals
 
-* End to end understanding metagenomic and metatranscriptomic experiment
+* End to End understanding of the basics of single cell RNAseq experiments
+  * Lectures/Discussions
+  * Technologies use
+  * Experimental design
+  * Cost estimation
+  * Workflow
+  * Data reduction
+  * Data analysis
 
 * To work through a complete experiment, starting from raw data to completion, including making a few figures.
 
@@ -74,17 +81,18 @@ Workshop materials are all posted on github, and publicly available
    [https://ucdavis-bioinformatics-training.github.io/](https://ucdavis-bioinformatics-training.github.io/)
 
 
-* This metagenomics and metatranscriptomics Workshop
+* This Intro to scRNAseq Workshop
 
-   [https://ucdavis-bioinformatics-training.github.io/2021-December-Metagenomics-and-Metatranscriptomics/](https://ucdavis-bioinformatics-training.github.io/2021-December-Metagenomics-and-Metatranscriptomics/)
+   [https://ucdavis-bioinformatics-training.github.io/2021-August-Single-Cell-RNA-Seq-Analysis/](https://ucdavis-bioinformatics-training.github.io/2021-August-Single-Cell-RNA-Seq-Analysis/)
 
 ### Computing Cluster
 
-A portion of  this course will be conducted on our servers and compute cluster (tadpole.genomecenter.ucdavis.edu).
+A portion of  this course will be conducted on our servers and compute cluster
 
-Everyone should get an account.  
+To get an account.  
 [https://computing.genomecenter.ucdavis.edu](https://computing.genomecenter.ucdavis.edu)
 
 Request an account -> sponsor is "Bioinformatics Core Workshop"
 
-If you already have, or have had in the past, an account on our systems, then please tell us your username, or email, and we will add you to the workshop. **Do not create a new account**
+If you already have, or have had in the past, an account on our systems, then please tell us your username, or email, and we will add you to the workshop. **Do not create a new account.**
+
