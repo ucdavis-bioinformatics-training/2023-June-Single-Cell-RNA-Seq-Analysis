@@ -1,10 +1,75 @@
----
-title: "Introduction to Single Cell RNAseq Part 2"
-author: "UCD Bioinformatics Core"
-output:
-    html_document:
-      keep_md: TRUE
----
+<script>
+function buildQuiz(myq, qc){
+  // variable to store the HTML output
+  const output = [];
+
+  // for each question...
+  myq.forEach(
+    (currentQuestion, questionNumber) => {
+
+      // variable to store the list of possible answers
+      const answers = [];
+
+      // and for each available answer...
+      for(letter in currentQuestion.answers){
+
+        // ...add an HTML radio button
+        answers.push(
+          `<label>
+            <input type="radio" name="question${questionNumber}" value="${letter}">
+            ${letter} :
+            ${currentQuestion.answers[letter]}
+          </label><br/>`
+        );
+      }
+
+      // add this question and its answers to the output
+      output.push(
+        `<div class="question"> ${currentQuestion.question} </div>
+        <div class="answers"> ${answers.join('')} </div><br/>`
+      );
+    }
+  );
+
+  // finally combine our output list into one string of HTML and put it on the page
+  qc.innerHTML = output.join('');
+}
+
+function showResults(myq, qc, rc){
+
+  // gather answer containers from our quiz
+  const answerContainers = qc.querySelectorAll('.answers');
+
+  // keep track of user's answers
+  let numCorrect = 0;
+
+  // for each question...
+  myq.forEach( (currentQuestion, questionNumber) => {
+
+    // find selected answer
+    const answerContainer = answerContainers[questionNumber];
+    const selector = `input[name=question${questionNumber}]:checked`;
+    const userAnswer = (answerContainer.querySelector(selector) || {}).value;
+
+    // if answer is correct
+    if(userAnswer === currentQuestion.correctAnswer){
+      // add to the number of correct answers
+      numCorrect++;
+
+      // color the answers green
+      answerContainers[questionNumber].style.color = 'lightgreen';
+    }
+    // if answer is wrong or blank
+    else{
+      // color the answers red
+      answerContainers[questionNumber].style.color = 'red';
+    }
+  });
+
+  // show number of correct answers out of total
+  rc.innerHTML = `${numCorrect} out of ${myq.length}`;
+}
+</script>
 
 Last Updated: March 20 2022
 
@@ -27,8 +92,8 @@ load(file="original_seurat_object.RData")
 experiment.aggregate
 ```
 
-<div class='r_output'> An object of class Seurat 
- 36601 features across 5803 samples within 1 assay 
+<div class='r_output'> An object of class Seurat
+ 36601 features across 5803 samples within 1 assay
  Active assay: RNA (36601 features, 0 variable features)
 </div>
 ```r
@@ -40,7 +105,7 @@ set.seed(12345)
 Show 5% quantiles for number of genes per cell per sample
 
 ```r
-kable(do.call("cbind", tapply(experiment.aggregate$nFeature_RNA, 
+kable(do.call("cbind", tapply(experiment.aggregate$nFeature_RNA,
                       Idents(experiment.aggregate),quantile,probs=seq(0,1,0.05))),
       caption = "5% Quantiles of Genes/Cell by Sample") %>% kable_styling()
 ```
@@ -210,7 +275,7 @@ kable(do.call("cbind", tapply(experiment.aggregate$nFeature_RNA,
 Show 5% quantiles for number of UMI per cell per sample
 
 ```r
-kable(do.call("cbind", tapply(experiment.aggregate$nCount_RNA, 
+kable(do.call("cbind", tapply(experiment.aggregate$nCount_RNA,
                                       Idents(experiment.aggregate),quantile,probs=seq(0,1,0.05))),
       caption = "5% Quantiles of UMI/Cell by Sample") %>% kable_styling()
 ```
@@ -608,8 +673,8 @@ We use the information above to filter out cells. Here we choose those that have
 table(experiment.aggregate$orig.ident)
 ```
 
-<div class='r_output'> 
- conv_COVID   conv_MMR  conv_Tdap norm_COVID 
+<div class='r_output'>
+ conv_COVID   conv_MMR  conv_Tdap norm_COVID
        1415       1875       1612        901
 </div>
 ```r
@@ -622,16 +687,16 @@ experiment.aggregate <- subset(experiment.aggregate, nFeature_RNA >= 700)
 experiment.aggregate
 ```
 
-<div class='r_output'> An object of class Seurat 
- 36601 features across 3343 samples within 1 assay 
+<div class='r_output'> An object of class Seurat
+ 36601 features across 3343 samples within 1 assay
  Active assay: RNA (36601 features, 0 variable features)
 </div>
 ```r
 table(experiment.aggregate$orig.ident)
 ```
 
-<div class='r_output'> 
- conv_COVID   conv_MMR  conv_Tdap norm_COVID 
+<div class='r_output'>
+ conv_COVID   conv_MMR  conv_Tdap norm_COVID
         793       1033        859        658
 </div>
 Lets se the ridge plots now after filtering
@@ -762,8 +827,8 @@ table(experiment.aggregate@meta.data$Phase) %>% kable(caption = "Number of Cells
 table(Idents(experiment.aggregate))
 ```
 
-<div class='r_output'> 
-   G1    S  G2M 
+<div class='r_output'>
+   G1    S  G2M
  1072  785 1486
 </div>
 ```r
@@ -772,8 +837,8 @@ Idents(experiment.aggregate) <- "orig.ident"
 table(Idents(experiment.aggregate))
 ```
 
-<div class='r_output'> 
- conv_COVID   conv_MMR  conv_Tdap norm_COVID 
+<div class='r_output'>
+ conv_COVID   conv_MMR  conv_Tdap norm_COVID
         793       1033        859        658
 </div>
 
@@ -840,9 +905,42 @@ VariableFeatures(experiment.aggregate) <- genes.use
 
 #### Question(s)
 
-1. Play some with the filtering parameters, see how results change?
 2. How do the results change if you use selection.method = "dispersion" or selection.method = "mean.var.plot"
 
+<div id="quiz1" class="quiz"></div>
+<button id="submit1">Submit Quiz</button>
+<div id="results1" class="output"></div>
+<script>
+quizContainer1 = document.getElementById('quiz1');
+resultsContainer1 = document.getElementById('results1');
+submitButton1 = document.getElementById('submit1');
+
+myQuestions1 = [
+  {
+    question: "Set the percent.mito filter to 15, the nCount_RNA filters to 500 and 50000, and the nFeature_RNA filter to 2000. How many norm_COVID cells pass the filter?",
+    answers: {
+      a: "36601",
+      b: "6",
+      c: "618",
+      d: "3015"
+    },
+    correctAnswer: "b"
+  },
+  {
+    question: "What is the first variable feature when using the minimally expressed genes method?",
+    answers: {
+      a: "FAM241A",
+      b: "CCL4L2",
+      c: "IFNG",
+      d: "NOC2L"
+    },
+    correctAnswer: "d"
+  }
+];
+
+buildQuiz(myQuestions1, quizContainer1);
+submitButton1.addEventListener('click', function() {showResults(myQuestions1, quizContainer1, resultsContainer1);});
+</script>
 
 ## Finally, lets save the filtered and normalized data
 
@@ -865,21 +963,21 @@ sessionInfo()
 <div class='r_output'> R version 4.1.2 (2021-11-01)
  Platform: aarch64-apple-darwin20 (64-bit)
  Running under: macOS Monterey 12.0.1
- 
+
  Matrix products: default
  BLAS:   /Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/lib/libRblas.0.dylib
  LAPACK: /Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/lib/libRlapack.dylib
- 
+
  locale:
  [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
- 
+
  attached base packages:
  [1] stats     graphics  grDevices utils     datasets  methods   base     
- 
+
  other attached packages:
  [1] kableExtra_1.3.4   knitr_1.37         ggplot2_3.3.5      biomaRt_2.50.3    
  [5] SeuratObject_4.0.4 Seurat_4.1.0      
- 
+
  loaded via a namespace (and not attached):
    [1] systemfonts_1.0.4      BiocFileCache_2.2.1    plyr_1.8.6            
    [4] igraph_1.2.11          lazyeval_0.2.2         splines_4.1.2         
