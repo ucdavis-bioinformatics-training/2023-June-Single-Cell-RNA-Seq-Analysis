@@ -905,8 +905,6 @@ VariableFeatures(experiment.aggregate) <- genes.use
 
 #### Question(s)
 
-2. How do the results change if you use selection.method = "dispersion" or selection.method = "mean.var.plot"
-
 <div id="quiz1" class="quiz"></div>
 <button id="submit1">Submit Quiz</button>
 <div id="results1" class="output"></div>
