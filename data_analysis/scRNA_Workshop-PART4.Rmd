@@ -6,7 +6,7 @@ output:
       keep_md: TRUE
 ---
 
-Last Updated: March 23 2021, 5pm
+Last Updated: March 20 2020
 
 # Part 4: PCA and choice in number of PCS
 
@@ -81,7 +81,7 @@ ElbowPlot(experiment.aggregate, ndims = 100)
 
 The JackStraw function randomly permutes a subset of data, and calculates projected PCA scores for these 'random' genes, then compares the PCA scores for the 'random' genes with the observed PCA scores to determine statistical signifance. End result is a p-value for each gene's association with each principal component. We identify significant PCs as those who have a strong enrichment of low p-value genes.
 
-```{r jacstraw, warning=FALSE,error=FALSE,message=FALSE}
+```{r jackstraw, warning=FALSE,error=FALSE,message=FALSE}
 experiment.aggregate <- JackStraw(object = experiment.aggregate, dims = 100)
 ```
 
@@ -97,7 +97,7 @@ save(experiment.aggregate, file="pca_sample_corrected.RData")
 
 ## Get the next Rmd file
 ```{r get_next_rmd, eval=FALSE}
-download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-March-Single-Cell-RNA-Seq-Analysis/master/data_analysis/scRNA_Workshop-PART5.Rmd", "scRNA_Workshop-PART5.Rmd")
+download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-March-Single-Cell-RNA-Seq-Analysis/main/data_analysis/scRNA_Workshop-PART5.Rmd", "scRNA_Workshop-PART5.Rmd")
 ```
 
 ## Session Information
