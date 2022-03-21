@@ -1,10 +1,75 @@
----
-title: "Introduction to Single Cell RNAseq Part 1"
-author: "UCD Bioinformatics Core"
-output:
-    html_document:
-      keep_md: TRUE
----
+<script>
+function buildQuiz(myq, qc){
+  // variable to store the HTML output
+  const output = [];
+
+  // for each question...
+  myq.forEach(
+    (currentQuestion, questionNumber) => {
+
+      // variable to store the list of possible answers
+      const answers = [];
+
+      // and for each available answer...
+      for(letter in currentQuestion.answers){
+
+        // ...add an HTML radio button
+        answers.push(
+          `<label>
+            <input type="radio" name="question${questionNumber}" value="${letter}">
+            ${letter} :
+            ${currentQuestion.answers[letter]}
+          </label><br/>`
+        );
+      }
+
+      // add this question and its answers to the output
+      output.push(
+        `<div class="question"> ${currentQuestion.question} </div>
+        <div class="answers"> ${answers.join('')} </div><br/>`
+      );
+    }
+  );
+
+  // finally combine our output list into one string of HTML and put it on the page
+  qc.innerHTML = output.join('');
+}
+
+function showResults(myq, qc, rc){
+
+  // gather answer containers from our quiz
+  const answerContainers = qc.querySelectorAll('.answers');
+
+  // keep track of user's answers
+  let numCorrect = 0;
+
+  // for each question...
+  myq.forEach( (currentQuestion, questionNumber) => {
+
+    // find selected answer
+    const answerContainer = answerContainers[questionNumber];
+    const selector = `input[name=question${questionNumber}]:checked`;
+    const userAnswer = (answerContainer.querySelector(selector) || {}).value;
+
+    // if answer is correct
+    if(userAnswer === currentQuestion.correctAnswer){
+      // add to the number of correct answers
+      numCorrect++;
+
+      // color the answers green
+      answerContainers[questionNumber].style.color = 'lightgreen';
+    }
+    // if answer is wrong or blank
+    else{
+      // color the answers red
+      answerContainers[questionNumber].style.color = 'red';
+    }
+  });
+
+  // show number of correct answers out of total
+  rc.innerHTML = `${numCorrect} out of ${myq.length}`;
+}
+</script>
 
 Last Updated: March 20 2022
 
@@ -174,7 +239,7 @@ sequencing.metrics %>%
 ## Load the Cell Ranger Matrix Data and create the base Seurat object.
 Cell Ranger provides a function `cellranger aggr` that will combine multiple samples into a single matrix file. However, when processing data in R this is unnecessary and we can quickly aggregate them in R.
 
-Seurat provides a function `Read10X` and `Read10X_h5` to read in 10X data folder. First we read in data from each individual sample folder. 
+Seurat provides a function `Read10X` and `Read10X_h5` to read in 10X data folder. First we read in data from each individual sample folder.
 
 Later, we initialize the Seurat object (`CreateSeuratObject`) with the raw (non-normalized data). Keep all cells with at least 200 detected genes. Also extracting sample names, calculating and adding in the metadata mitochondrial percentage of each cell. Adding in the metadata batchid and cell cycle. Finally, saving the raw Seurat object.
 
@@ -256,10 +321,10 @@ plot_cellranger_cells <- function(ind){
   pl1 <- data.frame(index=seq.int(1,ncol(d10x.data[[ind]])),
                     nCount_RNA = sort(Matrix:::colSums(d10x.data[[ind]])+1,decreasing=T),
                     nFeature_RNA = sort(Matrix:::colSums(d10x.data[[ind]]>0)+1,decreasing=T)) %>%
-    ggplot() + 
+    ggplot() +
     scale_color_manual(values=c("red2","blue4"), labels=c("Features", "UMI"), name=NULL) +
-    ggtitle(paste("CellRanger filltered cells:",ids[ind],sep=" ")) + xlab("Barcodes") + ylab("counts (UMI or Features") + 
-    scale_x_continuous(trans = 'log2', breaks=xbreaks, labels = xlabels) + 
+    ggtitle(paste("CellRanger filltered cells:",ids[ind],sep=" ")) + xlab("Barcodes") + ylab("counts (UMI or Features") +
+    scale_x_continuous(trans = 'log2', breaks=xbreaks, labels = xlabels) +
     scale_y_continuous(trans = 'log2', breaks=ybreaks, labels = ylabels) +
     geom_line(aes(x=index, y=nCount_RNA, color = "UMI"), size=1.75) +
     geom_line(aes(x=index, y=nFeature_RNA, color = "Features"), size=1.25)
@@ -300,10 +365,10 @@ plot_cellranger_cells <- function(ind){
   ybreaks = c(1,2,5,10,20,50,100,200,500,1000,2000,5000,10000,20000,50000,100000,200000,500000,1000000)
   ylabels = c("1","2","5","10","2","5","100","2","5","1000","2","5","10k","2","5","100K","2","5","1M")
 
-  pl1 <- data.frame(index=seq.int(1,ncol(d10x.data[[ind]])), nCount_RNA = sort(Matrix:::colSums(d10x.data[[ind]])+1,decreasing=T), nFeature_RNA = sort(Matrix:::colSums(d10x.data[[ind]]>0)+1,decreasing=T)) %>% ggplot() + 
+  pl1 <- data.frame(index=seq.int(1,ncol(d10x.data[[ind]])), nCount_RNA = sort(Matrix:::colSums(d10x.data[[ind]])+1,decreasing=T), nFeature_RNA = sort(Matrix:::colSums(d10x.data[[ind]]>0)+1,decreasing=T)) %>% ggplot() +
     scale_color_manual(values=c("grey50","red2","blue4"), labels=c("UMI_Background", "Features", "UMI_Cells"), name=NULL) +
-    ggtitle(paste("CellRanger filltered cells:",ids[ind],sep=" ")) + xlab("Barcodes") + ylab("counts (UMI or Features") + 
-    scale_x_continuous(trans = 'log2', breaks=xbreaks, labels = xlabels) + 
+    ggtitle(paste("CellRanger filltered cells:",ids[ind],sep=" ")) + xlab("Barcodes") + ylab("counts (UMI or Features") +
+    scale_x_continuous(trans = 'log2', breaks=xbreaks, labels = xlabels) +
     scale_y_continuous(trans = 'log2', breaks=ybreaks, labels = ylabels) +
     geom_line(aes(x=index, y=nCount_RNA, color=index<=cr_filtered_cells[ind] , group=1), size=1.75) +
     geom_line(aes(x=index, y=nFeature_RNA, color="Features", group=1), size=1.25)
@@ -337,8 +402,8 @@ experiment.aggregate <- CreateSeuratObject(
 experiment.aggregate
 ```
 
-<div class='r_output'> An object of class Seurat 
- 36601 features across 5803 samples within 1 assay 
+<div class='r_output'> An object of class Seurat
+ 36601 features across 5803 samples within 1 assay
  Active assay: RNA (36601 features, 0 variable features)
 </div>
 ```r
@@ -366,10 +431,10 @@ str(experiment.aggregate)
    .. .. .. .. .. .. ..$ : chr [1:5803] "AAACCTGAGACTAGAT-conv_COVID" "AAACCTGAGCTACCTA-conv_COVID" "AAACCTGCAGACTCGC-conv_COVID" "AAACCTGGTAAATGTG-conv_COVID" ...
    .. .. .. .. .. ..@ x       : num [1:12282940] 3 2 11 6 2 1 1 1 1 2 ...
    .. .. .. .. .. ..@ factors : list()
-   .. .. .. ..@ scale.data   : num[0 , 0 ] 
+   .. .. .. ..@ scale.data   : num[0 , 0 ]
    .. .. .. ..@ key          : chr "rna_"
    .. .. .. ..@ assay.orig   : NULL
-   .. .. .. ..@ var.features : logi(0) 
+   .. .. .. ..@ var.features : logi(0)
    .. .. .. ..@ meta.features:'data.frame':	36601 obs. of  0 variables
    .. .. .. ..@ misc         : list()
    ..@ meta.data   :'data.frame':	5803 obs. of  3 variables:
@@ -402,7 +467,7 @@ experiment.aggregate$percent.mito <- PercentageFeatureSet(experiment.aggregate, 
 summary(experiment.aggregate$percent.mito)
 ```
 
-<div class='r_output'>    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+<div class='r_output'>    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
   0.0000  0.5711  1.1171  2.7418  3.8196 48.2639
 </div>
 ### Lets spend a little time getting to know the Seurat object.
@@ -433,10 +498,40 @@ head(experiment.aggregate[[]])
 </div>
 #### Question(s)
 
-1. What slots are empty, what slots have data?
-2. What columns are available in meta.data?
-3. Look up the help documentation for subset?
+<div id="quiz1" class="quiz"></div>
+<button id="submit1">Submit Quiz</button>
+<div id="results1" class="output"></div>
+<script>
+quizContainer1 = document.getElementById('quiz1');
+resultsContainer1 = document.getElementById('results1');
+submitButton1 = document.getElementById('submit1');
 
+myQuestions1 = [
+  {
+    question: "Which of these slots contain data?",
+    answers: {
+      a: "graph",
+      b: "misc",
+      c: "active.ident",
+      d: "commands"
+    },
+    correctAnswer: "c"
+  },
+  {
+    question: "What is the content of the meta.data slot?",
+    answers: {
+      a: "a list of information about the samples",
+      b: "a table where the rows are cells and the columns are sample metadata",
+      c: "a table where the rows are sample metadata and the columns are cells",
+      d: "the number of cells in the experiment"
+    },
+    correctAnswer: "b"
+  }
+];
+
+buildQuiz(myQuestions1, quizContainer1);
+submitButton1.addEventListener('click', function() {showResults(myQuestions1, quizContainer1, resultsContainer1);});
+</script>
 
 ## Finally, save the original object and view the object.
 
@@ -461,20 +556,20 @@ sessionInfo()
 <div class='r_output'> R version 4.1.2 (2021-11-01)
  Platform: aarch64-apple-darwin20 (64-bit)
  Running under: macOS Monterey 12.0.1
- 
+
  Matrix products: default
  BLAS:   /Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/lib/libRblas.0.dylib
  LAPACK: /Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/lib/libRlapack.dylib
- 
+
  locale:
  [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
- 
+
  attached base packages:
  [1] stats     graphics  grDevices utils     datasets  methods   base     
- 
+
  other attached packages:
  [1] ggplot2_3.3.5      kableExtra_1.3.4   SeuratObject_4.0.4 Seurat_4.1.0      
- 
+
  loaded via a namespace (and not attached):
    [1] Rtsne_0.15            colorspace_2.0-3      deldir_1.0-6         
    [4] ellipsis_0.3.2        ggridges_0.5.3        rstudioapi_0.13      
@@ -497,7 +592,7 @@ sessionInfo()
   [55] mime_0.12             miniUI_0.1.1.1        lifecycle_1.0.1      
   [58] irlba_2.3.5           goftest_1.2-3         future_1.24.0        
   [61] MASS_7.3-55           zoo_1.8-9             scales_1.1.1         
-  [64] spatstat.core_2.4-0   promises_1.2.0.1      spatstat.utils_2.3-0 
+  [64] spatstat.core_2.4-0   promises_1.2.0.1      spatstat.utils_2.3-0
   [67] parallel_4.1.2        RColorBrewer_1.1-2    yaml_2.3.5           
   [70] reticulate_1.24       pbapply_1.5-0         gridExtra_2.3        
   [73] sass_0.4.0            rpart_4.1.16          stringi_1.7.6        
