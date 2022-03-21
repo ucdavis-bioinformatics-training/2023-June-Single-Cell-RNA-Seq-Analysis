@@ -6,7 +6,7 @@ output:
       keep_md: TRUE
 ---
 
-Last Updated: March 24 2021, 5pm
+Last Updated: March 20 2022
 
 # Part 5: 
 
@@ -413,7 +413,7 @@ save(list=grep('experiment', ls(), value = TRUE), file="clusters_seurat_object.R
 
 ## Get the next Rmd file
 ```{r get_next_rmd, eval=FALSE}
-download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-March-Single-Cell-RNA-Seq-Analysis/master/data_analysis/scRNA_Workshop-PART6.Rmd", "scRNA_Workshop-PART6.Rmd")
+download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-March-Single-Cell-RNA-Seq-Analysis/main/data_analysis/scRNA_Workshop-PART6.Rmd", "scRNA_Workshop-PART6.Rmd")
 ```
 
 ## Session Information
