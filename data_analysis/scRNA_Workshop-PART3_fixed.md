@@ -1,13 +1,5 @@
----
-title: "Introduction to Single Cell RNAseq Part 3"
-author: "UCD Bioinformatics Core"
-output:
-    html_document:
-      keep_md: TRUE
----
 
-
-Last Updated: March 24 2021, 11am
+Last Updated: March 20 2022
 
 # Part 3: Batch Correction Excercise
 
@@ -26,8 +18,8 @@ load(file="pre_sample_corrected.RData")
 experiment.aggregate
 ```
 
-<div class='r_output'> An object of class Seurat 
- 36601 features across 3343 samples within 1 assay 
+<div class='r_output'> An object of class Seurat
+ 36601 features across 3343 samples within 1 assay
  Active assay: RNA (36601 features, 3941 variable features)
 </div>
 ```r
@@ -50,8 +42,8 @@ experiment.test <- AddMetaData(
 table(experiment.test$example_batchid)
 ```
 
-<div class='r_output'> 
- Example_Batch1 Example_Batch2 
+<div class='r_output'>
+ Example_Batch1 Example_Batch2
            1343           2000
 </div>
 ```r
@@ -161,20 +153,20 @@ sessionInfo()
 <div class='r_output'> R version 4.1.2 (2021-11-01)
  Platform: aarch64-apple-darwin20 (64-bit)
  Running under: macOS Monterey 12.0.1
- 
+
  Matrix products: default
  BLAS:   /Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/lib/libRblas.0.dylib
  LAPACK: /Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/lib/libRlapack.dylib
- 
+
  locale:
  [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
- 
+
  attached base packages:
  [1] stats     graphics  grDevices utils     datasets  methods   base     
- 
+
  other attached packages:
  [1] SeuratObject_4.0.4 Seurat_4.1.0      
- 
+
  loaded via a namespace (and not attached):
    [1] Rtsne_0.15            colorspace_2.0-3      deldir_1.0-6         
    [4] ellipsis_0.3.2        ggridges_0.5.3        rstudioapi_0.13      
