@@ -6,6 +6,8 @@ output:
       keep_md: TRUE
 ---
 
+# Part 6: Enrichment, Model-Based DE, and Cell-Type Identification
+
 
 
 ## Load libraries
