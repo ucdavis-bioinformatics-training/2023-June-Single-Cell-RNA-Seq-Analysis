@@ -24,7 +24,7 @@ Our team offers custom bioinformatics services to academic and private organizat
 
    [helpdesk@genomecenter.ucdavis.edu](mailto:helpdesk@genomecenter.ucdavis.edu)
 
-## Structure of the Virtual Workshops
+## Structure of the Workshops
 
 Given the current Covid19 pandemic, we've decided to provide a hybrid format to our workshop. Our intent is to offer as much opportunity as possible to everyone who is interested in our workshop. We will hold the same goals and strive for a similar lecture/hand-on ratio. We will be using multiple technologies in order to help facilitate a maximum amount of interaction.
 
