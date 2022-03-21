@@ -41,27 +41,31 @@ Specific steps to be performed are dependent on the type of library, the element
 
 ## scRNAseq Libraries
 
-Generating scRNAseq libraries is currently an active area of research with several protocols being published in the last few years, including:
+Generating scRNAseq libraries is currently an active area of research with several protocols being published in the last decade, including:
 
 <div class="figure" style="text-align: center">
-<img src="figures/flowchartprotocols.png" alt="Flowchart of the scRNAseq protocols" width="65%" />
+<img src="figures/flowchartprotocols.png" alt="Flowchart of the scRNAseq protocols" width="80%" />
 <p class="caption">Flowchart of scRNAseq library prep protocols</p>
 </div>
 
+<p align = "right" style="font-family:Times;font-size:12px;">
+Svensson, etc., 2018, Nature Protocols https://www.nature.com/articles/nprot.2017.149
+</p>
 
-* CEL-seq Hashimshony, 2012
-* CEL-seq2 Hashimshony, 2016
-* DroNC-seq Habib, 2017
-* Drop-seq Macosko, 2015
-* InDrop-seq Klein, 2015
-* MATQ-seq Sheng, 2017_2018
-* MARS-seq Jaitin, 2014
-* SCRB-seq Soumillon, 2014
-* Seq-well Gierahn, 2017
-* Smart-seq Picelli, 2014
-* Smart-seq2 Picelli, 2014
+
+* CEL-seq, Hashimshony, 2012
+* CEL-seq2, Hashimshony, 2016
+* DroNC-seq, Habib, 2017
+* Drop-seq, Macosko, 2015
+* InDrop-seq, Klein, 2015
+* MATQ-seq, Sheng, 2017_2018
+* MARS-seq, Jaitin, 2014
+* SCRB-seq, Soumillon, 2014
+* Seq-well, Gierahn, 2017
+* Smart-seq, Picelli, 2014
+* Smart-seq2, Picelli, 2014
 * SMARTer [clontech](http://www.clontech.com/US/Products/cDNA_Synthesis_and_Library_Construction/Next_Gen_Sequencing_Kits/Total_RNA-Seq/Universal_RNA_Seq_Random_Primed)
-* STRT-seq Islam, 2014
+* STRT-seq, Islam, 2014
 * SplitSeq, 2018 (NOW Parse Biosciences)
 
 Differences between the methods are in how they capture capture a cell and quantify gene expression (either __full-length__ or __tag-based__).
