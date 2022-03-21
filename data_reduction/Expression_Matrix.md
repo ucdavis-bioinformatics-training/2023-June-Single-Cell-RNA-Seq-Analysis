@@ -383,6 +383,8 @@ which actually runs cellranger, takes a little while to run, so for the sake of 
     5. Transfer the matrix files and hdf5 file to your computer. (However, we will be using data from the entirety of Pool 1 instead of this subset).
 	6. If time remains, uncomment the `eval $call` line to run the script.
 
+In the intereste of time, the dataset we use for this step is a small subset of the original data. The cellranger summary file is [here](fullset_web_summary.html)
+
 ### Cellranger features and multi pipeline
 
 Feature barcodes allow you to capture additional information within your cells by using an addition oligo on the GEM beads. This can be from Antibody capture, Crispr guide capture, or a custom capture (like hash tagging).
