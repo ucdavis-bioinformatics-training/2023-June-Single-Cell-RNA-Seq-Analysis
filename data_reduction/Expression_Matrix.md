@@ -36,7 +36,7 @@ each cell as a part of its output. If UMIs were used, duplicates need to be firs
 Specific steps to be performed are dependent on the type of library, the element layout of the read, and the sequencing parameters.
 
 
-[STAR](https://github.com/alexdobin/STAR), [Salmon](http://salmon.readthedocs.io/en/latest/salmon.html), [Kallisto/bustools](https://www.kallistobus.tools/) each have pipelines build specifically for processing single-cell datasets and 10X genomics data.
+[STAR](https://github.com/alexdobin/STAR), [Salmon](https://salmon.readthedocs.io/en/latest/alevin.html), [Kallisto/bustools](https://www.kallistobus.tools/) each have pipelines build specifically for processing single-cell datasets and 10X genomics data.
 
 
 ## scRNAseq Libraries
@@ -66,7 +66,7 @@ Svensson, etc., 2018, Nature Protocols https://www.nature.com/articles/nprot.201
 * Smart-seq2, Picelli, 2014
 * SMARTer [clontech](http://www.clontech.com/US/Products/cDNA_Synthesis_and_Library_Construction/Next_Gen_Sequencing_Kits/Total_RNA-Seq/Universal_RNA_Seq_Random_Primed)
 * STRT-seq, Islam, 2014
-* SplitSeq, 2018 (NOW Parse Biosciences)
+* SplitSeq, 2018 (NOW [Parse Biosciences](https://www.parsebiosciences.com/technology))
 
 Differences between the methods are in how they capture capture a cell and quantify gene expression (either __full-length__ or __tag-based__).
 
