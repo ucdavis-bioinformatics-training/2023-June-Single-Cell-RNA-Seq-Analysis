@@ -90,7 +90,7 @@ head(out, 30)
 ```
 
 ### Output columns:
-* logFC: log2 fold change
+* logFC: log fold change (since we are working with Seurat's natural log transformed data, will be natural log fold change)
 * AveExpr: Average expression across all cells in expr2
 * t: logFC divided by its standard error
 * P.Value: Raw p-value (based on t) from test that logFC differs from 0
