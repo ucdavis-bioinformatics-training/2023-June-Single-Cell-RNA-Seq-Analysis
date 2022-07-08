@@ -72,11 +72,11 @@ function showResults(myq, qc, rc){
 </script>
 
 
-The dataset used in this course is from Mysore V, Cullere X, Settles ML, Ji X, Kattan MW, Desjardins M, Durbin-Johnson B, Gilboa T, Baden LR, Walt DR, Lichtman AH, Jehi L, Mayadas TN. Protective heterologous T cell immunity in COVID-19 induced by the trivalent MMR and Tdap vaccine antigens. Med (N Y). 2021 Sep 10;2(9):1050-1071.e7. doi: 10.1016/j.medj.2021.08.004. Epub 2021 Aug 14. PMID: 34414383; PMCID: PMC8363466.
+The dataset used in this course is from Becker, W. R.; Nevins, S. A.; Chen, D. C.; Chiu, R.; Horning, A. M.; Guha, T. K.; Laquindanum, R.; Mills, M.; Chaib, H.; Ladabaum, U.; Longacre, T.; Shen, J.; Esplin, E. D.; Kundaje, A.; Ford, J. M.; Curtis, C.; Snyder, M. P.; Greenleaf, W. J. Single-Cell Analyses Define a Continuum of Cell State and Composition Changes in the Malignant Transformation of Polyps to Colorectal Cancer. Nat. Genet. 2022. https://doi.org/10.1038/s41588-022-01088-x.
 
-In this study, antigen-presenting cells were exposed to SARS-CoV-2, MMR, or Tdap antigens and co-cultured with T cells from donors who were either COVID-19 convalescent, uninfected, or vaccinated against COVID-19. The resulting T cell activation was measured with immunologic assays and flow cytometry, and T cell receptor clonotyping and single-cell RNA sequencing were used to identify cross-reacting T cells.
+In this study, single nuclei transcriptome and chromatin accessibility profiles were generated from 1000 to 10000 cells per sample from 48 polys, 27 normal tissues and 6 colorectal cancer (CRC) patients with or without germline APC mutations. It observed a continuum of cell state and composition changes from normal tissue to polys to cancer.
 
-For the purposes of this workshop, we are using a subset of this data; one a sub-sample of one library composed of four samples.
+For the purposes of this workshop, we are using a subset of this data; one sample per condition (CRC, polyp and unaffected).
 
 # Data Setup
 
@@ -97,7 +97,7 @@ mkdir -p /share/workshop/scRNA_workshop/$USER/scrnaseq_example
 cd /share/workshop/scRNA_workshop/$USER/scrnaseq_example
 mkdir 00-RawData
 cd 00-RawData/
-ln -s /share/workshop/scRNA_workshop/Data/Pool1_gex_S17_L004_R* .
+ln -s /share/workshop/scRNA_workshop/Data/*.fastq.gz .
 ```
 
 This directory now contains the reads for each "sample" (in this case just 1).
@@ -105,7 +105,8 @@ This directory now contains the reads for each "sample" (in this case just 1).
 **2b\.** Let's create a sample sheet for the project, and store sample names in a file called samples.txt
 
 ```bash
-echo Pool1_gex > ../samples.txt
+cd /share/workshop/scRNA_workshop/$USER/scrnaseq_example/00-RawData
+ls *_R1_* |cut -d'_' -f1 - > ../samples.txt
 cat ../samples.txt
 ```
 
@@ -123,7 +124,7 @@ Read 1
 
 ```bash
 cd 00-RawData/
-zless Pool1_gex_S17_L004_R1_001.fastq.gz
+zless A001-C-007_S4_I1_001.fastq.gz
 ```
 
 and Read 2
@@ -135,19 +136,19 @@ zless Pool1_gex_S17_L004_R2_001.fastq.gz
 Detailed explanation of FASTQ file is [here](filetypes.md). Please read on the description and make sure you can identify which lines correspond to a single read and which lines are the header, sequence, and quality values. Press 'q' to exit this screen. Then, let's figure out the number of reads in this file. A simple way to do that is to count the number of lines and divide by 4 (because the record of each read uses 4 lines). In order to do this use cat to output the uncompressed file and pipe that to "wc" to count the number of lines:
 
 ```bash
-zcat Pool1_gex_S17_L004_R1_001.fastq.gz | wc -l
+zcat A001-C-007_S4_I1_001.fastq.gz | wc -l
 ```
 
 Divide this number by 4 and you have the number of reads in this file. One more thing to try is to figure out the length of the reads without counting each nucleotide. First get the first 4 lines of the file (i.e. the first record):
 
 ```bash
-zcat Pool1_gex_S17_L004_R1_001.fastq.gz  | head -4
+zcat A001-C-007_S4_I1_001.fastq.gz  | head -4
 ```
 
 Note the header lines (1st and 3rd line) and sequence and quality lines (2nd and 4th) in each 4-line fastq block. You can isolate the sequence line:
 
 ```bash
-zcat Pool1_gex_S17_L004_R1_001.fastq.gz | head -2 | tail -1
+zcat A001-C-007_S4_I1_001.fastq.gz | head -2 | tail -1
 ```
 
 Then, copy and paste the DNA sequence line into the following command (replace [sequence] with the line):
@@ -161,7 +162,7 @@ This will give you the length of the read.
 Also can do the bash one liner:
 
 ```bash
-echo -n $(zcat Pool1_gex_S17_L004_R1_001.fastq.gz  | head -2 | tail -1) | wc -c
+echo -n $(zcat A001-C-007_S4_I1_001.fastq.gz  | head -2 | tail -1) | wc -c
 ```
 
 See if you can figure out how this command works.
