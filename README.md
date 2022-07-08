@@ -1,10 +1,10 @@
 All documentation for the workshop is best viewed from the github.io pages
 
-[Documentation](https://ucdavis-bioinformatics-training.github.io/2022-March-Single-Cell-RNA-Seq-Analysis/)
+[Documentation](https://ucdavis-bioinformatics-training.github.io/2022-July-Single-Cell-RNA-Seq-Analysis/)
 
 Single Cell RNA-Seq Analysis
 
-Mar. 21, 2022 - Mar. 23, 2022, 9 a.m. - 5:00 p.m daily.
+Jul.18, 2022 - Jul. 21, 2022, 9 a.m. - 5:00 p.m daily.
 
 Contact - UC Davis Bioinformatics Core, [training.bioinformatics@ucdavis.edu](mailto:training.bioinformatics@ucdavis.edu)
 
