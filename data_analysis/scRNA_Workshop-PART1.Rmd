@@ -87,7 +87,7 @@ Later, we initialize the Seurat object (`CreateSeuratObject`) with the raw (non-
 ```{r load_data_hdf5, warning=FALSE,error=FALSE, message=FALSE}
 d10x.data <- lapply(ids, function(i){
   d10x <- Read10X_h5(file.path(dataset_loc, i, "/outs","raw_feature_bc_matrix.h5"))
-  colnames(d10x) <- paste(sapply(strsplit(colnames(d10x),split="-"),'[[',1L),i,sep="-")
+  colnames(d10x) <- paste(sapply(strsplit(colnames(d10x),split="-"),'[[',1L),i,sep="_")
   d10x
 })
 names(d10x.data) <- ids
@@ -100,7 +100,7 @@ If you don't have the needed hdf5 libraries you can read in the matrix files lik
 ```{r load_data_matrix, eval=FALSE}
 d10x.data <- sapply(ids, function(i){
   d10x <- Read10X(file.path(dataset_loc, i, "/outs","raw_feature_bc_matrix"))
-  colnames(d10x) <- paste(sapply(strsplit(colnames(d10x), split="-"), '[[', 1L), i, sep="-")
+  colnames(d10x) <- paste(sapply(strsplit(colnames(d10x), split="-"), '[[', 1L), i, sep="_")
   d10x
 })
 names(d10x.data) <- ids
@@ -175,7 +175,7 @@ experiment.aggregate <- CreateSeuratObject(
   min.cells = 10,
   min.features = 300,
   names.field = 2,
-  names.delim = "\\-")
+  names.delim = "\\_")
 
 experiment.aggregate
 str(experiment.aggregate)

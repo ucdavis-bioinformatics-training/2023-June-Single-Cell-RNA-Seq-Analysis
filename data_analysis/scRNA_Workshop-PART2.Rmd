@@ -72,13 +72,13 @@ Gene Plot, scatter plot of gene expression across cells, (colored by sample), dr
 
 
 ```{r relationships, warning=FALSE,error=FALSE,message=FALSE}
-FeatureScatter(experiment.aggregate, feature1 = "nCount_RNA", feature2 = "percent.mito", shuffle = TRUE) + geom_vline(xintercept = c(1000,12000)) + geom_hline(yintercept = 8)
+FeatureScatter(experiment.aggregate, feature1 = "nCount_RNA", feature2 = "percent.mito", shuffle = TRUE) + geom_vline(xintercept = c(600,12000)) + geom_hline(yintercept = 8)
 
-FeatureScatter(experiment.aggregate, feature1 = "nFeature_RNA", feature2 = "percent.mito", shuffle = TRUE) + geom_vline(xintercept = 700) + geom_hline(yintercept = 8)
+FeatureScatter(experiment.aggregate, feature1 = "nFeature_RNA", feature2 = "percent.mito", shuffle = TRUE) + geom_vline(xintercept = c(400,4000)) + geom_hline(yintercept = 8)
 
 FeatureScatter(
   experiment.aggregate, "nCount_RNA", "nFeature_RNA",
-  pt.size = 0.5, shuffle = TRUE)  + geom_vline(xintercept = c(1000,12000)) + geom_hline(yintercept = 700)
+  pt.size = 0.5, shuffle = TRUE)  + geom_vline(xintercept = c(600,12000)) + geom_hline(yintercept = c(400, 4000))
 
 ```
 
@@ -91,9 +91,9 @@ table(experiment.aggregate$orig.ident)
 
 experiment.aggregate <- subset(experiment.aggregate, percent.mito <= 8)
 
-experiment.aggregate <- subset(experiment.aggregate, nCount_RNA >= 1000 & nCount_RNA <= 12000)
+experiment.aggregate <- subset(experiment.aggregate, nCount_RNA >= 500 & nCount_RNA <= 12000)
 
-experiment.aggregate <- subset(experiment.aggregate, nFeature_RNA >= 700)
+experiment.aggregate <- subset(experiment.aggregate, nFeature_RNA >= 400 & nFeature_RNA < 4000)
 
 experiment.aggregate
 

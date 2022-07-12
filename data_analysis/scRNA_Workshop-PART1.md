@@ -183,7 +183,7 @@ Later, we initialize the Seurat object (`CreateSeuratObject`) with the raw (non-
 ```r
 d10x.data <- lapply(ids, function(i){
   d10x <- Read10X_h5(file.path(dataset_loc, i, "/outs","raw_feature_bc_matrix.h5"))
-  colnames(d10x) <- paste(sapply(strsplit(colnames(d10x),split="-"),'[[',1L),i,sep="-")
+  colnames(d10x) <- paste(sapply(strsplit(colnames(d10x),split="-"),'[[',1L),i,sep="_")
   d10x
 })
 names(d10x.data) <- ids
@@ -199,7 +199,7 @@ str(d10x.data)
 ##   .. ..@ Dim     : int [1:2] 36601 1189229
 ##   .. ..@ Dimnames:List of 2
 ##   .. .. ..$ : chr [1:36601] "MIR1302-2HG" "FAM138A" "OR4F5" "AL627309.1" ...
-##   .. .. ..$ : chr [1:1189229] "AAACCCAAGAAACCCA-A001-C-007" "AAACCCAAGAAACCCG-A001-C-007" "AAACCCAAGAAACTGT-A001-C-007" "AAACCCAAGAAAGCGA-A001-C-007" ...
+##   .. .. ..$ : chr [1:1189229] "AAACCCAAGAAACCCA_A001-C-007" "AAACCCAAGAAACCCG_A001-C-007" "AAACCCAAGAAACTGT_A001-C-007" "AAACCCAAGAAAGCGA_A001-C-007" ...
 ##   .. ..@ x       : num [1:16845098] 1 1 1 1 1 1 1 1 1 1 ...
 ##   .. ..@ factors : list()
 ##  $ A001-C-104:Formal class 'dgCMatrix' [package "Matrix"] with 6 slots
@@ -208,7 +208,7 @@ str(d10x.data)
 ##   .. ..@ Dim     : int [1:2] 36601 1730418
 ##   .. ..@ Dimnames:List of 2
 ##   .. .. ..$ : chr [1:36601] "MIR1302-2HG" "FAM138A" "OR4F5" "AL627309.1" ...
-##   .. .. ..$ : chr [1:1730418] "AAACCCAAGAAACACT-A001-C-104" "AAACCCAAGAAACTAC-A001-C-104" "AAACCCAAGAAACTGT-A001-C-104" "AAACCCAAGAAAGACA-A001-C-104" ...
+##   .. .. ..$ : chr [1:1730418] "AAACCCAAGAAACACT_A001-C-104" "AAACCCAAGAAACTAC_A001-C-104" "AAACCCAAGAAACTGT_A001-C-104" "AAACCCAAGAAAGACA_A001-C-104" ...
 ##   .. ..@ x       : num [1:23825766] 1 1 1 1 1 1 1 1 1 1 ...
 ##   .. ..@ factors : list()
 ##  $ B001-A-301:Formal class 'dgCMatrix' [package "Matrix"] with 6 slots
@@ -217,7 +217,7 @@ str(d10x.data)
 ##   .. ..@ Dim     : int [1:2] 36601 1639590
 ##   .. ..@ Dimnames:List of 2
 ##   .. .. ..$ : chr [1:36601] "MIR1302-2HG" "FAM138A" "OR4F5" "AL627309.1" ...
-##   .. .. ..$ : chr [1:1639590] "AAACCCAAGAAACCAT-B001-A-301" "AAACCCAAGAAACCCG-B001-A-301" "AAACCCAAGAAACTCA-B001-A-301" "AAACCCAAGAAACTGT-B001-A-301" ...
+##   .. .. ..$ : chr [1:1639590] "AAACCCAAGAAACCAT_B001-A-301" "AAACCCAAGAAACCCG_B001-A-301" "AAACCCAAGAAACTCA_B001-A-301" "AAACCCAAGAAACTGT_B001-A-301" ...
 ##   .. ..@ x       : num [1:30822123] 1 1 1 1 1 1 1 1 1 1 ...
 ##   .. ..@ factors : list()
 ```
@@ -228,7 +228,7 @@ If you don't have the needed hdf5 libraries you can read in the matrix files lik
 ```r
 d10x.data <- sapply(ids, function(i){
   d10x <- Read10X(file.path(dataset_loc, i, "/outs","raw_feature_bc_matrix"))
-  colnames(d10x) <- paste(sapply(strsplit(colnames(d10x), split="-"), '[[', 1L), i, sep="-")
+  colnames(d10x) <- paste(sapply(strsplit(colnames(d10x), split="-"), '[[', 1L), i, sep="_")
   d10x
 })
 names(d10x.data) <- ids
@@ -318,7 +318,7 @@ experiment.aggregate <- CreateSeuratObject(
   min.cells = 10,
   min.features = 300,
   names.field = 2,
-  names.delim = "\\-")
+  names.delim = "\\_")
 
 experiment.aggregate
 ```
@@ -343,7 +343,7 @@ str(experiment.aggregate)
 ##   .. .. .. .. .. ..@ Dim     : int [1:2] 21005 30902
 ##   .. .. .. .. .. ..@ Dimnames:List of 2
 ##   .. .. .. .. .. .. ..$ : chr [1:21005] "AL627309.1" "AL627309.5" "LINC01409" "LINC01128" ...
-##   .. .. .. .. .. .. ..$ : chr [1:30902] "AAACCCAAGGTCCCTG-A001-C-007" "AAACCCAAGTTACGAA-A001-C-007" "AAACCCAAGTTATGGA-A001-C-007" "AAACCCACAACGCCCA-A001-C-007" ...
+##   .. .. .. .. .. .. ..$ : chr [1:30902] "AAACCCAAGGTCCCTG_A001-C-007" "AAACCCAAGTTACGAA_A001-C-007" "AAACCCAAGTTATGGA_A001-C-007" "AAACCCACAACGCCCA_A001-C-007" ...
 ##   .. .. .. .. .. ..@ x       : num [1:20692774] 1 1 1 1 1 1 1 1 1 1 ...
 ##   .. .. .. .. .. ..@ factors : list()
 ##   .. .. .. ..@ data         :Formal class 'dgCMatrix' [package "Matrix"] with 6 slots
@@ -352,7 +352,7 @@ str(experiment.aggregate)
 ##   .. .. .. .. .. ..@ Dim     : int [1:2] 21005 30902
 ##   .. .. .. .. .. ..@ Dimnames:List of 2
 ##   .. .. .. .. .. .. ..$ : chr [1:21005] "AL627309.1" "AL627309.5" "LINC01409" "LINC01128" ...
-##   .. .. .. .. .. .. ..$ : chr [1:30902] "AAACCCAAGGTCCCTG-A001-C-007" "AAACCCAAGTTACGAA-A001-C-007" "AAACCCAAGTTATGGA-A001-C-007" "AAACCCACAACGCCCA-A001-C-007" ...
+##   .. .. .. .. .. .. ..$ : chr [1:30902] "AAACCCAAGGTCCCTG_A001-C-007" "AAACCCAAGTTACGAA_A001-C-007" "AAACCCAAGTTATGGA_A001-C-007" "AAACCCACAACGCCCA_A001-C-007" ...
 ##   .. .. .. .. .. ..@ x       : num [1:20692774] 1 1 1 1 1 1 1 1 1 1 ...
 ##   .. .. .. .. .. ..@ factors : list()
 ##   .. .. .. ..@ scale.data   : num[0 , 0 ] 
@@ -362,12 +362,12 @@ str(experiment.aggregate)
 ##   .. .. .. ..@ meta.features:'data.frame':	21005 obs. of  0 variables
 ##   .. .. .. ..@ misc         : list()
 ##   ..@ meta.data   :'data.frame':	30902 obs. of  3 variables:
-##   .. ..$ orig.ident  : Factor w/ 2 levels "A001","B001": 1 1 1 1 1 1 1 1 1 1 ...
+##   .. ..$ orig.ident  : Factor w/ 3 levels "A001-C-007","A001-C-104",..: 1 1 1 1 1 1 1 1 1 1 ...
 ##   .. ..$ nCount_RNA  : num [1:30902] 361 459 2076 854 496 ...
 ##   .. ..$ nFeature_RNA: int [1:30902] 322 399 1547 687 410 466 357 438 538 307 ...
 ##   ..@ active.assay: chr "RNA"
-##   ..@ active.ident: Factor w/ 2 levels "A001","B001": 1 1 1 1 1 1 1 1 1 1 ...
-##   .. ..- attr(*, "names")= chr [1:30902] "AAACCCAAGGTCCCTG-A001-C-007" "AAACCCAAGTTACGAA-A001-C-007" "AAACCCAAGTTATGGA-A001-C-007" "AAACCCACAACGCCCA-A001-C-007" ...
+##   ..@ active.ident: Factor w/ 3 levels "A001-C-007","A001-C-104",..: 1 1 1 1 1 1 1 1 1 1 ...
+##   .. ..- attr(*, "names")= chr [1:30902] "AAACCCAAGGTCCCTG_A001-C-007" "AAACCCAAGTTACGAA_A001-C-007" "AAACCCAAGTTATGGA_A001-C-007" "AAACCCACAACGCCCA_A001-C-007" ...
 ##   ..@ graphs      : list()
 ##   ..@ neighbors   : list()
 ##   ..@ reductions  : list()
@@ -419,12 +419,12 @@ head(experiment.aggregate[[]])
 
 ```
 ##                             orig.ident nCount_RNA nFeature_RNA percent.mito
-## AAACCCAAGGTCCCTG-A001-C-007       A001        361          322    2.7700831
-## AAACCCAAGTTACGAA-A001-C-007       A001        459          399    2.6143791
-## AAACCCAAGTTATGGA-A001-C-007       A001       2076         1547    0.5780347
-## AAACCCACAACGCCCA-A001-C-007       A001        854          687    1.5222482
-## AAACCCACAAGTAGTA-A001-C-007       A001        496          410    2.8225806
-## AAACCCACAGAAGTTA-A001-C-007       A001        540          466    1.6666667
+## AAACCCAAGGTCCCTG_A001-C-007 A001-C-007        361          322    2.7700831
+## AAACCCAAGTTACGAA_A001-C-007 A001-C-007        459          399    2.6143791
+## AAACCCAAGTTATGGA_A001-C-007 A001-C-007       2076         1547    0.5780347
+## AAACCCACAACGCCCA_A001-C-007 A001-C-007        854          687    1.5222482
+## AAACCCACAAGTAGTA_A001-C-007 A001-C-007        496          410    2.8225806
+## AAACCCACAGAAGTTA_A001-C-007 A001-C-007        540          466    1.6666667
 ```
 
 #### Question(s)
