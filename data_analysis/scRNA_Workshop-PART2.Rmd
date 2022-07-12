@@ -244,7 +244,7 @@ VariableFeatures(experiment.aggregate) <- genes.use
 
 
 ## Finally, lets save the filtered and normalized data
-```{r save_r, eval=FALSE}
+```{r save_r, eval=TRUE}
 save(experiment.aggregate, file="pre_sample_corrected.RData")
 ```
 
