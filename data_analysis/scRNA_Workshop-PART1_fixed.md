@@ -1,77 +1,12 @@
-<script>
-function buildQuiz(myq, qc){
-  // variable to store the HTML output
-  const output = [];
+---
+title: "Introduction to Single Cell RNAseq Part 1"
+author: "UCD Bioinformatics Core"
+output:
+    html_document:
+      keep_md: TRUE
+---
 
-  // for each question...
-  myq.forEach(
-    (currentQuestion, questionNumber) => {
-
-      // variable to store the list of possible answers
-      const answers = [];
-
-      // and for each available answer...
-      for(letter in currentQuestion.answers){
-
-        // ...add an HTML radio button
-        answers.push(
-          `<label>
-            <input type="radio" name="question${questionNumber}" value="${letter}">
-            ${letter} :
-            ${currentQuestion.answers[letter]}
-          </label><br/>`
-        );
-      }
-
-      // add this question and its answers to the output
-      output.push(
-        `<div class="question"> ${currentQuestion.question} </div>
-        <div class="answers"> ${answers.join('')} </div><br/>`
-      );
-    }
-  );
-
-  // finally combine our output list into one string of HTML and put it on the page
-  qc.innerHTML = output.join('');
-}
-
-function showResults(myq, qc, rc){
-
-  // gather answer containers from our quiz
-  const answerContainers = qc.querySelectorAll('.answers');
-
-  // keep track of user's answers
-  let numCorrect = 0;
-
-  // for each question...
-  myq.forEach( (currentQuestion, questionNumber) => {
-
-    // find selected answer
-    const answerContainer = answerContainers[questionNumber];
-    const selector = `input[name=question${questionNumber}]:checked`;
-    const userAnswer = (answerContainer.querySelector(selector) || {}).value;
-
-    // if answer is correct
-    if(userAnswer === currentQuestion.correctAnswer){
-      // add to the number of correct answers
-      numCorrect++;
-
-      // color the answers green
-      answerContainers[questionNumber].style.color = 'lightgreen';
-    }
-    // if answer is wrong or blank
-    else{
-      // color the answers red
-      answerContainers[questionNumber].style.color = 'red';
-    }
-  });
-
-  // show number of correct answers out of total
-  rc.innerHTML = `${numCorrect} out of ${myq.length}`;
-}
-</script>
-
-Last Updated: March 20 2022
+Last Updated: July 10, 2022
 
 # Part 1: Loading data from CellRanger into R
 
@@ -81,7 +16,7 @@ Our first Markdown document concentrates on getting data into R and setting up o
 
 [Seurat](http://satijalab.org/seurat/) (now Version 4) is a popular R package that is designed for QC, analysis, and exploration of single cell data. Seurat aims to enable users to identify and interpret sources of heterogeneity from single cell transcriptomic measurements, and to integrate diverse types of single cell data. Further, the authors provide several [tutorials](https://satijalab.org/seurat/vignettes.html), on their website.
 
-The **expression_data_cellranger.zip** file contains the single cell matrix files and HDF5 files for four T cell samples from [Mysore et al., 2021](https://www.cell.com/med/fulltext/S2666-6340(21)00289-0).
+The **expression_data_cellranger.zip** file contains the single cell matrix files and HDF5 files for three single nuclei RNASeq samples from [Becker et al., 2022](https://www.nature.com/articles/s41588-022-01088-x)
 
 We start each markdown document with loading needed libraries for R:
 
@@ -98,21 +33,21 @@ library(ggplot2)
 ### Setup the experiment folder and data info
 
 ```r
-experiment_name = "Covid Example"
+experiment_name = "Colon Cancer"
 dataset_loc <- "./expression_data_cellranger"
-ids <- c("conv_COVID", "conv_MMR", "conv_Tdap", "norm_COVID")
+ids <- c("A001-C-007", "A001-C-104", "B001-A-301")
 ```
 
 
 ## Read in the cellranger sample metrics csv files
 
-Usually, there would be a single metrics summary file for each sample. In this case, we are working with a pool of samples that has been demultiplexed using antibody capture data prior to the workshop, and only have one metrics summary file generated for the entire pool.
+There is a single metrics summary file for each sample.
 
 The code in the box below reads in a single metrics summary file. **To read in a summary file for each sample in your experiment, you should use the code in the next box instead.**
 
 
 ```r
-experiment.metrics <- read.csv(file.path(dataset_loc, "metrics_summary.csv"))
+experiment.metrics <- read.csv(file.path(dataset_loc, ids[1], "outs/metrics_summary.csv"))
 sequencing.metrics <- data.frame(t(experiment.metrics[,c(1:19)]))
 rownames(sequencing.metrics) <- gsub("\\.", " ", rownames(sequencing.metrics))
 colnames(sequencing.metrics) <- "All samples"
@@ -136,81 +71,81 @@ sequencing.metrics %>%
   <tr grouplength="3"><td colspan="2" style="background-color: #666; color: #fff;"><strong>Overview</strong></td></tr>
 <tr>
    <td style="text-align:left;padding-left: 2em;" indentlevel="1"> Estimated Number of Cells </td>
-   <td style="text-align:left;"> 7,072 </td>
+   <td style="text-align:left;"> 1,796 </td>
   </tr>
   <tr>
    <td style="text-align:left;padding-left: 2em;" indentlevel="1"> Mean Reads per Cell </td>
-   <td style="text-align:left;"> 89,005 </td>
+   <td style="text-align:left;"> 77,524 </td>
   </tr>
   <tr>
    <td style="text-align:left;padding-left: 2em;" indentlevel="1"> Median Genes per Cell </td>
-   <td style="text-align:left;"> 1,880 </td>
+   <td style="text-align:left;"> 927 </td>
   </tr>
   <tr grouplength="6"><td colspan="2" style="background-color: #666; color: #fff;"><strong>Sequencing Characteristics</strong></td></tr>
 <tr>
    <td style="text-align:left;padding-left: 2em;" indentlevel="1"> Number of Reads </td>
-   <td style="text-align:left;"> 629,444,626 </td>
+   <td style="text-align:left;"> 139,233,487 </td>
   </tr>
   <tr>
    <td style="text-align:left;padding-left: 2em;" indentlevel="1"> Valid Barcodes </td>
-   <td style="text-align:left;"> 94.4% </td>
+   <td style="text-align:left;"> 97.4% </td>
   </tr>
   <tr>
    <td style="text-align:left;padding-left: 2em;" indentlevel="1"> Sequencing Saturation </td>
-   <td style="text-align:left;"> 84.0% </td>
+   <td style="text-align:left;"> 75.5% </td>
   </tr>
   <tr>
    <td style="text-align:left;padding-left: 2em;" indentlevel="1"> Q30 Bases in Barcode </td>
-   <td style="text-align:left;"> 94.3% </td>
+   <td style="text-align:left;"> 97.4% </td>
   </tr>
   <tr>
    <td style="text-align:left;padding-left: 2em;" indentlevel="1"> Q30 Bases in RNA Read </td>
-   <td style="text-align:left;"> 89.5% </td>
+   <td style="text-align:left;"> 95.6% </td>
   </tr>
   <tr>
    <td style="text-align:left;padding-left: 2em;" indentlevel="1"> Q30 Bases in UMI </td>
-   <td style="text-align:left;"> 93.8% </td>
+   <td style="text-align:left;"> 97.5% </td>
   </tr>
   <tr grouplength="10"><td colspan="2" style="background-color: #666; color: #fff;"><strong>Mapping Characteristics</strong></td></tr>
 <tr>
    <td style="text-align:left;padding-left: 2em;" indentlevel="1"> Reads Mapped to Genome </td>
-   <td style="text-align:left;"> 90.0% </td>
+   <td style="text-align:left;"> 94.3% </td>
   </tr>
   <tr>
    <td style="text-align:left;padding-left: 2em;" indentlevel="1"> Reads Mapped Confidently to Genome </td>
-   <td style="text-align:left;"> 85.4% </td>
+   <td style="text-align:left;"> 72.3% </td>
   </tr>
   <tr>
    <td style="text-align:left;padding-left: 2em;" indentlevel="1"> Reads Mapped Confidently to Intergenic Regions </td>
-   <td style="text-align:left;"> 1.7% </td>
+   <td style="text-align:left;"> 8.2% </td>
   </tr>
   <tr>
    <td style="text-align:left;padding-left: 2em;" indentlevel="1"> Reads Mapped Confidently to Intronic Regions </td>
-   <td style="text-align:left;"> 3.5% </td>
+   <td style="text-align:left;"> 26.9% </td>
   </tr>
   <tr>
    <td style="text-align:left;padding-left: 2em;" indentlevel="1"> Reads Mapped Confidently to Exonic Regions </td>
-   <td style="text-align:left;"> 80.2% </td>
+   <td style="text-align:left;"> 37.2% </td>
   </tr>
   <tr>
    <td style="text-align:left;padding-left: 2em;" indentlevel="1"> Reads Mapped Confidently to Transcriptome </td>
-   <td style="text-align:left;"> 76.5% </td>
+   <td style="text-align:left;"> 61.1% </td>
   </tr>
   <tr>
    <td style="text-align:left;padding-left: 2em;" indentlevel="1"> Reads Mapped Antisense to Gene </td>
-   <td style="text-align:left;"> 1.7% </td>
+   <td style="text-align:left;"> 2.4% </td>
   </tr>
   <tr>
    <td style="text-align:left;padding-left: 2em;" indentlevel="1"> Fraction Reads in Cells </td>
-   <td style="text-align:left;"> 75.5% </td>
+   <td style="text-align:left;"> 29.6% </td>
   </tr>
   <tr>
    <td style="text-align:left;padding-left: 2em;" indentlevel="1"> Total Genes Detected </td>
-   <td style="text-align:left;"> 19,923 </td>
+   <td style="text-align:left;"> 23,930 </td>
   </tr>
   <tr>
    <td style="text-align:left;padding-left: 2em;" indentlevel="1"> Median UMI Counts per Cell </td>
-   <td style="text-align:left;"> 5,671 </td>
+   <td style="text-align:left;"> 1,204 </td>
   </tr>
 </tbody>
 </table>
@@ -239,7 +174,7 @@ sequencing.metrics %>%
 ## Load the Cell Ranger Matrix Data and create the base Seurat object.
 Cell Ranger provides a function `cellranger aggr` that will combine multiple samples into a single matrix file. However, when processing data in R this is unnecessary and we can quickly aggregate them in R.
 
-Seurat provides a function `Read10X` and `Read10X_h5` to read in 10X data folder. First we read in data from each individual sample folder.
+Seurat provides a function `Read10X` and `Read10X_h5` to read in 10X data folder. First we read in data from each individual sample folder. 
 
 Later, we initialize the Seurat object (`CreateSeuratObject`) with the raw (non-normalized data). Keep all cells with at least 200 detected genes. Also extracting sample names, calculating and adding in the metadata mitochondrial percentage of each cell. Adding in the metadata batchid and cell cycle. Finally, saving the raw Seurat object.
 
@@ -256,44 +191,37 @@ names(d10x.data) <- ids
 str(d10x.data)
 ```
 
-<div class='r_output'> List of 4
-  $ conv_COVID:Formal class 'dgCMatrix' [package "Matrix"] with 6 slots
-   .. ..@ i       : int [1:3341791] 24 42 43 44 53 59 61 62 78 83 ...
-   .. ..@ p       : int [1:22472] 0 0 0 0 3471 3471 3471 3471 3478 3478 ...
-   .. ..@ Dim     : int [1:2] 36601 22471
-   .. ..@ Dimnames:List of 2
-   .. .. ..$ : chr [1:36601] "MIR1302-2HG" "FAM138A" "OR4F5" "AL627309.1" ...
-   .. .. ..$ : chr [1:22471] "AAACCTGAGAACAACT-conv_COVID" "AAACCTGAGAAGGCCT-conv_COVID" "AAACCTGAGACACGAC-conv_COVID" "AAACCTGAGACTAGAT-conv_COVID" ...
-   .. ..@ x       : num [1:3341791] 3 2 11 6 2 1 1 1 1 2 ...
-   .. ..@ factors : list()
-  $ conv_MMR  :Formal class 'dgCMatrix' [package "Matrix"] with 6 slots
-   .. ..@ i       : int [1:4372343] 9776 13612 4881 29788 17208 18735 2096 13949 20008 24103 ...
-   .. ..@ p       : int [1:39830] 0 1 1 2 2 2 4 4 4 4 ...
-   .. ..@ Dim     : int [1:2] 36601 39829
-   .. ..@ Dimnames:List of 2
-   .. .. ..$ : chr [1:36601] "MIR1302-2HG" "FAM138A" "OR4F5" "AL627309.1" ...
-   .. .. ..$ : chr [1:39829] "AAACCTGAGAATCTCC-conv_MMR" "AAACCTGAGACCGGAT-conv_MMR" "AAACCTGAGACCTTTG-conv_MMR" "AAACCTGAGACGCACA-conv_MMR" ...
-   .. ..@ x       : num [1:4372343] 1 1 1 1 1 1 1 1 1 1 ...
-   .. ..@ factors : list()
-  $ conv_Tdap :Formal class 'dgCMatrix' [package "Matrix"] with 6 slots
-   .. ..@ i       : int [1:3801450] 4325 28917 28335 32724 5414 31575 184 187 190 219 ...
-   .. ..@ p       : int [1:23839] 0 2 2 4 6 821 822 822 823 4513 ...
-   .. ..@ Dim     : int [1:2] 36601 23838
-   .. ..@ Dimnames:List of 2
-   .. .. ..$ : chr [1:36601] "MIR1302-2HG" "FAM138A" "OR4F5" "AL627309.1" ...
-   .. .. ..$ : chr [1:23838] "AAACCTGAGAACTCGG-conv_Tdap" "AAACCTGAGACTGGGT-conv_Tdap" "AAACCTGAGAGGACGG-conv_Tdap" "AAACCTGAGAGTCTGG-conv_Tdap" ...
-   .. ..@ x       : num [1:3801450] 1 1 1 1 1 1 1 1 1 2 ...
-   .. ..@ factors : list()
-  $ norm_COVID:Formal class 'dgCMatrix' [package "Matrix"] with 6 slots
-   .. ..@ i       : int [1:966879] 13909 25538 19314 31392 32724 11613 33848 2429 11932 24 ...
-   .. ..@ p       : int [1:17821] 0 0 0 0 2 2 5 5 5 5 ...
-   .. ..@ Dim     : int [1:2] 36601 17820
-   .. ..@ Dimnames:List of 2
-   .. .. ..$ : chr [1:36601] "MIR1302-2HG" "FAM138A" "OR4F5" "AL627309.1" ...
-   .. .. ..$ : chr [1:17820] "AAACCTGAGAGGGATA-norm_COVID" "AAACCTGAGATAGCAT-norm_COVID" "AAACCTGAGATCCTGT-norm_COVID" "AAACCTGAGCCACCTG-norm_COVID" ...
-   .. ..@ x       : num [1:966879] 1 1 1 1 1 1 1 1 1 1 ...
-   .. ..@ factors : list()
-</div>
+```
+## List of 3
+##  $ A001-C-007:Formal class 'dgCMatrix' [package "Matrix"] with 6 slots
+##   .. ..@ i       : int [1:16845098] 13849 300 539 916 2153 2320 3196 4057 4317 4786 ...
+##   .. ..@ p       : int [1:1189230] 0 1 1 100 101 102 103 240 241 241 ...
+##   .. ..@ Dim     : int [1:2] 36601 1189229
+##   .. ..@ Dimnames:List of 2
+##   .. .. ..$ : chr [1:36601] "MIR1302-2HG" "FAM138A" "OR4F5" "AL627309.1" ...
+##   .. .. ..$ : chr [1:1189229] "AAACCCAAGAAACCCA-A001-C-007" "AAACCCAAGAAACCCG-A001-C-007" "AAACCCAAGAAACTGT-A001-C-007" "AAACCCAAGAAAGCGA-A001-C-007" ...
+##   .. ..@ x       : num [1:16845098] 1 1 1 1 1 1 1 1 1 1 ...
+##   .. ..@ factors : list()
+##  $ A001-C-104:Formal class 'dgCMatrix' [package "Matrix"] with 6 slots
+##   .. ..@ i       : int [1:23825766] 4368 31446 33637 35689 36562 8075 24917 8224 17208 20003 ...
+##   .. ..@ p       : int [1:1730419] 0 0 0 5 5 5 5 6 6 7 ...
+##   .. ..@ Dim     : int [1:2] 36601 1730418
+##   .. ..@ Dimnames:List of 2
+##   .. .. ..$ : chr [1:36601] "MIR1302-2HG" "FAM138A" "OR4F5" "AL627309.1" ...
+##   .. .. ..$ : chr [1:1730418] "AAACCCAAGAAACACT-A001-C-104" "AAACCCAAGAAACTAC-A001-C-104" "AAACCCAAGAAACTGT-A001-C-104" "AAACCCAAGAAAGACA-A001-C-104" ...
+##   .. ..@ x       : num [1:23825766] 1 1 1 1 1 1 1 1 1 1 ...
+##   .. ..@ factors : list()
+##  $ B001-A-301:Formal class 'dgCMatrix' [package "Matrix"] with 6 slots
+##   .. ..@ i       : int [1:30822123] 13919 12548 15202 24697 3084 35555 27737 36565 8592 1173 ...
+##   .. ..@ p       : int [1:1639591] 0 1 4 6 7 7 8 8 9 9 ...
+##   .. ..@ Dim     : int [1:2] 36601 1639590
+##   .. ..@ Dimnames:List of 2
+##   .. .. ..$ : chr [1:36601] "MIR1302-2HG" "FAM138A" "OR4F5" "AL627309.1" ...
+##   .. .. ..$ : chr [1:1639590] "AAACCCAAGAAACCAT-B001-A-301" "AAACCCAAGAAACCCG-B001-A-301" "AAACCCAAGAAACTCA-B001-A-301" "AAACCCAAGAAACTGT-B001-A-301" ...
+##   .. ..@ x       : num [1:30822123] 1 1 1 1 1 1 1 1 1 1 ...
+##   .. ..@ factors : list()
+```
+
 If you don't have the needed hdf5 libraries you can read in the matrix files like such
 
 
@@ -321,10 +249,10 @@ plot_cellranger_cells <- function(ind){
   pl1 <- data.frame(index=seq.int(1,ncol(d10x.data[[ind]])),
                     nCount_RNA = sort(Matrix:::colSums(d10x.data[[ind]])+1,decreasing=T),
                     nFeature_RNA = sort(Matrix:::colSums(d10x.data[[ind]]>0)+1,decreasing=T)) %>%
-    ggplot() +
+    ggplot() + 
     scale_color_manual(values=c("red2","blue4"), labels=c("Features", "UMI"), name=NULL) +
-    ggtitle(paste("CellRanger filltered cells:",ids[ind],sep=" ")) + xlab("Barcodes") + ylab("counts (UMI or Features") +
-    scale_x_continuous(trans = 'log2', breaks=xbreaks, labels = xlabels) +
+    ggtitle(paste("CellRanger filltered cells:",ids[ind],sep=" ")) + xlab("Barcodes") + ylab("counts (UMI or Features") + 
+    scale_x_continuous(trans = 'log2', breaks=xbreaks, labels = xlabels) + 
     scale_y_continuous(trans = 'log2', breaks=ybreaks, labels = ylabels) +
     geom_line(aes(x=index, y=nCount_RNA, color = "UMI"), size=1.75) +
     geom_line(aes(x=index, y=nFeature_RNA, color = "Features"), size=1.25)
@@ -349,12 +277,6 @@ plot_cellranger_cells(3)
 
 ![](scRNA_Workshop-PART1_files/figure-html/fig_barcode_umi-3.png)<!-- -->
 
-```r
-plot_cellranger_cells(4)
-```
-
-![](scRNA_Workshop-PART1_files/figure-html/fig_barcode_umi-4.png)<!-- -->
-
 
 ```r
 cr_filtered_cells <- as.numeric(gsub(",","",as.character(unlist(sequencing.metrics["Estimated Number of Cells",]))))
@@ -365,10 +287,10 @@ plot_cellranger_cells <- function(ind){
   ybreaks = c(1,2,5,10,20,50,100,200,500,1000,2000,5000,10000,20000,50000,100000,200000,500000,1000000)
   ylabels = c("1","2","5","10","2","5","100","2","5","1000","2","5","10k","2","5","100K","2","5","1M")
 
-  pl1 <- data.frame(index=seq.int(1,ncol(d10x.data[[ind]])), nCount_RNA = sort(Matrix:::colSums(d10x.data[[ind]])+1,decreasing=T), nFeature_RNA = sort(Matrix:::colSums(d10x.data[[ind]]>0)+1,decreasing=T)) %>% ggplot() +
+  pl1 <- data.frame(index=seq.int(1,ncol(d10x.data[[ind]])), nCount_RNA = sort(Matrix:::colSums(d10x.data[[ind]])+1,decreasing=T), nFeature_RNA = sort(Matrix:::colSums(d10x.data[[ind]]>0)+1,decreasing=T)) %>% ggplot() + 
     scale_color_manual(values=c("grey50","red2","blue4"), labels=c("UMI_Background", "Features", "UMI_Cells"), name=NULL) +
-    ggtitle(paste("CellRanger filltered cells:",ids[ind],sep=" ")) + xlab("Barcodes") + ylab("counts (UMI or Features") +
-    scale_x_continuous(trans = 'log2', breaks=xbreaks, labels = xlabels) +
+    ggtitle(paste("CellRanger filltered cells:",ids[ind],sep=" ")) + xlab("Barcodes") + ylab("counts (UMI or Features") + 
+    scale_x_continuous(trans = 'log2', breaks=xbreaks, labels = xlabels) + 
     scale_y_continuous(trans = 'log2', breaks=ybreaks, labels = ylabels) +
     geom_line(aes(x=index, y=nCount_RNA, color=index<=cr_filtered_cells[ind] , group=1), size=1.75) +
     geom_line(aes(x=index, y=nFeature_RNA, color="Features", group=1), size=1.25)
@@ -379,13 +301,12 @@ plot_cellranger_cells <- function(ind){
 plot_cellranger_cells(1)
 plot_cellranger_cells(2)
 plot_cellranger_cells(3)
-plot_cellranger_cells(4)
 ```
 
 
 ### Create the Seurat object
 
-Filter criteria: remove genes that do not occur in a minimum of 0 cells and remove cells that don't have a minimum of 200 features
+Filter criteria: remove genes that do not occur in a minimum of 10 cells and remove cells that don't have a minimum of 200 features
 
 
 ```r
@@ -394,7 +315,7 @@ experiment.data <- do.call("cbind", d10x.data)
 experiment.aggregate <- CreateSeuratObject(
   experiment.data,
   project = experiment_name,
-  min.cells = 0,
+  min.cells = 10,
   min.features = 300,
   names.field = 2,
   names.delim = "\\-")
@@ -402,59 +323,63 @@ experiment.aggregate <- CreateSeuratObject(
 experiment.aggregate
 ```
 
-<div class='r_output'> An object of class Seurat
- 36601 features across 5803 samples within 1 assay
- Active assay: RNA (36601 features, 0 variable features)
-</div>
+```
+## An object of class Seurat 
+## 21005 features across 30902 samples within 1 assay 
+## Active assay: RNA (21005 features, 0 variable features)
+```
+
 ```r
 str(experiment.aggregate)
 ```
 
-<div class='r_output'> Formal class 'Seurat' [package "SeuratObject"] with 13 slots
-   ..@ assays      :List of 1
-   .. ..$ RNA:Formal class 'Assay' [package "SeuratObject"] with 8 slots
-   .. .. .. ..@ counts       :Formal class 'dgCMatrix' [package "Matrix"] with 6 slots
-   .. .. .. .. .. ..@ i       : int [1:12282940] 24 42 43 44 53 59 61 62 78 83 ...
-   .. .. .. .. .. ..@ p       : int [1:5804] 0 3471 7135 9695 13117 13746 14071 17010 20128 22256 ...
-   .. .. .. .. .. ..@ Dim     : int [1:2] 36601 5803
-   .. .. .. .. .. ..@ Dimnames:List of 2
-   .. .. .. .. .. .. ..$ : chr [1:36601] "MIR1302-2HG" "FAM138A" "OR4F5" "AL627309.1" ...
-   .. .. .. .. .. .. ..$ : chr [1:5803] "AAACCTGAGACTAGAT-conv_COVID" "AAACCTGAGCTACCTA-conv_COVID" "AAACCTGCAGACTCGC-conv_COVID" "AAACCTGGTAAATGTG-conv_COVID" ...
-   .. .. .. .. .. ..@ x       : num [1:12282940] 3 2 11 6 2 1 1 1 1 2 ...
-   .. .. .. .. .. ..@ factors : list()
-   .. .. .. ..@ data         :Formal class 'dgCMatrix' [package "Matrix"] with 6 slots
-   .. .. .. .. .. ..@ i       : int [1:12282940] 24 42 43 44 53 59 61 62 78 83 ...
-   .. .. .. .. .. ..@ p       : int [1:5804] 0 3471 7135 9695 13117 13746 14071 17010 20128 22256 ...
-   .. .. .. .. .. ..@ Dim     : int [1:2] 36601 5803
-   .. .. .. .. .. ..@ Dimnames:List of 2
-   .. .. .. .. .. .. ..$ : chr [1:36601] "MIR1302-2HG" "FAM138A" "OR4F5" "AL627309.1" ...
-   .. .. .. .. .. .. ..$ : chr [1:5803] "AAACCTGAGACTAGAT-conv_COVID" "AAACCTGAGCTACCTA-conv_COVID" "AAACCTGCAGACTCGC-conv_COVID" "AAACCTGGTAAATGTG-conv_COVID" ...
-   .. .. .. .. .. ..@ x       : num [1:12282940] 3 2 11 6 2 1 1 1 1 2 ...
-   .. .. .. .. .. ..@ factors : list()
-   .. .. .. ..@ scale.data   : num[0 , 0 ]
-   .. .. .. ..@ key          : chr "rna_"
-   .. .. .. ..@ assay.orig   : NULL
-   .. .. .. ..@ var.features : logi(0)
-   .. .. .. ..@ meta.features:'data.frame':	36601 obs. of  0 variables
-   .. .. .. ..@ misc         : list()
-   ..@ meta.data   :'data.frame':	5803 obs. of  3 variables:
-   .. ..$ orig.ident  : Factor w/ 4 levels "conv_COVID","conv_MMR",..: 1 1 1 1 1 1 1 1 1 1 ...
-   .. ..$ nCount_RNA  : num [1:5803] 17521 16250 7321 16235 813 ...
-   .. ..$ nFeature_RNA: int [1:5803] 3471 3664 2560 3422 629 325 2939 3118 2128 2964 ...
-   ..@ active.assay: chr "RNA"
-   ..@ active.ident: Factor w/ 4 levels "conv_COVID","conv_MMR",..: 1 1 1 1 1 1 1 1 1 1 ...
-   .. ..- attr(*, "names")= chr [1:5803] "AAACCTGAGACTAGAT-conv_COVID" "AAACCTGAGCTACCTA-conv_COVID" "AAACCTGCAGACTCGC-conv_COVID" "AAACCTGGTAAATGTG-conv_COVID" ...
-   ..@ graphs      : list()
-   ..@ neighbors   : list()
-   ..@ reductions  : list()
-   ..@ images      : list()
-   ..@ project.name: chr "Covid Example"
-   ..@ misc        : list()
-   ..@ version     :Classes 'package_version', 'numeric_version'  hidden list of 1
-   .. ..$ : int [1:3] 4 0 4
-   ..@ commands    : list()
-   ..@ tools       : list()
-</div>
+```
+## Formal class 'Seurat' [package "SeuratObject"] with 13 slots
+##   ..@ assays      :List of 1
+##   .. ..$ RNA:Formal class 'Assay' [package "SeuratObject"] with 8 slots
+##   .. .. .. ..@ counts       :Formal class 'dgCMatrix' [package "Matrix"] with 6 slots
+##   .. .. .. .. .. ..@ i       : int [1:20692774] 254 391 396 416 484 511 543 595 799 862 ...
+##   .. .. .. .. .. ..@ p       : int [1:30903] 0 322 721 2268 2955 3365 3831 4188 4626 5164 ...
+##   .. .. .. .. .. ..@ Dim     : int [1:2] 21005 30902
+##   .. .. .. .. .. ..@ Dimnames:List of 2
+##   .. .. .. .. .. .. ..$ : chr [1:21005] "AL627309.1" "AL627309.5" "LINC01409" "LINC01128" ...
+##   .. .. .. .. .. .. ..$ : chr [1:30902] "AAACCCAAGGTCCCTG-A001-C-007" "AAACCCAAGTTACGAA-A001-C-007" "AAACCCAAGTTATGGA-A001-C-007" "AAACCCACAACGCCCA-A001-C-007" ...
+##   .. .. .. .. .. ..@ x       : num [1:20692774] 1 1 1 1 1 1 1 1 1 1 ...
+##   .. .. .. .. .. ..@ factors : list()
+##   .. .. .. ..@ data         :Formal class 'dgCMatrix' [package "Matrix"] with 6 slots
+##   .. .. .. .. .. ..@ i       : int [1:20692774] 254 391 396 416 484 511 543 595 799 862 ...
+##   .. .. .. .. .. ..@ p       : int [1:30903] 0 322 721 2268 2955 3365 3831 4188 4626 5164 ...
+##   .. .. .. .. .. ..@ Dim     : int [1:2] 21005 30902
+##   .. .. .. .. .. ..@ Dimnames:List of 2
+##   .. .. .. .. .. .. ..$ : chr [1:21005] "AL627309.1" "AL627309.5" "LINC01409" "LINC01128" ...
+##   .. .. .. .. .. .. ..$ : chr [1:30902] "AAACCCAAGGTCCCTG-A001-C-007" "AAACCCAAGTTACGAA-A001-C-007" "AAACCCAAGTTATGGA-A001-C-007" "AAACCCACAACGCCCA-A001-C-007" ...
+##   .. .. .. .. .. ..@ x       : num [1:20692774] 1 1 1 1 1 1 1 1 1 1 ...
+##   .. .. .. .. .. ..@ factors : list()
+##   .. .. .. ..@ scale.data   : num[0 , 0 ] 
+##   .. .. .. ..@ key          : chr "rna_"
+##   .. .. .. ..@ assay.orig   : NULL
+##   .. .. .. ..@ var.features : logi(0) 
+##   .. .. .. ..@ meta.features:'data.frame':	21005 obs. of  0 variables
+##   .. .. .. ..@ misc         : list()
+##   ..@ meta.data   :'data.frame':	30902 obs. of  3 variables:
+##   .. ..$ orig.ident  : Factor w/ 2 levels "A001","B001": 1 1 1 1 1 1 1 1 1 1 ...
+##   .. ..$ nCount_RNA  : num [1:30902] 361 459 2076 854 496 ...
+##   .. ..$ nFeature_RNA: int [1:30902] 322 399 1547 687 410 466 357 438 538 307 ...
+##   ..@ active.assay: chr "RNA"
+##   ..@ active.ident: Factor w/ 2 levels "A001","B001": 1 1 1 1 1 1 1 1 1 1 ...
+##   .. ..- attr(*, "names")= chr [1:30902] "AAACCCAAGGTCCCTG-A001-C-007" "AAACCCAAGTTACGAA-A001-C-007" "AAACCCAAGTTATGGA-A001-C-007" "AAACCCACAACGCCCA-A001-C-007" ...
+##   ..@ graphs      : list()
+##   ..@ neighbors   : list()
+##   ..@ reductions  : list()
+##   ..@ images      : list()
+##   ..@ project.name: chr "Colon Cancer"
+##   ..@ misc        : list()
+##   ..@ version     :Classes 'package_version', 'numeric_version'  hidden list of 1
+##   .. ..$ : int [1:3] 4 0 4
+##   ..@ commands    : list()
+##   ..@ tools       : list()
+```
+
 ### The percentage of reads that map to the mitochondrial genome
 
 * Low-quality / dying cells often exhibit extensive mitochondrial contamination.
@@ -467,9 +392,11 @@ experiment.aggregate$percent.mito <- PercentageFeatureSet(experiment.aggregate, 
 summary(experiment.aggregate$percent.mito)
 ```
 
-<div class='r_output'>    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
-  0.0000  0.5711  1.1171  2.7418  3.8196 48.2639
-</div>
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##  0.0000  0.8622  1.6713  1.8490  2.4457 46.6468
+```
+
 ### Lets spend a little time getting to know the Seurat object.
 
 The Seurat object is the center of each single cell analysis. It stores __all__ information associated with the dataset, including data, annotations, analyses, etc. The R function slotNames can be used to view the slot names within an object.
@@ -479,59 +406,33 @@ The Seurat object is the center of each single cell analysis. It stores __all__ 
 slotNames(experiment.aggregate)
 ```
 
-<div class='r_output'>  [1] "assays"       "meta.data"    "active.assay" "active.ident" "graphs"      
-  [6] "neighbors"    "reductions"   "images"       "project.name" "misc"        
- [11] "version"      "commands"     "tools"
-</div>
+```
+##  [1] "assays"       "meta.data"    "active.assay" "active.ident" "graphs"      
+##  [6] "neighbors"    "reductions"   "images"       "project.name" "misc"        
+## [11] "version"      "commands"     "tools"
+```
+
 
 ```r
 head(experiment.aggregate[[]])
 ```
 
-<div class='r_output'>                             orig.ident nCount_RNA nFeature_RNA percent.mito
- AAACCTGAGACTAGAT-conv_COVID conv_COVID      17521         3471    0.5878660
- AAACCTGAGCTACCTA-conv_COVID conv_COVID      16250         3664    0.4307692
- AAACCTGCAGACTCGC-conv_COVID conv_COVID       7321         2560    0.3824614
- AAACCTGGTAAATGTG-conv_COVID conv_COVID      16235         3422    0.8192177
- AAACCTGTCTTCCTTC-conv_COVID conv_COVID        813          629    1.7220172
- AAACGGGAGAGTCGGT-conv_COVID conv_COVID        452          325    2.4336283
-</div>
+```
+##                             orig.ident nCount_RNA nFeature_RNA percent.mito
+## AAACCCAAGGTCCCTG-A001-C-007       A001        361          322    2.7700831
+## AAACCCAAGTTACGAA-A001-C-007       A001        459          399    2.6143791
+## AAACCCAAGTTATGGA-A001-C-007       A001       2076         1547    0.5780347
+## AAACCCACAACGCCCA-A001-C-007       A001        854          687    1.5222482
+## AAACCCACAAGTAGTA-A001-C-007       A001        496          410    2.8225806
+## AAACCCACAGAAGTTA-A001-C-007       A001        540          466    1.6666667
+```
+
 #### Question(s)
 
-<div id="quiz1" class="quiz"></div>
-<button id="submit1">Submit Quiz</button>
-<div id="results1" class="output"></div>
-<script>
-quizContainer1 = document.getElementById('quiz1');
-resultsContainer1 = document.getElementById('results1');
-submitButton1 = document.getElementById('submit1');
+1. What slots are empty, what slots have data?
+2. What columns are available in meta.data?
+3. Look up the help documentation for subset?
 
-myQuestions1 = [
-  {
-    question: "Which of these slots contain data?",
-    answers: {
-      a: "graph",
-      b: "misc",
-      c: "active.ident",
-      d: "commands"
-    },
-    correctAnswer: "c"
-  },
-  {
-    question: "What is the content of the meta.data slot?",
-    answers: {
-      a: "a list of information about the samples",
-      b: "a table where the rows are cells and the columns are sample metadata",
-      c: "a table where the rows are sample metadata and the columns are cells",
-      d: "the number of cells in the experiment"
-    },
-    correctAnswer: "b"
-  }
-];
-
-buildQuiz(myQuestions1, quizContainer1);
-submitButton1.addEventListener('click', function() {showResults(myQuestions1, quizContainer1, resultsContainer1);});
-</script>
 
 ## Finally, save the original object and view the object.
 
@@ -553,63 +454,64 @@ download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training
 sessionInfo()
 ```
 
-<div class='r_output'> R version 4.1.2 (2021-11-01)
- Platform: aarch64-apple-darwin20 (64-bit)
- Running under: macOS Monterey 12.0.1
-
- Matrix products: default
- BLAS:   /Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/lib/libRblas.0.dylib
- LAPACK: /Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/lib/libRlapack.dylib
-
- locale:
- [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
-
- attached base packages:
- [1] stats     graphics  grDevices utils     datasets  methods   base     
-
- other attached packages:
- [1] ggplot2_3.3.5      kableExtra_1.3.4   SeuratObject_4.0.4 Seurat_4.1.0      
-
- loaded via a namespace (and not attached):
-   [1] Rtsne_0.15            colorspace_2.0-3      deldir_1.0-6         
-   [4] ellipsis_0.3.2        ggridges_0.5.3        rstudioapi_0.13      
-   [7] spatstat.data_2.1-2   farver_2.1.0          leiden_0.3.9         
-  [10] listenv_0.8.0         bit64_4.0.5           ggrepel_0.9.1        
-  [13] fansi_1.0.2           xml2_1.3.3            codetools_0.2-18     
-  [16] splines_4.1.2         knitr_1.37            polyclip_1.10-0      
-  [19] jsonlite_1.8.0        ica_1.0-2             cluster_2.1.2        
-  [22] png_0.1-7             uwot_0.1.11           shiny_1.7.1          
-  [25] sctransform_0.3.3     spatstat.sparse_2.1-0 compiler_4.1.2       
-  [28] httr_1.4.2            assertthat_0.2.1      Matrix_1.4-0         
-  [31] fastmap_1.1.0         lazyeval_0.2.2        cli_3.2.0            
-  [34] later_1.3.0           htmltools_0.5.2       tools_4.1.2          
-  [37] igraph_1.2.11         gtable_0.3.0          glue_1.6.2           
-  [40] RANN_2.6.1            reshape2_1.4.4        dplyr_1.0.8          
-  [43] Rcpp_1.0.8.3          scattermore_0.8       jquerylib_0.1.4      
-  [46] vctrs_0.3.8           svglite_2.1.0         nlme_3.1-155         
-  [49] lmtest_0.9-39         spatstat.random_2.1-0 xfun_0.30            
-  [52] stringr_1.4.0         globals_0.14.0        rvest_1.0.2          
-  [55] mime_0.12             miniUI_0.1.1.1        lifecycle_1.0.1      
-  [58] irlba_2.3.5           goftest_1.2-3         future_1.24.0        
-  [61] MASS_7.3-55           zoo_1.8-9             scales_1.1.1         
-  [64] spatstat.core_2.4-0   promises_1.2.0.1      spatstat.utils_2.3-0
-  [67] parallel_4.1.2        RColorBrewer_1.1-2    yaml_2.3.5           
-  [70] reticulate_1.24       pbapply_1.5-0         gridExtra_2.3        
-  [73] sass_0.4.0            rpart_4.1.16          stringi_1.7.6        
-  [76] highr_0.9             systemfonts_1.0.4     rlang_1.0.2          
-  [79] pkgconfig_2.0.3       matrixStats_0.61.0    evaluate_0.15        
-  [82] lattice_0.20-45       ROCR_1.0-11           purrr_0.3.4          
-  [85] tensor_1.5            patchwork_1.1.1       htmlwidgets_1.5.4    
-  [88] bit_4.0.4             cowplot_1.1.1         tidyselect_1.1.2     
-  [91] parallelly_1.30.0     RcppAnnoy_0.0.19      plyr_1.8.6           
-  [94] magrittr_2.0.2        R6_2.5.1              generics_0.1.2       
-  [97] DBI_1.1.2             withr_2.5.0           mgcv_1.8-39          
- [100] pillar_1.7.0          fitdistrplus_1.1-8    survival_3.3-1       
- [103] abind_1.4-5           tibble_3.1.6          future.apply_1.8.1   
- [106] hdf5r_1.3.5           crayon_1.5.0          KernSmooth_2.23-20   
- [109] utf8_1.2.2            spatstat.geom_2.3-2   plotly_4.10.0        
- [112] rmarkdown_2.13        grid_4.1.2            data.table_1.14.2    
- [115] webshot_0.5.2         digest_0.6.29         xtable_1.8-4         
- [118] tidyr_1.2.0           httpuv_1.6.5          munsell_0.5.0        
- [121] viridisLite_0.4.0     bslib_0.3.1
-</div>
+```
+## R version 4.1.2 (2021-11-01)
+## Platform: x86_64-apple-darwin17.0 (64-bit)
+## Running under: macOS Catalina 10.15.7
+## 
+## Matrix products: default
+## BLAS:   /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRblas.0.dylib
+## LAPACK: /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRlapack.dylib
+## 
+## locale:
+## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+## 
+## attached base packages:
+## [1] stats     graphics  grDevices utils     datasets  methods   base     
+## 
+## other attached packages:
+## [1] ggplot2_3.3.5      kableExtra_1.3.4   SeuratObject_4.0.4 Seurat_4.1.0      
+## 
+## loaded via a namespace (and not attached):
+##   [1] Rtsne_0.15            colorspace_2.0-2      deldir_1.0-6         
+##   [4] ellipsis_0.3.2        ggridges_0.5.3        rstudioapi_0.13      
+##   [7] spatstat.data_2.1-2   farver_2.1.0          leiden_0.3.9         
+##  [10] listenv_0.8.0         bit64_4.0.5           ggrepel_0.9.1        
+##  [13] fansi_1.0.2           xml2_1.3.3            codetools_0.2-18     
+##  [16] splines_4.1.2         knitr_1.37            polyclip_1.10-0      
+##  [19] jsonlite_1.8.0        ica_1.0-2             cluster_2.1.2        
+##  [22] png_0.1-7             uwot_0.1.11           shiny_1.7.1          
+##  [25] sctransform_0.3.3     spatstat.sparse_2.1-0 compiler_4.1.2       
+##  [28] httr_1.4.2            assertthat_0.2.1      Matrix_1.4-0         
+##  [31] fastmap_1.1.0         lazyeval_0.2.2        cli_3.2.0            
+##  [34] later_1.3.0           htmltools_0.5.2       tools_4.1.2          
+##  [37] igraph_1.2.11         gtable_0.3.0          glue_1.6.2           
+##  [40] RANN_2.6.1            reshape2_1.4.4        dplyr_1.0.8          
+##  [43] Rcpp_1.0.8.3          scattermore_0.7       jquerylib_0.1.4      
+##  [46] vctrs_0.3.8           svglite_2.1.0         nlme_3.1-155         
+##  [49] lmtest_0.9-39         xfun_0.29             stringr_1.4.0        
+##  [52] globals_0.14.0        rvest_1.0.2           mime_0.12            
+##  [55] miniUI_0.1.1.1        lifecycle_1.0.1       irlba_2.3.5          
+##  [58] goftest_1.2-3         future_1.23.0         MASS_7.3-55          
+##  [61] zoo_1.8-9             scales_1.1.1          spatstat.core_2.3-2  
+##  [64] promises_1.2.0.1      spatstat.utils_2.3-0  parallel_4.1.2       
+##  [67] RColorBrewer_1.1-2    yaml_2.3.5            reticulate_1.24      
+##  [70] pbapply_1.5-0         gridExtra_2.3         sass_0.4.0           
+##  [73] rpart_4.1.16          stringi_1.7.6         highr_0.9            
+##  [76] systemfonts_1.0.4     rlang_1.0.2           pkgconfig_2.0.3      
+##  [79] matrixStats_0.61.0    evaluate_0.14         lattice_0.20-45      
+##  [82] ROCR_1.0-11           purrr_0.3.4           tensor_1.5           
+##  [85] patchwork_1.1.1       htmlwidgets_1.5.4     bit_4.0.4            
+##  [88] cowplot_1.1.1         tidyselect_1.1.2      parallelly_1.30.0    
+##  [91] RcppAnnoy_0.0.19      plyr_1.8.6            magrittr_2.0.2       
+##  [94] R6_2.5.1              generics_0.1.2        DBI_1.1.2            
+##  [97] withr_2.4.3           mgcv_1.8-38           pillar_1.7.0         
+## [100] fitdistrplus_1.1-6    survival_3.2-13       abind_1.4-5          
+## [103] tibble_3.1.6          future.apply_1.8.1    hdf5r_1.3.5          
+## [106] crayon_1.5.0          KernSmooth_2.23-20    utf8_1.2.2           
+## [109] spatstat.geom_2.3-1   plotly_4.10.0         rmarkdown_2.11       
+## [112] grid_4.1.2            data.table_1.14.2     webshot_0.5.2        
+## [115] digest_0.6.29         xtable_1.8-4          tidyr_1.2.0          
+## [118] httpuv_1.6.5          munsell_0.5.0         viridisLite_0.4.0    
+## [121] bslib_0.3.1
+```
