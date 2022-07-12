@@ -81,11 +81,11 @@ ElbowPlot(experiment.integrated, ndims = 100)
 
 The JackStraw function randomly permutes a subset of data, and calculates projected PCA scores for these 'random' genes, then compares the PCA scores for the 'random' genes with the observed PCA scores to determine statistical signifance. End result is a p-value for each gene's association with each principal component. We identify significant PCs as those who have a strong enrichment of low p-value genes.
 
-```{r jackstraw, warning=FALSE,error=FALSE,message=FALSE}
+```{r jackstraw, eval=FALSE, warning=FALSE,error=FALSE,message=FALSE}
 experiment.integrated <- JackStraw(object = experiment.integrated, dims = 100)
 ```
 
-```{r plot_jackstraw, warning=FALSE,error=FALSE,message=FALSE, fig.width=10, fig.height=12, warning=FALSE}
+```{r plot_jackstraw, eval=FALSE, warning=FALSE,error=FALSE,message=FALSE, fig.width=10, fig.height=12, warning=FALSE}
 experiment.integrated <- ScoreJackStraw(experiment.integrated, dims = 1:100)
 JackStrawPlot(object = experiment.integrated, dims = 1:100) + theme(legend.position="bottom")
 ```
@@ -96,7 +96,7 @@ save(experiment.integrated, file="pca_sample_integrated.RData")
 ```
 
 ## Get the next Rmd file
-```{r get_next_rmd, eval=FALSE}
+```{r get_next_rmd, eval=TRUE}
 download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-March-Single-Cell-RNA-Seq-Analysis/main/data_analysis/scRNA_Workshop-PART5.Rmd", "scRNA_Workshop-PART5.Rmd")
 ```
 
