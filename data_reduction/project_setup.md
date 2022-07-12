@@ -187,7 +187,7 @@ myQuestions1 = [
       c: "1 Million",
       d: "2 Million"
     },
-    correctAnswer: "b"
+    correctAnswer: "c"
   },
   {
     question: "What is the length of Read 1 and Read 2?",
