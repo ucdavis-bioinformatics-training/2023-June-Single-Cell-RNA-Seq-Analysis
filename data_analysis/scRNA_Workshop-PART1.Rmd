@@ -109,7 +109,7 @@ names(d10x.data) <- ids
 
 Lets recreate the barcode rank plot from the Cell Ranger web summary file.
 
-In this case, we only have estimated cell counts for the pool as a whole. To color each barcode rank plot using the number of cells estimated by Cell Ranger, skip the code in the box below and use the next one instead.
+To color each barcode rank plot using the number of cells estimated by Cell Ranger, skip the code in the box below and use the next one instead.
 ```{r fig_barcode_umi, fig.width=10}
 plot_cellranger_cells <- function(ind){
   xbreaks = c(1,1e1,1e2,1e3,1e4,1e5,1e6)
@@ -214,7 +214,7 @@ head(experiment.aggregate[[]])
 ## Finally, save the original object and view the object.
 
 Original data set in Seurat class, with no filtering
-```{r save, eval=FALSE}
+```{r save, eval=TRUE}
 save(experiment.aggregate,file="original_seurat_object.RData")
 ```
 
