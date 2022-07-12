@@ -76,6 +76,10 @@ if (!any(rownames(installed.packages()) == "scran")){
   BiocManager::install("scran")
 }
 
+if (!any(rownames(installed.packages()) == "DoubletFinder")){
+  remotes::install_github('chris-mcginnis-ucsf/DoubletFinder')
+}
+
 ## All of these should now load without error.
 
 library(rmarkdown)
@@ -101,20 +105,26 @@ sessionInfo()
 
 In the R console run the following command to download part 1 of data analysis
 ```r
-download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-March-Single-Cell-RNA-Seq-Analysis/main/data_analysis/scRNA_Workshop-PART1.Rmd", "scRNA_Workshop-PART1.Rmd")
+download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-July-Single-Cell-RNA-Seq-Analysis/main/data_analysis/scRNA_Workshop-PART1.Rmd", "scRNA_Workshop-PART1.Rmd")
 ```
 
 ### Download the data for the workshop, extract it.
 
-In the R console run the following command to download and extract the dataset (Little over 1Gb file.
+In the R console run the following command to download and extract the dataset (Little over 160MB file).
 
 ```r
-options(timeout=1200)
-download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-March-Single-Cell-RNA-Seq-Analysis/main/datasets/expression_data_cellranger.zip", "expression_data_cellranger.zip")
+options(timeout=3000)
+download.file("https://bioshare.bioinformatics.ucdavis.edu/bioshare/download/feb28v7lew62um4/expression_data_cellranger.zip", "expression_data_cellranger.zip")
 system("unzip expression_data_cellranger.zip") # works in Linux and Mac, not sure about Windows"
 ```
 
-If you timed out on the download, increase 1200 to something higher. If the system command didn't work to extract the zip file, navigate to the folder you downloaded the data in and manually unzip the archive file
+**This way of downloading the file might be very slow (could take > 1hr). So, the recommended way to download the file is to use scp on Mac/Windows Powershell, or Filezilla/WinSCP on Windows.**
+
+```{bash, eval=FALSE}
+scp username@tadpole.genomecenter.ucdavis.edu:/share/workshops/scRNA_workshop/cellranger.outs/expression_data_cellranger.zip ./
+```
+
+If the system command didn't work to extract the zip file, navigate to the folder you downloaded the data in and manually unzip the archive file.
 
 ### Edit the file YAML portion
 

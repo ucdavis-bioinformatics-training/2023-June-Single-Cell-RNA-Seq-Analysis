@@ -6,7 +6,7 @@ output:
       keep_md: TRUE
 ---
 
-Last Updated: March 20 2022
+Last Updated: July 10, 2022
 
 # Part 1: Loading data from CellRanger into R
 
@@ -16,7 +16,7 @@ Our first Markdown document concentrates on getting data into R and setting up o
 
 [Seurat](http://satijalab.org/seurat/) (now Version 4) is a popular R package that is designed for QC, analysis, and exploration of single cell data. Seurat aims to enable users to identify and interpret sources of heterogeneity from single cell transcriptomic measurements, and to integrate diverse types of single cell data. Further, the authors provide several [tutorials](https://satijalab.org/seurat/vignettes.html), on their website.
 
-The **expression_data_cellranger.zip** file contains the single cell matrix files and HDF5 files for four T cell samples from [Mysore et al., 2021](https://www.cell.com/med/fulltext/S2666-6340(21)00289-0).
+The **expression_data_cellranger.zip** file contains the single cell matrix files and HDF5 files for three single nuclei RNASeq samples from [Becker et al., 2022](https://www.nature.com/articles/s41588-022-01088-x)
 
 We start each markdown document with loading needed libraries for R:
 
@@ -31,20 +31,20 @@ library(ggplot2)
 
 ### Setup the experiment folder and data info
 ```{r exp_setup, warning=FALSE,error=FALSE, message=FALSE}
-experiment_name = "Covid Example"
+experiment_name = "Colon Cancer"
 dataset_loc <- "./expression_data_cellranger"
-ids <- c("conv_COVID", "conv_MMR", "conv_Tdap", "norm_COVID")
+ids <- c("A001-C-007", "A001-C-104", "B001-A-301")
 ```
 
 
 ## Read in the cellranger sample metrics csv files
 
-Usually, there would be a single metrics summary file for each sample. In this case, we are working with a pool of samples that has been demultiplexed using antibody capture data prior to the workshop, and only have one metrics summary file generated for the entire pool.
+There is a single metrics summary file for each sample.
 
 The code in the box below reads in a single metrics summary file. **To read in a summary file for each sample in your experiment, you should use the code in the next box instead.**
 
 ```{r, single_metrics}
-experiment.metrics <- read.csv(file.path(dataset_loc, "metrics_summary.csv"))
+experiment.metrics <- read.csv(file.path(dataset_loc, ids[1], "outs/metrics_summary.csv"))
 sequencing.metrics <- data.frame(t(experiment.metrics[,c(1:19)]))
 rownames(sequencing.metrics) <- gsub("\\.", " ", rownames(sequencing.metrics))
 colnames(sequencing.metrics) <- "All samples"
@@ -134,7 +134,6 @@ plot_cellranger_cells <- function(ind){
 plot_cellranger_cells(1)
 plot_cellranger_cells(2)
 plot_cellranger_cells(3)
-plot_cellranger_cells(4)
 ```
 
 ```{r fig_barcode_umi_original, eval=FALSE}
@@ -160,13 +159,12 @@ plot_cellranger_cells <- function(ind){
 plot_cellranger_cells(1)
 plot_cellranger_cells(2)
 plot_cellranger_cells(3)
-plot_cellranger_cells(4)
 ```
 
 
 ### Create the Seurat object
 
-Filter criteria: remove genes that do not occur in a minimum of 0 cells and remove cells that don't have a minimum of 200 features
+Filter criteria: remove genes that do not occur in a minimum of 10 cells and remove cells that don't have a minimum of 200 features
 
 ```{r create_seurat_object, warning=FALSE,error=FALSE, message=FALSE}
 experiment.data <- do.call("cbind", d10x.data)
@@ -174,7 +172,7 @@ experiment.data <- do.call("cbind", d10x.data)
 experiment.aggregate <- CreateSeuratObject(
   experiment.data,
   project = experiment_name,
-  min.cells = 0,
+  min.cells = 10,
   min.features = 300,
   names.field = 2,
   names.delim = "\\-")
