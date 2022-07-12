@@ -237,7 +237,7 @@ names(d10x.data) <- ids
 
 Lets recreate the barcode rank plot from the Cell Ranger web summary file.
 
-In this case, we only have estimated cell counts for the pool as a whole. To color each barcode rank plot using the number of cells estimated by Cell Ranger, skip the code in the box below and use the next one instead.
+To color each barcode rank plot using the number of cells estimated by Cell Ranger, skip the code in the box below and use the next one instead.
 
 ```r
 plot_cellranger_cells <- function(ind){
