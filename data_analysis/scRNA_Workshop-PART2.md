@@ -8,7 +8,7 @@ output:
 
 Last Updated: July 14, 2022
 
-# Part 2: Some QA/QC, filtering and normalization
+# Part 2: Some QA/QC, filtering
 
 ## Load libraries
 
@@ -610,198 +610,15 @@ experiment.aggregate.genes
 rm(experiment.aggregate.genes)
 ```
 
-## Next we want to normalize the data
-
-After filtering out cells from the dataset, the next step is to normalize the data. By default, we employ a global-scaling normalization method LogNormalize that normalizes the gene expression measurements for each cell by the total expression, multiplies this by a scale factor (10,000 by default), and then log-transforms the data.
-
-
-```r
-?NormalizeData
-```
-
-
-```r
-experiment.aggregate <- NormalizeData(
-  object = experiment.aggregate,
-  normalization.method = "LogNormalize",
-  scale.factor = 10000)
-```
-
-### Calculate Cell-Cycle with Seurat, the list of genes comes with Seurat (only for human)
-[Dissecting the multicellular ecosystem of metastatic melanoma by single-cell RNA-seq](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4944528/)
-
-
-```r
-# this code is for human samples only!
-s.genes <- (cc.genes$s.genes)
-g2m.genes <- (cc.genes$g2m.genes)
-
-experiment.aggregate <- CellCycleScoring(experiment.aggregate,
-                                         s.features = s.genes,
-                                         g2m.features = g2m.genes,
-                                         set.ident = TRUE)
-table(experiment.aggregate@meta.data$Phase) %>%
-  kable(caption = "Number of Cells in each Cell Cycle Stage", col.names = c("Stage", "Count"), align = "c") %>%
-  kable_styling()
-```
-
-<table class="table" style="margin-left: auto; margin-right: auto;">
-<caption>Number of Cells in each Cell Cycle Stage</caption>
- <thead>
-  <tr>
-   <th style="text-align:center;"> Stage </th>
-   <th style="text-align:center;"> Count </th>
-  </tr>
- </thead>
-<tbody>
-  <tr>
-   <td style="text-align:center;"> G1 </td>
-   <td style="text-align:center;"> 5465 </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> G2M </td>
-   <td style="text-align:center;"> 2327 </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> S </td>
-   <td style="text-align:center;"> 2803 </td>
-  </tr>
-</tbody>
-</table>
-
-For mouse data, we would need to convert the gene lists from human genes to their mouse orthologs using Biomart. **Skip this code for the workshop data.**
-
-
-```r
-# Mouse Code DO NOT RUN
-convertHumanGeneList <- function(x){
-  require("biomaRt")
-  human = useEnsembl("ensembl", dataset = "hsapiens_gene_ensembl", mirror = "uswest")
-  mouse = useEnsembl("ensembl", dataset = "mmusculus_gene_ensembl", mirror = "uswest")
-
-  genes = getLDS(attributes = c("hgnc_symbol"), filters = "hgnc_symbol", values = x , mart = human, attributesL = c("mgi_symbol"), martL = mouse, uniqueRows=T)
-
-  humanx <- unique(genes[, 2])
-
-  # Print the first 6 genes found to the screen
-  print(head(humanx))
-  return(humanx)
-}
-
-m.s.genes <- convertHumanGeneList(cc.genes.updated.2019$s.genes)
-m.g2m.genes <- convertHumanGeneList(cc.genes.updated.2019$g2m.genes)
-
-# Create our Seurat object and complete the initialization steps
-experiment.aggregate <- CellCycleScoring(experiment.aggregate, s.features = m.s.genes, g2m.features = m.g2m.genes, set.ident = TRUE)
-
-table(experiment.aggregate@meta.data$Phase) %>% kable(caption = "Number of Cells in each Cell Cycle Stage", col.names = c("Stage", "Count"), align = "c") %>% kable_styling()
-```
-
-#### Fixing the defualt "Ident" in Seurat
-
-
-```r
-table(Idents(experiment.aggregate))
-```
-
-```
-## 
-##    S  G2M   G1 
-## 2803 2327 5465
-```
-
-```r
-## So lets change it back to sample name
-Idents(experiment.aggregate) <- "orig.ident"
-table(Idents(experiment.aggregate))
-```
-
-```
-## 
-## A001-C-007 A001-C-104 B001-A-301 
-##       1774       3416       5405
-```
-
-
-## Identify variable genes
-
-The function FindVariableFeatures identifies the most highly variable genes (default 2000 genes) by fitting a line to the relationship of log(variance) and log(mean) using loess smoothing, uses this information to standardize the data, then calculates the variance of the standardized data.  This helps avoid selecting genes that only appear variable due to their expression level.
-
-
-```r
-?FindVariableFeatures
-```
-
-
-```r
-experiment.aggregate <- FindVariableFeatures(
-  object = experiment.aggregate,
-  selection.method = "vst")
-
-length(VariableFeatures(experiment.aggregate))
-```
-
-```
-## [1] 2000
-```
-
-```r
-top10 <- head(VariableFeatures(experiment.aggregate), 10)
-
-top10
-```
-
-```
-##  [1] "BEST4"   "NRG1"    "TPH1"    "CLCA4"   "CACNA1A" "TRPM3"   "CTNNA2" 
-##  [8] "TIMP3"   "CA7"     "LRMP"
-```
-
-```r
-vfp1 <- VariableFeaturePlot(experiment.aggregate)
-vfp1 <- LabelPoints(plot = vfp1, points = top10, repel = TRUE)
-vfp1
-```
-
-![](scRNA_Workshop-PART2_files/figure-html/find_variable_genes-1.png)<!-- -->
-
-FindVariableFeatures isn't the only way to set the "variable features" of a Seurat object. Another reasonable approach is to select a set of "minimally expressed" genes.
-
-
-```r
-dim(experiment.aggregate)
-```
-
-```
-## [1] 21005 10595
-```
-
-```r
-min.value = 2
-min.cells = 10
-num.cells <- Matrix::rowSums(GetAssayData(experiment.aggregate, slot = "count") > min.value)
-genes.use <- names(num.cells[which(num.cells >= min.cells)])
-length(genes.use)
-```
-
-```
-## [1] 5986
-```
-
-```r
-VariableFeatures(experiment.aggregate) <- genes.use
-```
-
-
 #### Question(s)
 
-1. Play some with the filtering parameters, see how results change?
-2. How do the results change if you use selection.method = "dispersion" or selection.method = "mean.var.plot"
+1. Play with the filtering parameters, see how results change?
 
 
 ## Finally, lets save the filtered and normalized data
 
 ```r
-save(experiment.aggregate, file="pre_sample_corrected.RData")
+save(experiment.aggregate, file="sample_filtered.RData")
 ```
 
 ## Get the next Rmd file
