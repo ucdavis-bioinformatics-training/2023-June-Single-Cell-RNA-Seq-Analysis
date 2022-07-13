@@ -9,9 +9,14 @@ output:
 
 Last Updated: July 15, 2022
 
-# Part 3: Integrate multiple single cell samples
+# Part 3: Integrate multiple single cell samples / batch correction
 
-More and more experiments sequence more than one samples/datasets, such as the data from [Becker et al., 2022](https://www.nature.com/articles/s41588-022-01088-x) that we are using. It is important to properly integrate these datasets, and we will see the effect the integration has at the end of this documentation. The basic idea is to identify cross-dataset pairs cells that are in a matched biological state ("anchors"), and use them to correct technical differences between datasets. The integration method we used has been implemented in Seurat and you can find the details of the method in [its publication](https://www.cell.com/cell/fulltext/S0092-8674(19)30559-8)
+More and more experiments sequence more than one samples/datasets, such as the data from [Becker et al., 2022](https://www.nature.com/articles/s41588-022-01088-x) that we are using. It is important to properly integrate these datasets, and we will see the effect the integration has at the end of this documentation.
+
+Most of the methods that were developed to integrate single cell datasets fall into two categories. The first is the "anchor" based approach. In this approach, the first step is to select a batch as the "anchor" and convert other batches to the "anchor" batch. Among this approach, there are [MNN](https://github.com/MarioniLab/MNN2017), [iMAP](https://github.com/Svvord/iMAP), [SCALEX](https://github.com/jsxlei/SCALEX) and [Seurat's integration](https://www.cell.com/cell/fulltext/S0092-8674(19)30559-8). The advantage of this approach is that different batches of cells can be studied under the same experimental conditions, and the disadvantage is that it is not possible to fully combine the features of each batch because the cell types contained in each batch are unknown. The second approach is to transform all batches of data to a low-dimensional space to correct batch effects, such as implemented in [Scanorama](https://github.com/brianhie/scanorama), [Harmony](https://github.com/immunogenomics/harmony), [DESC](https://www.nature.com/articles/s41467-020-15851-3) and [BBKNN](https://github.com/Teichlab/bbknn). This second approach has the advantage of extracting biologically relevant latent features and reducing the impact of noise, but it cannot be used for differential gene expression analysis. Many of these existing methods work well when the batches of datasets have the same cell types, however, they fail when there are different cell types involved in different datasets. Very recently (earlier this year), a [new approach](https://www.mdpi.com/1422-0067/23/4/2082) has been developed that uses connected graphs and generative adversarial networks (GAN) to achieve the goal of eliminating nonbiological noise between batches of datasets. This new method has been demonstrated to work well both in the situation where datasets have the same cell types and in the situation where datasets may have different cell types.
+
+
+In this workshop, we are going to look at Seurat's integration approach. The basic idea is to identify cross-dataset pairs cells that are in a matched biological state ("anchors"), and use them to correct technical differences between datasets. The integration method we used has been implemented in Seurat and you can find the details of the method in [its publication](https://www.cell.com/cell/fulltext/S0092-8674(19)30559-8).
 
 
 ## Load libraries
@@ -20,7 +25,15 @@ More and more experiments sequence more than one samples/datasets, such as the d
 library(Seurat)
 ```
 
-## Load the Seurat object from the prior excercise and split to individual samples
+## Load the Seurat object from the provided data and split to individual samples
+
+The provided data is raw data that has only gone through the filtering step.
+
+
+```r
+download.file("https://bioshare.bioinformatics.ucdavis.edu/bioshare/download/feb28v7lew62um4/sample_filtered.RData", "sample_filtered.RData")
+```
+
 
 
 ```r
@@ -63,7 +76,7 @@ Now, let's carry out these two processes for each sample
 ```r
 experiment.split <- lapply(X = experiment.split, FUN=function(x){
   x <- NormalizeData(x)
-  x <- FindVariableFeatures(x, selection.method = "vst", nfeatures = 10000)
+  x <- FindVariableFeatures(x, selection.method = "vst", nfeatures = 20000)
 })
 ```
 
@@ -71,7 +84,7 @@ experiment.split <- lapply(X = experiment.split, FUN=function(x){
 
 
 ```r
-features <- SelectIntegrationFeatures(object.list = experiment.split)
+features <- SelectIntegrationFeatures(object.list = experiment.split, nfeatures = 10000)
 anchors <- FindIntegrationAnchors(object.list = experiment.split, anchor.features = features)
 ```
 
