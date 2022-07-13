@@ -11,6 +11,8 @@ Last Updated: July 15, 2022
 
 # Part 3: Integrate multiple single cell samples
 
+More and more experiments sequence more than one samples/datasets, such as the data from [Becker et al., 2022](https://www.nature.com/articles/s41588-022-01088-x) that we are using. It is important to properly integrate these datasets, and we will see the effect the integration has at the end of this documentation. The basic idea is to identify cross-dataset pairs cells that are in a matched biological state ("anchors"), and use them to correct technical differences between datasets. The integration method we used has been implemented in Seurat and you can find the details of the method in [its publication](https://www.cell.com/cell/fulltext/S0092-8674(19)30559-8)
+
 
 ## Load libraries
 
@@ -22,14 +24,14 @@ library(Seurat)
 
 
 ```r
-load(file="pre_sample_corrected.RData")
+load(file="sample_filtered.RData")
 experiment.aggregate
 ```
 
 ```
 ## An object of class Seurat 
 ## 21005 features across 10595 samples within 1 assay 
-## Active assay: RNA (21005 features, 5986 variable features)
+## Active assay: RNA (21005 features, 0 variable features)
 ```
 
 ```r
@@ -38,11 +40,30 @@ experiment.split <- SplitObject(experiment.aggregate, split.by = "ident")
 
 ## Normalize and find variable features for each individual sample
 
+By default, we employ a global-scaling normalization method LogNormalize that normalizes the gene expression measurements for each cell by the total expression, multiplies this by a scale factor (10,000 by default), and then log-transforms the data.
+
+
+
+```r
+?NormalizeData
+```
+
+The function FindVariableFeatures identifies the most highly variable genes (default 2000 genes) by fitting a line to the relationship of log(variance) and log(mean) using loess smoothing, uses this information to standardize the data, then calculates the variance of the standardized data.  This helps avoid selecting genes that only appear variable due to their expression level.
+
+
+
+```r
+?FindVariableFeatures
+```
+
+Now, let's carry out these two processes for each sample
+
+
 
 ```r
 experiment.split <- lapply(X = experiment.split, FUN=function(x){
   x <- NormalizeData(x)
-  x <- FindVariableFeatures(x, selection.method = "vst", nfeatures = 2000)
+  x <- FindVariableFeatures(x, selection.method = "vst", nfeatures = 10000)
 })
 ```
 
