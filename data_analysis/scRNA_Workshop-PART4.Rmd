@@ -13,23 +13,24 @@ Last Updated: July 15, 2022
 ## Load libraries
 ```{r load_libraries, warning=FALSE,error=FALSE,message=FALSE}
 library(Seurat)
+library(biomaRt)
+library(knitr)
 library(ggplot2)
 ```
 
 ## Load the Seurat object
 ```{r load_rdata, warning=FALSE,error=FALSE,message=FALSE}
-load(file="sample_integrated.RData")
-experiment.integrated
+load(file="pre_sample_corrected.RData")
+experiment.aggregate
 ```
 
-
-## Now doing so for 'real'
+## Scale the data
 
 ScaleData - Scales and centers genes in the dataset. If variables are provided in vars.to.regress, they are individually regressed against each gene, and the resulting residuals are then scaled and centered unless otherwise specified. Here we regress out cell cycle results S.Score and G2M.Score, percentage mitochondria (percent.mito) and the number of features (nFeature_RNA).
 
 ```{r scale_data, warning=FALSE,error=FALSE,message=FALSE}
-experiment.integrated <- ScaleData(
-  object = experiment.integrated,
+experiment.aggregate <- ScaleData(
+  object = experiment.aggregate,
   vars.to.regress = c("S.Score", "G2M.Score", "percent.mito", "nFeature_RNA"))
 ```
 
@@ -42,28 +43,28 @@ Next we perform PCA (principal components analysis) on the scaled data.
 ```
 
 ```{r pca, warning=FALSE,error=FALSE,message=FALSE}
-experiment.integrated <- RunPCA(object = experiment.integrated, npcs=100)
+experiment.aggregate <- RunPCA(object = experiment.aggregate, npcs=100)
 ```
 
 Seurat then provides a number of ways to visualize the PCA results
 
 Visualize PCA loadings
 ```{r viz_pca, warning=FALSE,error=FALSE,message=FALSE}
-VizDimLoadings(experiment.integrated, dims = 1, ncol = 1) + theme_minimal(base_size = 8)
-VizDimLoadings(experiment.integrated, dims = 2, ncol = 1) + theme_minimal(base_size = 8)
+VizDimLoadings(experiment.aggregate, dims = 1, ncol = 1) + theme_minimal(base_size = 8)
+VizDimLoadings(experiment.aggregate, dims = 2, ncol = 1) + theme_minimal(base_size = 8)
 ```
 
 Principal components plot
 ```{r plot_pca, warning=FALSE,error=FALSE,message=FALSE}
-DimPlot(object = experiment.integrated, reduction = "pca")
+DimPlot(object = experiment.aggregate, reduction = "pca")
 ```
 
 Draws a heatmap focusing on a principal component. Both cells and genes are sorted by their principal component scores. Allows for nice visualization of sources of heterogeneity in the dataset.
 
 ```{r heatmap_pca, warning=FALSE,error=FALSE,message=FALSE}
-DimHeatmap(object = experiment.integrated, dims = 1:6, cells = 500, balanced = TRUE)
+DimHeatmap(object = experiment.aggregate, dims = 1:6, cells = 500, balanced = TRUE)
 
-DimHeatmap(object = experiment.integrated, dims = 7:12, cells = 500, balanced = TRUE)
+DimHeatmap(object = experiment.aggregate, dims = 7:12, cells = 500, balanced = TRUE)
 ```
 
 #### Questions
@@ -76,27 +77,27 @@ To overcome the extensive technical noise in any single gene, Seurat clusters ce
 ElbowPlot plots the standard deviations (or approximate singular values if running PCAFast) of the principle components for easy identification of an elbow in the graph. This elbow often corresponds well with the significant PCs and is much faster to run.  This is the traditional approach to selecting principal components.
 
 ```{r elbow, warning=FALSE,error=FALSE,message=FALSE}
-ElbowPlot(experiment.integrated, ndims = 100)
+ElbowPlot(experiment.aggregate, ndims = 100)
 ```
 
 The JackStraw function randomly permutes a subset of data, and calculates projected PCA scores for these 'random' genes, then compares the PCA scores for the 'random' genes with the observed PCA scores to determine statistical signifance. End result is a p-value for each gene's association with each principal component. We identify significant PCs as those who have a strong enrichment of low p-value genes.
 
-```{r jackstraw, eval=FALSE, warning=FALSE,error=FALSE,message=FALSE}
-experiment.integrated <- JackStraw(object = experiment.integrated, dims = 100)
+```{r jackstraw, warning=FALSE,error=FALSE,message=FALSE}
+experiment.aggregate <- JackStraw(object = experiment.aggregate, dims = 100)
 ```
 
-```{r plot_jackstraw, eval=FALSE, warning=FALSE,error=FALSE,message=FALSE, fig.width=10, fig.height=12, warning=FALSE}
-experiment.integrated <- ScoreJackStraw(experiment.integrated, dims = 1:100)
-JackStrawPlot(object = experiment.integrated, dims = 1:100) + theme(legend.position="bottom")
+```{r plot_jackstraw, warning=FALSE,error=FALSE,message=FALSE, fig.width=10, fig.height=12, warning=FALSE}
+experiment.aggregate <- ScoreJackStraw(experiment.aggregate, dims = 1:100)
+JackStrawPlot(object = experiment.aggregate, dims = 1:100) + theme(legend.position="bottom")
 ```
 
 ## Finally, lets save the filtered and normalized data
 ```{r save_rdata, eval=TRUE}
-save(experiment.integrated, file="pca_sample_integrated.RData")
+save(experiment.aggregate, file="pca_sample_corrected.RData")
 ```
 
 ## Get the next Rmd file
-```{r get_next_rmd, eval=TRUE}
+```{r get_next_rmd, eval=FALSE}
 download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-March-Single-Cell-RNA-Seq-Analysis/main/data_analysis/scRNA_Workshop-PART5.Rmd", "scRNA_Workshop-PART5.Rmd")
 ```
 
