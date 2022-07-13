@@ -110,7 +110,7 @@ save(experiment.integrated, file="sample_integrated.RData")
 ```
 
 ## Get the next Rmd file
-```{r get_next_rmd, eval=FALSE}
+```{r get_next_rmd, eval=TRUE}
 download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-March-Single-Cell-RNA-Seq-Analysis/main/data_analysis/scRNA_Workshop-PART4.Rmd", "scRNA_Workshop-PART4.Rmd")
 ```
 
