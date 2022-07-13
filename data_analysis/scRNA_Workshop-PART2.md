@@ -578,12 +578,17 @@ table(experiment.aggregate$orig.ident)
 
 Lets se the ridge plots now after filtering
 
+
 ```r
 RidgePlot(experiment.aggregate, features=c("nFeature_RNA","nCount_RNA", "percent.mito"), ncol = 2)
 ```
 
 ![](scRNA_Workshop-PART2_files/figure-html/ridgeplot_post-1.png)<!-- -->
+<br>
+
 ### You may also want to filter out additional genes.
+
+<br>
 
 When creating the base Seurat object we did filter out some genes, recall _Keep all genes expressed in >= 10 cells_. After filtering cells and you may want to be more aggressive with the gene filter. Seurat doesn't supply such a function (that I can find), so below is a function that can do so, it filters genes requiring a min.value (log-normalized) in at least min.cells, here expression of 1 in at least 400 cells.
 
