@@ -76,7 +76,7 @@ Now, let's carry out these two processes for each sample
 ```r
 experiment.split <- lapply(X = experiment.split, FUN=function(x){
   x <- NormalizeData(x)
-  x <- FindVariableFeatures(x, selection.method = "vst", nfeatures = 20000)
+  x <- FindVariableFeatures(x, selection.method = "vst", nfeatures = 2000)
 })
 ```
 
@@ -84,7 +84,7 @@ experiment.split <- lapply(X = experiment.split, FUN=function(x){
 
 
 ```r
-features <- SelectIntegrationFeatures(object.list = experiment.split, nfeatures = 10000)
+features <- SelectIntegrationFeatures(object.list = experiment.split)
 anchors <- FindIntegrationAnchors(object.list = experiment.split, anchor.features = features)
 ```
 

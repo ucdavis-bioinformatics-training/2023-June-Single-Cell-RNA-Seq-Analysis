@@ -61,14 +61,14 @@ Now, let's carry out these two processes for each sample
 ```{r, echo=TRUE, warning=FALSE, error=FALSE, message=FALSE}
 experiment.split <- lapply(X = experiment.split, FUN=function(x){
   x <- NormalizeData(x)
-  x <- FindVariableFeatures(x, selection.method = "vst", nfeatures = 20000)
+  x <- FindVariableFeatures(x, selection.method = "vst", nfeatures = 2000)
 })
 ```
 
 ## Select features that are repeatedly variable across samples and find integration anchors
 
 ```{r, echo=TRUE, warning=FALSE, error=FALSE, message=FALSE}
-features <- SelectIntegrationFeatures(object.list = experiment.split, nfeatures = 10000)
+features <- SelectIntegrationFeatures(object.list = experiment.split)
 anchors <- FindIntegrationAnchors(object.list = experiment.split, anchor.features = features)
 ```
 
