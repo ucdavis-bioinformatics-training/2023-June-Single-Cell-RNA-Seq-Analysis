@@ -130,7 +130,7 @@ zless A001-C-007_S4_I1_001.fastq.gz
 and Read 2
 
 ```bash
-zless Pool1_gex_S17_L004_R2_001.fastq.gz
+zless A001-C-007_S4_R2_001.fastq.gz
 ```
 
 Detailed explanation of FASTQ file is [here](filetypes.md). Please read on the description and make sure you can identify which lines correspond to a single read and which lines are the header, sequence, and quality values. Press 'q' to exit this screen. Then, let's figure out the number of reads in this file. A simple way to do that is to count the number of lines and divide by 4 (because the record of each read uses 4 lines). In order to do this use cat to output the uncompressed file and pipe that to "wc" to count the number of lines:
