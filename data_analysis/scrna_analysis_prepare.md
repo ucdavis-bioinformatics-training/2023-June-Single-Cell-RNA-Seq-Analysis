@@ -121,7 +121,7 @@ system("unzip expression_data_cellranger.zip") # works in Linux and Mac, not sur
 **This way of downloading the file might be very slow (could take > 1hr). So, the recommended way to download the file is to use scp on Mac/Windows Powershell, or Filezilla/WinSCP on Windows.**
 
 ```bash
-scp username@tadpole.genomecenter.ucdavis.edu:/share/workshops/scRNA_workshop/cellranger.outs/expression_data_cellranger.zip ./
+scp username@tadpole.genomecenter.ucdavis.edu:/share/workshop/scRNA_workshop/cellranger.outs/expression_data_cellranger.zip ./
 ```
 
 If the system command didn't work to extract the zip file, navigate to the folder you downloaded the data in and manually unzip the archive file.
