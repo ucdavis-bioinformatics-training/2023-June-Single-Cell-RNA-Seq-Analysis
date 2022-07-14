@@ -71,7 +71,7 @@ function showResults(myq, qc, rc){
 }
 </script>
 
-Last Updated: March 20 2022
+Last Updated: July 20 2022
 
 # Part 2: Some QA/QC, filtering and normalization
 
@@ -949,7 +949,7 @@ save(experiment.aggregate, file="pre_sample_corrected.RData")
 ## Get the next Rmd file
 
 ```r
-download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-March-Single-Cell-RNA-Seq-Analysis/main/data_analysis/scRNA_Workshop-PART3.Rmd", "scRNA_Workshop-PART3.Rmd")
+download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-July-Single-Cell-RNA-Seq-Analysis/main/data_analysis/scRNA_Workshop-PART3.Rmd", "scRNA_Workshop-PART3.Rmd")
 ```
 
 ## Session Information
