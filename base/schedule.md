@@ -35,5 +35,5 @@ All posted times are **Pacific** time zone. At least one break will be provided 
 |**9:00 am**   | Data Analysis Parts 3 - 4  |
 |**11:30 am**  | Parse BioSciences Sponsor Talk |
 |**12:00 pm**  | Lunch |
-|**1:00 pm**   | Data Analysis Parts 5 - 6  |
+|**1:00 pm**   | Data Analysis Parts 5 - 7  |
 |**4:30 pm** | Zoom session ends |
