@@ -170,6 +170,58 @@ names(geneList) <- all.genes
 * Expected: Under random chance, number of genes that would be expected to be annotated with that GO term and meeting our criteria for "expressed"
 * Fisher: (Raw) p-value from Fisher's Exact Test
 
+
+## Quiz 1
+
+<div id="quiz1" class="quiz"></div>
+<button id="submit1">Submit Quiz</button>
+<div id="results1" class="output"></div>
+<script>
+quizContainer1 = document.getElementById('quiz1');
+resultsContainer1 = document.getElementById('results1');
+submitButton1 = document.getElementById('submit1');
+
+myQuestions1 = [
+  {
+    question: "What GO term is most significantly enriched for genes expressed in cluster 12?",
+    answers: {
+      a: "T cell receptor signaling pathway",
+      b: "cytoplasmic translation",
+      c: "protein folding",
+      d: "ribosomal large subunit biogenesis"
+    },
+    correctAnswer: "a"
+  },
+  {
+    question: "How many genes annotated with the top GO term are expressed in cluster 12?",
+    answers: {
+      a: "142",
+      b: "17.73",
+      c: "0",
+      d: "111"
+    },
+    correctAnswer: "d"
+  },
+  {
+    question: "How many expressed genes would be expected to be annotated with the top GO term under random chance?",
+    answers: {
+      a: "142",
+      b: "0.23",
+      c: "0",
+      d: "108"
+    },
+    correctAnswer: "b"
+  }
+];
+
+buildQuiz(myQuestions1, quizContainer1);
+submitButton1.addEventListener('click', function() {showResults(myQuestions1, quizContainer1, resultsContainer1);});
+</script>
+
+
+## Challenge Questions 
+If you have extra time:
+
 # 2. Model-based DE analysis in limma
 [limma](https://bioconductor.org/packages/release/bioc/html/limma.html) is an R package for differential expression analysis of bulk RNASeq and microarray data.  We apply it here to single cell data.
 
