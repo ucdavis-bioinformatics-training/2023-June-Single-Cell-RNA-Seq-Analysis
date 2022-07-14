@@ -6,7 +6,7 @@ output:
       keep_md: TRUE
 ---
 
-Last Updated: July 10, 2022
+Last Updated: July 15, 2022
 
 # Part 7: Add Doublet Detection
 
@@ -181,10 +181,7 @@ pK.set <- unique(sweep.stats$pK)[2]
 <br>
 
 ```{r doubletfinder-param, warning=FALSE,error=FALSE,message=FALSE}
-#annotations <- experiment.data@meta.data$seurat_clusters
-#homotypic.prop <- modelHomotypic(annotations)
 nExp_poi <- round(0.08*nrow(experiment.data@meta.data))
-#nExp_poi.adj <- round(nExp_poi*(1-homotypic.prop))
 ```
 
 ```{r doubletfinder-final, warning=FALSE,error=FALSE,message=FALSE}
@@ -198,9 +195,15 @@ annotations <- experiment.data@meta.data$seurat_clusters
 homotypic.prop <- modelHomotypic(annotations)
 nExp_poi <- round(0.08*nrow(experiment.data@meta.data))
 nExp_poi.adj <- round(nExp_poi*(1-homotypic.prop))
-experiment.data <- doubletFinder_v3(experiment.data, PCs = 1:20, pN = 0.25, pK = as.numeric(as.character(pK.set)), nExp = nExp_poi.adj, reuse.pANN = "pANN_0.25_0.08_89", sct = FALSE)
+experiment.data <- doubletFinder_v3(experiment.data, PCs = 1:20, pN = 0.25, pK = as.numeric(as.character(pK.set)), nExp = nExp_poi.adj, reuse.pANN = "pANN_0.25_0.02_142", sct = FALSE)
 ```
 
+## Remove doublets
+
+
+```{r doubletfinder-remove, eval=FALSE, warning=FALSE,error=FALSE,message=FALSE}
+experiment.data <- subset(experiment.data,  DF.classifications_0.25_0.02_142 == "Singlet")
+```
 
 ## Session Information
 ```{r sessioinfo}
