@@ -118,7 +118,7 @@ head(experiment.aggregate[[]])
 ```
 
 
-Lets first investigate how many clusters each resolution produces and set it to the smallest resolutions of 0.5 (fewest clusters).
+Lets first investigate how many clusters each resolution produces and set it to the smallest resolutions of 0.25 (fewest clusters).
 
 
 ```r
