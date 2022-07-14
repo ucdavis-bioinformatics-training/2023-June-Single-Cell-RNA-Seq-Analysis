@@ -76,7 +76,7 @@ The dataset used in this course is from Becker, W. R.; Nevins, S. A.; Chen, D. C
 
 In this study, single nuclei transcriptome and chromatin accessibility profiles were generated from 1000 to 10000 cells per sample from 48 polys, 27 normal tissues and 6 colorectal cancer (CRC) patients with or without germline APC mutations. It observed a continuum of cell state and composition changes from normal tissue to polys to cancer.
 
-For the purposes of this workshop, we are using a subset of this data; one sample per condition (CRC, polyp and normal).
+For the purposes of this workshop, we are using a subset of this data; one sample per condition (CRC: A001-C-007, polyp: A001-C-104, and normal: B001-A-301).
 
 # Data Setup
 

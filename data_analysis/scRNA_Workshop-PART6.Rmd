@@ -128,6 +128,11 @@ table(experiment.merged$CellType, experiment.merged$finalcluster)
 DimPlot(experiment.merged, group.by = "CellType", label = TRUE)
 ```
 
+## Get the next Rmd file
+```{r getnextfile, eval=FALSE}
+download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-July-Single-Cell-RNA-Seq-Analysis/main/data_analysis/scRNA_Workshop-PART7.Rmd", "scRNA_Workshop-PART7.Rmd")
+```
+
                  
 ## Session Information
 ```{r session_info, warning=FALSE,error=FALSE,message=FALSE}

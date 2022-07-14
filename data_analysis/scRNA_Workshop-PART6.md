@@ -309,6 +309,12 @@ DimPlot(experiment.merged, group.by = "CellType", label = TRUE)
 
 ![](scRNA_Workshop-PART6_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
 
+## Get the next Rmd file
+
+```r
+download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-July-Single-Cell-RNA-Seq-Analysis/main/data_analysis/scRNA_Workshop-PART7.Rmd", "scRNA_Workshop-PART7.Rmd")
+```
+
                  
 ## Session Information
 

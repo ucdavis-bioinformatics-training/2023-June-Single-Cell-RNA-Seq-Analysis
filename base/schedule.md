@@ -7,7 +7,8 @@ All posted times are **Pacific** time zone. At least one break will be provided 
 |:----------- |:------------------- |
 |**8:50 am**  | Zoom session starts |
 |**9:00 am**  | Introductions |
-|**9:30 am**  | Intro 2 Command Line |
+|**9:30 am**  | DNATech Core Talk (Hong Qiu) |
+|**10:00 am**  | Intro 2 Command Line |
 |**11:30 am**  | 10x Genomics Sponsor Talk |
 |**12:00 am**  | Lunch |
 |**1:00 pm**  | Using the Cluster |
