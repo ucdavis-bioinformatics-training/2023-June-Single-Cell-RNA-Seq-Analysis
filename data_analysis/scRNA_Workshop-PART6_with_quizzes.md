@@ -387,8 +387,8 @@ myQuestions2 = [
   }
 ];
 
-buildQuiz(myQuestions1, quizContainer1);
-submitButton1.addEventListener('click', function() {showResults(myQuestions1, quizContainer1, resultsContainer1);});
+buildQuiz(myQuestions2, quizContainer2);
+submitButton2.addEventListener('click', function() {showResults(myQuestions2, quizContainer2, resultsContainer2);});
 </script>
 
 
