@@ -6,80 +6,6 @@ output:
       keep_md: TRUE
 ---
 
-<script>
-function buildQuiz(myq, qc){
-  // variable to store the HTML output
-  const output = [];
-
-  // for each question...
-  myq.forEach(
-    (currentQuestion, questionNumber) => {
-
-      // variable to store the list of possible answers
-      const answers = [];
-
-      // and for each available answer...
-      for(letter in currentQuestion.answers){
-
-        // ...add an HTML radio button
-        answers.push(
-          `<label>
-            <input type="radio" name="question${questionNumber}" value="${letter}">
-            ${letter} :
-            ${currentQuestion.answers[letter]}
-          </label><br/>`
-        );
-      }
-
-      // add this question and its answers to the output
-      output.push(
-        `<div class="question"> ${currentQuestion.question} </div>
-        <div class="answers"> ${answers.join('')} </div><br/>`
-      );
-    }
-  );
-
-  // finally combine our output list into one string of HTML and put it on the page
-  qc.innerHTML = output.join('');
-}
-
-function showResults(myq, qc, rc){
-
-  // gather answer containers from our quiz
-  const answerContainers = qc.querySelectorAll('.answers');
-
-  // keep track of user's answers
-  let numCorrect = 0;
-
-  // for each question...
-  myq.forEach( (currentQuestion, questionNumber) => {
-
-    // find selected answer
-    const answerContainer = answerContainers[questionNumber];
-    const selector = `input[name=question${questionNumber}]:checked`;
-    const userAnswer = (answerContainer.querySelector(selector) || {}).value;
-
-    // if answer is correct
-    if(userAnswer === currentQuestion.correctAnswer){
-      // add to the number of correct answers
-      numCorrect++;
-
-      // color the answers green
-      answerContainers[questionNumber].style.color = 'lightgreen';
-    }
-    // if answer is wrong or blank
-    else{
-      // color the answers red
-      answerContainers[questionNumber].style.color = 'red';
-    }
-  });
-
-  // show number of correct answers out of total
-  rc.innerHTML = `${numCorrect} out of ${myq.length}`;
-}
-</script>
-
-
 # Part 6: Enrichment, Model-Based DE, and Cell-Type Identification
 
 
@@ -228,18 +154,18 @@ head(coef(fit))
 ```
 
 ```r
-# Test B001-A-301 - A001-C-007
-contr <- makeContrasts(proper.identB001.A.301 - proper.identA001.C.007, levels = colnames(coef(fit)))
+# Test 'A001-C-007' - 'B001-A-301'
+contr <- makeContrasts(proper.identA001.C.007 - proper.identB001.A.301, levels = colnames(coef(fit)))
 levels <- colnames(coef(fit))
 contr
 ```
 
 ```
 ##                         Contrasts
-## Levels                   proper.identB001.A.301 - proper.identA001.C.007
-##   proper.identA001.C.007                                              -1
+## Levels                   proper.identA001.C.007 - proper.identB001.A.301
+##   proper.identA001.C.007                                               1
 ##   proper.identA001.C.104                                               0
-##   proper.identB001.A.301                                               1
+##   proper.identB001.A.301                                              -1
 ```
 
 ```r
@@ -251,36 +177,36 @@ head(out, 30)
 
 ```
 ##               logFC   AveExpr          t      P.Value    adj.P.Val          B
-## SLC26A2   2.8822283 1.0629482  18.098433 6.268188e-52 1.212894e-48 106.877809
-## XIST      1.4542383 0.3657630  12.730437 1.083975e-30 1.048746e-27  58.888645
-## PHGR1     1.9590238 0.7501501  12.122078 2.071322e-28 1.336003e-25  53.731545
-## GUCA2A    1.5400474 0.4334461  12.078235 3.013116e-28 1.457595e-25  53.363616
-## SLC26A3   1.7533252 0.6555777  11.370757 1.180260e-25 4.567607e-23  47.503355
-## PDE3A     1.4602304 0.4332776  11.190702 5.261502e-25 1.696834e-22  46.036641
-## MT-CO2   -1.9796188 2.7289681 -10.328533 5.771672e-22 1.595455e-19  39.170184
-## PIGR      1.8777320 1.3447380   8.986565 1.713251e-17 4.143926e-15  29.082220
-## ATP1A1    1.4211688 0.6672922   8.878497 3.787588e-17 8.143314e-15  28.306074
-## CLCA4     1.0493355 0.3366567   8.657707 1.881022e-16 3.639779e-14  26.738694
-## CKB       1.7948701 1.4913849   8.543888 4.255755e-16 7.486260e-14  25.940527
-## MUC12     1.2885756 0.5705467   8.456585 7.924369e-16 1.277804e-13  25.332934
-## CCND3     1.7789964 1.3641127   8.236113 3.740579e-15 5.567709e-13  23.816805
-## FKBP5     1.7713394 1.3421646   8.129783 7.832342e-15 1.082542e-12  23.095140
-## PARP8     1.4550661 0.9387516   7.408418 9.944179e-13 1.282799e-10  18.371304
-## RNF213   -1.5051780 1.4710884  -6.798509 4.673553e-11 5.652079e-09  14.626670
-## FTH1      1.0852623 0.6892685   6.769212 5.589514e-11 6.362182e-09  14.452875
-## PIP4K2A   1.4152607 1.1825719   6.759170 5.942364e-11 6.388042e-09  14.393437
-## S100A6    1.3140613 0.9677000   6.559153 1.983667e-10 2.020208e-08  13.223694
-## NXPE1     0.9531856 0.4764160   6.342688 7.094551e-10 6.741109e-08  11.988575
-## TMSB4X    1.2496508 1.0055437   6.337401 7.315932e-10 6.741109e-08  11.958816
-## CEACAM7   0.8182380 0.3321876   6.196347 1.648992e-09 1.450363e-07  11.172106
-## SATB2     0.9949205 0.5617362   5.999302 5.014199e-09 4.218467e-07  10.096854
-## MUC13     0.9554270 0.5686166   5.975058 5.738627e-09 4.570052e-07   9.966490
-## HSP90AA1 -1.0299812 0.6331681  -5.969930 5.904459e-09 4.570052e-07   9.938973
-## FABP1     0.9958427 0.5854007   5.918083 7.867180e-09 5.854998e-07   9.661821
-## FCGBP     0.7940343 0.3592995   5.660737 3.177359e-08 2.277107e-06   8.315487
-## NCL      -0.8218150 0.4153055  -5.651066 3.345371e-08 2.311890e-06   8.265849
-## RPL13    -1.1459746 1.0205946  -5.632584 3.690815e-08 2.462664e-06   8.171197
-## SELENOP   0.7471779 0.3588361   5.500210 7.406662e-08 4.777297e-06   7.500782
+## SLC26A2  -2.8822283 1.0629482 -18.098433 6.268188e-52 1.212894e-48 106.877809
+## XIST     -1.4542383 0.3657630 -12.730437 1.083975e-30 1.048746e-27  58.888645
+## PHGR1    -1.9590238 0.7501501 -12.122078 2.071322e-28 1.336003e-25  53.731545
+## GUCA2A   -1.5400474 0.4334461 -12.078235 3.013116e-28 1.457595e-25  53.363616
+## SLC26A3  -1.7533252 0.6555777 -11.370757 1.180260e-25 4.567607e-23  47.503355
+## PDE3A    -1.4602304 0.4332776 -11.190702 5.261502e-25 1.696834e-22  46.036641
+## MT-CO2    1.9796188 2.7289681  10.328533 5.771672e-22 1.595455e-19  39.170184
+## PIGR     -1.8777320 1.3447380  -8.986565 1.713251e-17 4.143926e-15  29.082220
+## ATP1A1   -1.4211688 0.6672922  -8.878497 3.787588e-17 8.143314e-15  28.306074
+## CLCA4    -1.0493355 0.3366567  -8.657707 1.881022e-16 3.639779e-14  26.738694
+## CKB      -1.7948701 1.4913849  -8.543888 4.255755e-16 7.486260e-14  25.940527
+## MUC12    -1.2885756 0.5705467  -8.456585 7.924369e-16 1.277804e-13  25.332934
+## CCND3    -1.7789964 1.3641127  -8.236113 3.740579e-15 5.567709e-13  23.816805
+## FKBP5    -1.7713394 1.3421646  -8.129783 7.832342e-15 1.082542e-12  23.095140
+## PARP8    -1.4550661 0.9387516  -7.408418 9.944179e-13 1.282799e-10  18.371304
+## RNF213    1.5051780 1.4710884   6.798509 4.673553e-11 5.652079e-09  14.626670
+## FTH1     -1.0852623 0.6892685  -6.769212 5.589514e-11 6.362182e-09  14.452875
+## PIP4K2A  -1.4152607 1.1825719  -6.759170 5.942364e-11 6.388042e-09  14.393437
+## S100A6   -1.3140613 0.9677000  -6.559153 1.983667e-10 2.020208e-08  13.223694
+## NXPE1    -0.9531856 0.4764160  -6.342688 7.094551e-10 6.741109e-08  11.988575
+## TMSB4X   -1.2496508 1.0055437  -6.337401 7.315932e-10 6.741109e-08  11.958816
+## CEACAM7  -0.8182380 0.3321876  -6.196347 1.648992e-09 1.450363e-07  11.172106
+## SATB2    -0.9949205 0.5617362  -5.999302 5.014199e-09 4.218467e-07  10.096854
+## MUC13    -0.9554270 0.5686166  -5.975058 5.738627e-09 4.570052e-07   9.966490
+## HSP90AA1  1.0299812 0.6331681   5.969930 5.904459e-09 4.570052e-07   9.938973
+## FABP1    -0.9958427 0.5854007  -5.918083 7.867180e-09 5.854998e-07   9.661821
+## FCGBP    -0.7940343 0.3592995  -5.660737 3.177359e-08 2.277107e-06   8.315487
+## NCL       0.8218150 0.4153055   5.651066 3.345371e-08 2.311890e-06   8.265849
+## RPL13     1.1459746 1.0205946   5.632584 3.690815e-08 2.462664e-06   8.171197
+## SELENOP  -0.7471779 0.3588361  -5.500210 7.406662e-08 4.777297e-06   7.500782
 ```
 
 ### Output columns:
@@ -291,49 +217,6 @@ head(out, 30)
 * adj.P.Val: Benjamini-Hochberg false discovery rate adjusted p-value
 * B: log-odds that gene is DE 
 
-
-## Quiz 2
-
-<div id="quiz2" class="quiz"></div>
-<button id="submit2">Submit Quiz</button>
-<div id="results2" class="output"></div>
-<script>
-quizContainer2 = document.getElementById('quiz2');
-resultsContainer2 = document.getElementById('results2');
-submitButton2 = document.getElementById('submit2');
-
-myQuestions2 = [
-  {
-    question: "How many genes have adj.P.Val < 0.05?",
-    answers: {
-      a: "194",
-      b: "131",
-      c: "0",
-      d: "100"
-    },
-    correctAnswer: "a"
-  },
-  {
-    question: "How many genes are significantly (adj.P.Val < 0.05) downregulated in A001-C-007 relative to B001-A-301??",
-    answers: {
-      a: "131",
-      b: "65",
-      c: "0",
-      d: "24"
-    },
-    correctAnswer: "a"
-  },
-  {
-    question: "Revise the code to test 'A001-C-007' - 'A001-C-104'.  How many genes are differentially expressed between these groups? (adj.P.Val < 0.05)?  (Hint: ?makeContrasts)",
-    answers: {
-      a: "0",
-      b: "54",
-      c: "283",
-      d: "27"
-    },
-    correctAnswer: "b"
-  }
-];
 
 
 # BONUS: Cell type identification with scMRMA
