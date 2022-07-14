@@ -32,7 +32,7 @@ library(ggplot2)
 ### Setup the experiment folder and data info
 ```{r exp_setup, warning=FALSE,error=FALSE, message=FALSE}
 experiment_name = "Colon Cancer"
-dataset_loc <- "./expression_data_cellranger"
+dataset_loc <- "./"
 ids <- c("A001-C-007", "A001-C-104", "B001-A-301")
 ```
 
