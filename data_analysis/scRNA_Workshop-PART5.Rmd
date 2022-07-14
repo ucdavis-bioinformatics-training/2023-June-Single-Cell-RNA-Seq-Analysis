@@ -6,9 +6,9 @@ output:
       keep_md: TRUE
 ---
 
-Last Updated: March 20 2022
+Last Updated: July 15, 2022
 
-# Part 5: 
+# Part 5: Clustering
 
 ## Load libraries
 ```{r load_libraries, warning=FALSE,error=FALSE,message=FALSE}
@@ -131,7 +131,7 @@ Catagorical data can be plotted using the DimPlot function.
 
 TSNE plot by cell cycle
 ```{r plot_cellcycle, warning=FALSE,error=FALSE,message=FALSE}
-DimPlot(object = experiment.aggregate, pt.size=0.5, group.by = "Phase", reduction = "umap" )
+DimPlot(object = experiment.aggregate, pt.size=0.5, group.by = "Phase", reduction = "umap")
 ```
 
 1. Try creating a table, of cluster x cell cycle
@@ -141,6 +141,7 @@ FeaturePlot can be used to color cells with a 'feature', non categorical data, l
 ```{r plot_rna, warning=FALSE,error=FALSE,message=FALSE}
 FeaturePlot(experiment.aggregate, features = c('nCount_RNA'), pt.size=0.5)
 ```
+
 and number of genes present
 ```{r plot_feature, warning=FALSE,error=FALSE,message=FALSE}
 FeaturePlot(experiment.aggregate, features = c('nFeature_RNA'), pt.size=0.5)
@@ -160,6 +161,8 @@ experiment.aggregate <- BuildClusterTree(
 
 PlotClusterTree(experiment.aggregate)
 ```
+
+
 1. Create new trees of other data
 
 Once complete go back to Res 1.25
@@ -171,7 +174,7 @@ DimPlot(experiment.aggregate, pt.size = 0.5, label = TRUE, reduction = "tsne")
 
 ### Merging clusters
 
-Merge Clustering results, so lets say clusters 0,  and 9 are actually the same cell type and we don't wish to separate them out as distinct clusters. Same with 1, 6, and 11.
+Merge Clustering results, so lets say clusters 0,  and 21 are actually the same cell type and we don't wish to separate them out as distinct clusters. Same with 3, and 25.
 
 ```{r merging_cluster, warning=FALSE,error=FALSE,message=FALSE}
 experiment.merged = experiment.aggregate
@@ -179,9 +182,8 @@ Idents(experiment.merged) <- "RNA_snn_res.1.25"
 
 experiment.merged <- RenameIdents(
   object = experiment.merged,
-  '9' = '0',
-  '6' = '1',
-  '11' = '1'
+  '21' = '0',
+  '25' = '3'
 )
 
 table(Idents(experiment.merged))
@@ -190,7 +192,7 @@ DimPlot(experiment.merged, pt.size = 0.5, label = TRUE, reduction = "tsne" )
 VlnPlot(object = experiment.merged, features = "percent.mito", pt.size = 0.05)
 ```
 
-### Reording the clusters
+### Reordering the clusters
 
 In order to reorder the clusters for plotting purposes take a look at the levels of the Ident, which indicates the ordering, then relevel as desired.
 
@@ -209,10 +211,12 @@ VlnPlot(object = experiment.examples, features = "percent.mito", pt.size = 0.05)
 
 ```{r merging_cluster3, warning=FALSE,error=FALSE,message=FALSE}
 # relevel all the factors to the order I want
-Idents(experiment.examples) <- factor(experiment.examples@active.ident, levels=c("12","3","4","13","0","1","2","5","7", "8", "10"))
+neworder <- sample(levels(experiment.examples), replace=FALSE)
+Idents(experiment.examples) <- factor(experiment.examples@active.ident, levels=neworder)
 levels(experiment.examples@active.ident)
 
 DimPlot(object = experiment.examples, pt.size=0.5, label = T, reduction = "umap")
+VlnPlot(object = experiment.examples, features = "percent.mito", pt.size = 0.05)
 ```
 
 
@@ -244,10 +248,10 @@ p + scale_alpha_continuous(range = alpha.use, guide = F)
 
 ```
 
-Removing cells assigned to clusters from a plot, So here plot all clusters but cluster 6 (contaminant?)
+Removing cells assigned to clusters from a plot, So here plot all clusters but cluster 23 (contaminant?)
 ```{r removing_cells, warning=FALSE,error=FALSE,message=FALSE}
 # create a new tmp object with those removed
-experiment.aggregate.tmp <- experiment.aggregate[,-which(Idents(experiment.aggregate) %in% c("7"))]
+experiment.aggregate.tmp <- experiment.aggregate[,-which(Idents(experiment.aggregate) %in% c("23"))]
 
 dim(experiment.aggregate)
 dim(experiment.aggregate.tmp)
@@ -273,7 +277,7 @@ Seurat can help you find markers that define clusters via differential expressio
 ```
 
 ```{r find_markers, warning=FALSE,error=FALSE,message=FALSE}
-markers = FindMarkers(experiment.aggregate, ident.1=c(3,7), ident.2 = c(4,5))
+markers = FindMarkers(experiment.aggregate, ident.1=c(4,13), ident.2 = c(6,7))
 
 head(markers)
 dim(markers)
@@ -284,7 +288,6 @@ table(markers$p_val_adj < 0.05 & markers$avg_log2FC > 0)
 
 pct.1 and pct.2 are the proportion of cells with expression above 0 in ident.1 and ident.2 respectively. p_val is the raw p_value associated with the differntial expression test with adjusted value in p_val_adj. avg_logFC is the average log fold change difference between the two groups.
 
-avg_diff (lines 130, 193 and) appears to be the difference in log(x = mean(x = exp(x = x) - 1) + 1) between groups.  It doesn’t seem like this should work out to be the signed ratio of pct.1 to pct.2 so I must be missing something.  It doesn’t seem to be related at all to how the p-values are calculated so maybe it doesn’t matter so much, and the sign is probably going to be pretty robust to how expression is measured.
 
 Can use a violin plot to visualize the expression pattern of some markers
 ```{r vln, warning=FALSE,error=FALSE,message=FALSE}
@@ -295,7 +298,7 @@ Or a feature plot
 ```{r gene_feature, warning=FALSE,error=FALSE,message=FALSE}
 FeaturePlot(
     experiment.aggregate,
-    "KLRD1",
+    features = c("KCNMA1", "LEFTY1"),
     cols = c("lightgrey", "blue"),
     ncol = 2
 )
@@ -380,25 +383,25 @@ table(experiment.merged$finalcluster, experiment.merged$orig.ident)
 
 If you want to look at the representation of just one sample, or sets of samples
 ```{r subset, warning=FALSE,error=FALSE,message=FALSE}
-experiment.sample1 <- subset(experiment.merged, orig.ident == "conv_COVID")
+experiment.sample1 <- subset(experiment.merged, orig.ident == "A001-C-007")
 
 DimPlot(object = experiment.sample1, group.by = "RNA_snn_res.0.25", pt.size=0.5, label = TRUE, reduction = "tsne")
 ```
 
-### Adding in a new metadata column representing samples within clusters. So differential expression of PBMC2 vs PBMC3 within cluster 7
+### Adding in a new metadata column representing samples within clusters. So differential expression of A001-C-007 vs B001-A-301 within cluster 0
 
 ```{r, warning=FALSE,error=FALSE,message=FALSE, fig.height=7}
-experiment.merged$samplecluster = paste(experiment.merged$orig.ident,experiment.merged$finalcluster,sep = '-')
+experiment.merged$samplecluster = paste(experiment.merged$orig.ident,experiment.merged$finalcluster,sep = '_')
 
 # set the identity to the new variable
 Idents(experiment.merged) <- "samplecluster"
 
-markers.comp <- FindMarkers(experiment.merged, ident.1 = c("conv_COVID-0","conv_MMR-0"), ident.2= "conv_Tdap-0")
+markers.comp <- FindMarkers(experiment.merged, ident.1 = c("A001-C-007_12", "A001-C-104_12"), ident.2= "B001-A-301_12")
 
 head(markers.comp)
 
-experiment.subset <- subset(experiment.merged, samplecluster %in%  c( "conv_COVID-0", "conv_MMR-0", "conv_Tdap-0" ))
-DoHeatmap(experiment.subset, features = head(rownames(markers.comp),20))
+experiment.subset <- subset(experiment.merged, samplecluster %in%  c( "A001-C-007_12", "A001-C-104_12", "B001-A-301_12" ))
+DoHeatmap(object = experiment.subset, features = head(rownames(markers.comp),20))
 ```
 
 
@@ -407,7 +410,7 @@ Idents(experiment.merged) <- "finalcluster"
 ```
 
 And last lets save all the Seurat objects in our session.
-```{r save_rdata, eval=FALSE}
+```{r save_rdata, eval=TRUE}
 save(list=grep('experiment', ls(), value = TRUE), file="clusters_seurat_object.RData")
 ```
 

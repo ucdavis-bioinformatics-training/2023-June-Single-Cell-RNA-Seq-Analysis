@@ -6,9 +6,9 @@ output:
       keep_md: TRUE
 ---
 
-Last Updated: March 20 2022
+Last Updated: July 15, 2022
 
-# Part 5: 
+# Part 5: Clustering
 
 ## Load libraries
 
@@ -27,8 +27,8 @@ experiment.aggregate
 
 ```
 ## An object of class Seurat 
-## 36601 features across 3343 samples within 1 assay 
-## Active assay: RNA (36601 features, 3941 variable features)
+## 21005 features across 10595 samples within 1 assay 
+## Active assay: RNA (21005 features, 5986 variable features)
 ##  1 dimensional reduction calculated: pca
 ```
 
@@ -81,40 +81,40 @@ head(experiment.aggregate[[]])
 
 ```
 ##                             orig.ident nCount_RNA nFeature_RNA percent.mito
-## AAACCTGCAGACTCGC-conv_COVID conv_COVID       7321         2560    0.3824614
-## AAACGGGTCTGGGCCA-conv_COVID conv_COVID       6765         2128    0.8869180
-## AAACGGGTCTTAGAGC-conv_COVID conv_COVID      11471         2964    0.4794700
-## AAAGATGCATCCTAGA-conv_COVID conv_COVID       9610         2605    0.9261186
-## AAAGCAAAGAGTAAGG-conv_COVID conv_COVID       7242         2051    0.3314002
-## AAAGCAAAGCCTATGT-conv_COVID conv_COVID       1016          772    1.6732283
-##                                 S.Score    G2M.Score Phase  old.ident
-## AAACCTGCAGACTCGC-conv_COVID -0.04879952 -0.026197357    G1 conv_COVID
-## AAACGGGTCTGGGCCA-conv_COVID -0.01441873 -0.031983183    G1 conv_COVID
-## AAACGGGTCTTAGAGC-conv_COVID -0.05208459 -0.003787519    G1 conv_COVID
-## AAAGATGCATCCTAGA-conv_COVID -0.02179640 -0.011175856    G1 conv_COVID
-## AAAGCAAAGAGTAAGG-conv_COVID  0.11342246  0.019373865     S conv_COVID
-## AAAGCAAAGCCTATGT-conv_COVID  0.03533120 -0.017761709     S conv_COVID
+## AAACCCAAGTTATGGA_A001-C-007 A001-C-007       2076         1547    0.5780347
+## AAACCCACAACGCCCA_A001-C-007 A001-C-007        854          687    1.5222482
+## AAACCCACAGAAGTTA_A001-C-007 A001-C-007        540          466    1.6666667
+## AAACCCACATGATAGA_A001-C-007 A001-C-007        514          438    3.5019455
+## AAACCCAGTCAGTCCG_A001-C-007 A001-C-007        605          538    0.9917355
+## AAACGAAGTTGGTGTT_A001-C-007 A001-C-007        948          766    0.0000000
+##                                  S.Score    G2M.Score Phase  old.ident
+## AAACCCAAGTTATGGA_A001-C-007  0.022821930 -0.104890463     S A001-C-007
+## AAACCCACAACGCCCA_A001-C-007 -0.008428992  0.123912762   G2M A001-C-007
+## AAACCCACAGAAGTTA_A001-C-007  0.016243559 -0.055675102     S A001-C-007
+## AAACCCACATGATAGA_A001-C-007  0.095646766  0.173522408   G2M A001-C-007
+## AAACCCAGTCAGTCCG_A001-C-007  0.162755666 -0.009395696     S A001-C-007
+## AAACGAAGTTGGTGTT_A001-C-007 -0.074341196 -0.047294231    G1 A001-C-007
 ##                             RNA_snn_res.0.25 RNA_snn_res.0.75 RNA_snn_res.1.25
-## AAACCTGCAGACTCGC-conv_COVID                6                8                8
-## AAACGGGTCTGGGCCA-conv_COVID                0                0                0
-## AAACGGGTCTTAGAGC-conv_COVID                0                0                0
-## AAAGATGCATCCTAGA-conv_COVID                6                8                8
-## AAAGCAAAGAGTAAGG-conv_COVID                2                2                2
-## AAAGCAAAGCCTATGT-conv_COVID                5                7                7
+## AAACCCAAGTTATGGA_A001-C-007                0                1                7
+## AAACCCACAACGCCCA_A001-C-007                6               10               15
+## AAACCCACAGAAGTTA_A001-C-007                9               13               12
+## AAACCCACATGATAGA_A001-C-007                7               11               10
+## AAACCCAGTCAGTCCG_A001-C-007                3                3                1
+## AAACGAAGTTGGTGTT_A001-C-007               11               16               17
 ##                             RNA_snn_res.1.75 RNA_snn_res.2.25 RNA_snn_res.2.75
-## AAACCTGCAGACTCGC-conv_COVID                9                8                6
-## AAACGGGTCTGGGCCA-conv_COVID                3                1               13
-## AAACGGGTCTTAGAGC-conv_COVID                3                1                1
-## AAAGATGCATCCTAGA-conv_COVID                9                8                6
-## AAAGCAAAGAGTAAGG-conv_COVID                1                3                2
-## AAAGCAAAGCCTATGT-conv_COVID                5                7                5
+## AAACCCAAGTTATGGA_A001-C-007               10               15               17
+## AAACCCACAACGCCCA_A001-C-007               18               17               23
+## AAACCCACAGAAGTTA_A001-C-007               13               12               13
+## AAACCCACATGATAGA_A001-C-007                9                9                8
+## AAACCCAGTCAGTCCG_A001-C-007                1                1                4
+## AAACGAAGTTGGTGTT_A001-C-007               21               21               22
 ##                             RNA_snn_res.3.25 RNA_snn_res.3.75 seurat_clusters
-## AAACCTGCAGACTCGC-conv_COVID                6                6               6
-## AAACGGGTCTGGGCCA-conv_COVID               10               11              11
-## AAACGGGTCTTAGAGC-conv_COVID               10               11              11
-## AAAGATGCATCCTAGA-conv_COVID                6                6               6
-## AAAGCAAAGAGTAAGG-conv_COVID                1                0               0
-## AAAGCAAAGCCTATGT-conv_COVID                4                5               5
+## AAACCCAAGTTATGGA_A001-C-007               17               20              20
+## AAACCCACAACGCCCA_A001-C-007               23               24              24
+## AAACCCACAGAAGTTA_A001-C-007               12               12              12
+## AAACCCACATGATAGA_A001-C-007               19               22              22
+## AAACCCAGTCAGTCCG_A001-C-007                4                7               7
+## AAACGAAGTTGGTGTT_A001-C-007               22               23              23
 ```
 
 
@@ -128,9 +128,9 @@ sapply(grep("res",colnames(experiment.aggregate@meta.data),value = TRUE),
 
 ```
 ## RNA_snn_res.0.25 RNA_snn_res.0.75 RNA_snn_res.1.25 RNA_snn_res.1.75 
-##                9               12               14               16 
+##               17               24               27               33 
 ## RNA_snn_res.2.25 RNA_snn_res.2.75 RNA_snn_res.3.25 RNA_snn_res.3.75 
-##               20               22               23               23
+##               33               37               40               43
 ```
 
 ### Plot TSNE coloring for each resolution
@@ -176,21 +176,34 @@ table(Idents(experiment.aggregate),experiment.aggregate$orig.ident)
 
 ```
 ##     
-##      conv_COVID conv_MMR conv_Tdap norm_COVID
-##   0         180      217       176          2
-##   1         114      186       121          0
-##   2          93      156       113          0
-##   3           1        1         0        331
-##   4           9        0         5        284
-##   5          97       63        50          3
-##   6          59       87        56          0
-##   7          49       74        67          0
-##   8          57       65        64          0
-##   9          55       61        69          0
-##   10         57       71        47          0
-##   11         21       49        21          0
-##   12          0        3        70          0
-##   13          1        0         0         38
+##      A001-C-007 A001-C-104 B001-A-301
+##   0           0          2       1102
+##   1         922          1          0
+##   2           3          1        891
+##   3          89        787          4
+##   4           3          3        684
+##   5           1          4        677
+##   6          13        660          1
+##   7         234        402          4
+##   8           1         16        617
+##   9           0          1        404
+##   10         14        380          7
+##   11         56        331          2
+##   12         83        164         83
+##   13          2          1        269
+##   14         45        226          0
+##   15        114         75         81
+##   16          1          5        203
+##   17         96         66         34
+##   18          2         57         98
+##   19         76         43         27
+##   20          6         46         40
+##   21          1          2         80
+##   22          4         48         28
+##   23          2         46          1
+##   24          4          9         31
+##   25          2         39          0
+##   26          0          1         37
 ```
 
 Plot TSNE coloring by the slot 'ident' (default).
@@ -225,7 +238,7 @@ Catagorical data can be plotted using the DimPlot function.
 TSNE plot by cell cycle
 
 ```r
-DimPlot(object = experiment.aggregate, pt.size=0.5, group.by = "Phase", reduction = "umap" )
+DimPlot(object = experiment.aggregate, pt.size=0.5, group.by = "Phase", reduction = "umap")
 ```
 
 ![](scRNA_Workshop-PART5_files/figure-html/plot_cellcycle-1.png)<!-- -->
@@ -240,6 +253,7 @@ FeaturePlot(experiment.aggregate, features = c('nCount_RNA'), pt.size=0.5)
 ```
 
 ![](scRNA_Workshop-PART5_files/figure-html/plot_rna-1.png)<!-- -->
+
 and number of genes present
 
 ```r
@@ -268,6 +282,8 @@ PlotClusterTree(experiment.aggregate)
 ```
 
 ![](scRNA_Workshop-PART5_files/figure-html/create_tree-1.png)<!-- -->
+
+
 1. Create new trees of other data
 
 Once complete go back to Res 1.25
@@ -287,7 +303,7 @@ DimPlot(experiment.aggregate, pt.size = 0.5, label = TRUE, reduction = "tsne")
 
 ### Merging clusters
 
-Merge Clustering results, so lets say clusters 0,  and 9 are actually the same cell type and we don't wish to separate them out as distinct clusters. Same with 1, 6, and 11.
+Merge Clustering results, so lets say clusters 0,  and 21 are actually the same cell type and we don't wish to separate them out as distinct clusters. Same with 3, and 25.
 
 
 ```r
@@ -296,9 +312,8 @@ Idents(experiment.merged) <- "RNA_snn_res.1.25"
 
 experiment.merged <- RenameIdents(
   object = experiment.merged,
-  '9' = '0',
-  '6' = '1',
-  '11' = '1'
+  '21' = '0',
+  '25' = '3'
 )
 
 table(Idents(experiment.merged))
@@ -306,8 +321,10 @@ table(Idents(experiment.merged))
 
 ```
 ## 
-##   0   1   2   3   4   5   7   8  10  12  13 
-## 760 714 362 333 298 213 190 186 175  73  39
+##    0    3    1    2    4    5    6    7    8    9   10   11   12   13   14   15 
+## 1187  921  923  895  690  682  674  640  634  405  401  389  330  272  271  270 
+##   16   17   18   19   20   22   23   24   26 
+##  209  196  157  146   92   80   49   44   38
 ```
 
 ```r
@@ -328,7 +345,7 @@ VlnPlot(object = experiment.merged, features = "percent.mito", pt.size = 0.05)
 
 ![](scRNA_Workshop-PART5_files/figure-html/merging_cluster-3.png)<!-- -->
 
-### Reording the clusters
+### Reordering the clusters
 
 In order to reorder the clusters for plotting purposes take a look at the levels of the Ident, which indicates the ordering, then relevel as desired.
 
@@ -339,7 +356,8 @@ levels(experiment.examples@active.ident)
 ```
 
 ```
-##  [1] "0"  "1"  "2"  "3"  "4"  "5"  "7"  "8"  "10" "12" "13"
+##  [1] "0"  "3"  "1"  "2"  "4"  "5"  "6"  "7"  "8"  "9"  "10" "11" "12" "13" "14"
+## [16] "15" "16" "17" "18" "19" "20" "22" "23" "24" "26"
 ```
 
 ```r
@@ -348,7 +366,8 @@ levels(experiment.examples@active.ident)
 ```
 
 ```
-##  [1] "12" "0"  "1"  "2"  "3"  "4"  "5"  "7"  "8"  "10" "13"
+##  [1] "12" "0"  "3"  "1"  "2"  "4"  "5"  "6"  "7"  "8"  "9"  "10" "11" "13" "14"
+## [16] "15" "16" "17" "18" "19" "20" "22" "23" "24" "26"
 ```
 
 ```r
@@ -369,12 +388,14 @@ VlnPlot(object = experiment.examples, features = "percent.mito", pt.size = 0.05)
 
 ```r
 # relevel all the factors to the order I want
-Idents(experiment.examples) <- factor(experiment.examples@active.ident, levels=c("12","3","4","13","0","1","2","5","7", "8", "10"))
+neworder <- sample(levels(experiment.examples), replace=FALSE)
+Idents(experiment.examples) <- factor(experiment.examples@active.ident, levels=neworder)
 levels(experiment.examples@active.ident)
 ```
 
 ```
-##  [1] "12" "3"  "4"  "13" "0"  "1"  "2"  "5"  "7"  "8"  "10"
+##  [1] "20" "17" "4"  "23" "10" "15" "7"  "1"  "12" "14" "19" "13" "6"  "11" "9" 
+## [16] "3"  "24" "8"  "16" "5"  "2"  "18" "0"  "22" "26"
 ```
 
 ```r
@@ -382,6 +403,12 @@ DimPlot(object = experiment.examples, pt.size=0.5, label = T, reduction = "umap"
 ```
 
 ![](scRNA_Workshop-PART5_files/figure-html/merging_cluster3-1.png)<!-- -->
+
+```r
+VlnPlot(object = experiment.examples, features = "percent.mito", pt.size = 0.05)
+```
+
+![](scRNA_Workshop-PART5_files/figure-html/merging_cluster3-2.png)<!-- -->
 
 
 ### Re-assign clustering result (subclustering only cluster 0) to clustering for resolution 3.75  (@ reslution 0.25) [adding a R prefix]
@@ -396,8 +423,10 @@ table(Idents(experiment.examples))
 
 ```
 ## 
-##   1  10  12  13   2   3   4   5   7   8 R10 R11 R14 R15 R17  R2 R20  R5 
-## 714 175  73  39 362 333 298 213 190 186 174 112 147  13 104 204   5   1
+##   1  10  11  12  13  14  15  16  17  18  19   2  20  22  23  24  26   3   4   5 
+## 923 401 389 330 272 271 270 209 196 157 146 895  92  80  49  44  38 921 690 682 
+##   6   7   8   9  R0 R21 R32 R33  R4 R42  R6  R8 
+## 674 640 634 405 668   4 105  91   5   1   2 311
 ```
 
 
@@ -427,17 +456,17 @@ p + scale_alpha_continuous(range = alpha.use, guide = F)
 
 ![](scRNA_Workshop-PART5_files/figure-html/pretty_post-1.png)<!-- -->
 
-Removing cells assigned to clusters from a plot, So here plot all clusters but cluster 6 (contaminant?)
+Removing cells assigned to clusters from a plot, So here plot all clusters but cluster 23 (contaminant?)
 
 ```r
 # create a new tmp object with those removed
-experiment.aggregate.tmp <- experiment.aggregate[,-which(Idents(experiment.aggregate) %in% c("7"))]
+experiment.aggregate.tmp <- experiment.aggregate[,-which(Idents(experiment.aggregate) %in% c("23"))]
 
 dim(experiment.aggregate)
 ```
 
 ```
-## [1] 36601  3343
+## [1] 21005 10595
 ```
 
 ```r
@@ -445,7 +474,7 @@ dim(experiment.aggregate.tmp)
 ```
 
 ```
-## [1] 36601  3153
+## [1] 21005 10546
 ```
 
 
@@ -473,19 +502,19 @@ Seurat can help you find markers that define clusters via differential expressio
 
 
 ```r
-markers = FindMarkers(experiment.aggregate, ident.1=c(3,7), ident.2 = c(4,5))
+markers = FindMarkers(experiment.aggregate, ident.1=c(4,13), ident.2 = c(6,7))
 
 head(markers)
 ```
 
 ```
-##               p_val avg_log2FC pct.1 pct.2    p_val_adj
-## LTB    2.419412e-80 -2.5719909 0.031 0.577 8.855289e-76
-## RPS5   7.936504e-80 -0.9521245 0.901 0.990 2.904840e-75
-## RPL9   1.516769e-78 -0.8857788 0.906 0.990 5.551526e-74
-## MT-CO1 1.219309e-77  1.0513960 0.996 0.988 4.462794e-73
-## RPLP1  6.747611e-75 -0.7309051 0.998 1.000 2.469693e-70
-## RPS13  2.246155e-74 -0.8512602 0.956 0.998 8.221151e-70
+##                p_val avg_log2FC pct.1 pct.2     p_val_adj
+## KCNMA1  0.000000e+00   4.521474 0.856 0.034  0.000000e+00
+## PTPRN2 5.411145e-293   3.441014 0.812 0.063 1.136611e-288
+## FCGBP  8.092151e-287   3.416703 0.859 0.133 1.699756e-282
+## NEDD4L 1.124816e-279   2.858062 0.941 0.460 2.362675e-275
+## MUC2   4.305183e-253   2.915768 0.840 0.141 9.043036e-249
+## XIST   5.010454e-243   3.027981 0.682 0.018 1.052446e-238
 ```
 
 ```r
@@ -493,7 +522,7 @@ dim(markers)
 ```
 
 ```
-## [1] 1541    5
+## [1] 2270    5
 ```
 
 ```r
@@ -503,7 +532,7 @@ table(markers$avg_log2FC > 0)
 ```
 ## 
 ## FALSE  TRUE 
-##   430  1111
+##  1229  1041
 ```
 
 ```r
@@ -513,13 +542,12 @@ table(markers$p_val_adj < 0.05 & markers$avg_log2FC > 0)
 ```
 ## 
 ## FALSE  TRUE 
-##  1455    86
+##  1423   847
 ```
 
 
 pct.1 and pct.2 are the proportion of cells with expression above 0 in ident.1 and ident.2 respectively. p_val is the raw p_value associated with the differntial expression test with adjusted value in p_val_adj. avg_logFC is the average log fold change difference between the two groups.
 
-avg_diff (lines 130, 193 and) appears to be the difference in log(x = mean(x = exp(x = x) - 1) + 1) between groups.  It doesn’t seem like this should work out to be the signed ratio of pct.1 to pct.2 so I must be missing something.  It doesn’t seem to be related at all to how the p-values are calculated so maybe it doesn’t matter so much, and the sign is probably going to be pretty robust to how expression is measured.
 
 Can use a violin plot to visualize the expression pattern of some markers
 
@@ -534,7 +562,7 @@ Or a feature plot
 ```r
 FeaturePlot(
     experiment.aggregate,
-    "KLRD1",
+    features = c("KCNMA1", "LEFTY1"),
     cols = c("lightgrey", "blue"),
     ncol = 2
 )
@@ -556,7 +584,7 @@ dim(markers_all)
 ```
 
 ```
-## [1] 5189    7
+## [1] 10418     7
 ```
 
 ```r
@@ -564,13 +592,13 @@ head(markers_all)
 ```
 
 ```
-##               p_val avg_log2FC pct.1 pct.2     p_val_adj cluster  gene
-## ENO1  1.237638e-209  1.0391920 0.999 0.885 4.529880e-205       0  ENO1
-## RAN   8.163561e-195  1.0298925 0.995 0.852 2.987945e-190       0   RAN
-## NPM1  2.481907e-169  0.8394197 1.000 0.961 9.084027e-165       0  NPM1
-## HSPE1 1.341949e-160  1.0955851 0.979 0.680 4.911667e-156       0 HSPE1
-## YBX1  4.112405e-148  0.8617766 0.995 0.878 1.505181e-143       0  YBX1
-## RPL35 1.065975e-146  0.7508455 0.997 0.925 3.901576e-142       0 RPL35
+##          p_val avg_log2FC pct.1 pct.2 p_val_adj cluster     gene
+## RBFOX1       0   1.801003 0.891 0.315         0       0   RBFOX1
+## NXPE1        0   1.609535 0.970 0.495         0       0    NXPE1
+## ADAMTSL1     0   1.599482 0.935 0.410         0       0 ADAMTSL1
+## DPP10        0   1.434679 0.643 0.154         0       0    DPP10
+## EYA2         0   1.422714 0.496 0.085         0       0     EYA2
+## XIST         0   1.396557 0.896 0.281         0       0     XIST
 ```
 
 ```r
@@ -579,8 +607,8 @@ table(table(markers_all$gene))
 
 ```
 ## 
-##    1    2    3    4    5    6 
-## 1530  759  422  149   51    4
+##    1    2    3    4    5    6    7    8    9   10   11   12 
+## 1453  863  680  460  302  170   76   24    8    1    1    1
 ```
 
 ```r
@@ -590,7 +618,7 @@ dim(markers_all_single)
 ```
 
 ```
-## [1] 1530    7
+## [1] 1453    7
 ```
 
 ```r
@@ -600,7 +628,7 @@ table(table(markers_all_single$gene))
 ```
 ## 
 ##    1 
-## 1530
+## 1453
 ```
 
 ```r
@@ -609,8 +637,10 @@ table(markers_all_single$cluster)
 
 ```
 ## 
-##   0   1   2   3   4   5   7   8  10  12  13 
-## 170 236  40  44 118 101  88  75  29 586  43
+##   0   3   1   2   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19 
+##  27  32 177  15  22   0   4  20 197  82   3  12  23  44  46  28  72  42  41  23 
+##  20  22  23  24  26 
+##  81  31  87  71 273
 ```
 
 ```r
@@ -618,13 +648,13 @@ head(markers_all_single)
 ```
 
 ```
-##                p_val avg_log2FC pct.1 pct.2     p_val_adj cluster   gene
-## SERBP1 1.258848e-120  0.8213553 0.976 0.762 4.607511e-116       0 SERBP1
-## GNG8    7.449926e-91  0.7430131 0.330 0.058  2.726747e-86       0   GNG8
-## FOSL1   3.206164e-89  0.7132977 0.775 0.346  1.173488e-84       0  FOSL1
-## CCT2    6.723697e-88  0.7162080 0.961 0.670  2.460940e-83       0   CCT2
-## MRPL12  2.166021e-87  0.7609562 0.809 0.397  7.927854e-83       0 MRPL12
-## CENPV   9.692308e-85  0.5072235 0.564 0.182  3.547482e-80       0  CENPV
+##                 p_val avg_log2FC pct.1 pct.2     p_val_adj cluster    gene
+## LEFTY1  1.382475e-158  0.8183984 0.256 0.044 2.903889e-154       0  LEFTY1
+## ATP13A4 8.738362e-133  0.6535469 0.264 0.056 1.835493e-128       0 ATP13A4
+## MYB     1.904969e-124  0.6899936 0.386 0.117 4.001387e-120       0     MYB
+## NDUFAF2  1.026241e-81  0.5774651 0.302 0.101  2.155619e-77       0 NDUFAF2
+## AKAP7    1.830143e-68  0.4202497 0.317 0.119  3.844215e-64       0   AKAP7
+## LRATD1   7.161102e-56  0.3635457 0.288 0.115  1.504189e-51       0  LRATD1
 ```
 
 Plot a heatmap of genes by cluster for the top 10 marker genes per cluster
@@ -661,20 +691,20 @@ head(markers_all2)
 ```
 
 ```
-##               p_val avg_log2FC pct.1 pct.2     p_val_adj cluster  gene
-## ENO1  1.237638e-209  1.0391920 0.999 0.885 4.529880e-205       0  ENO1
-## RAN   8.163561e-195  1.0298925 0.995 0.852 2.987945e-190       0   RAN
-## NPM1  2.481907e-169  0.8394197 1.000 0.961 9.084027e-165       0  NPM1
-## HSPE1 1.341949e-160  1.0955851 0.979 0.680 4.911667e-156       0 HSPE1
-## YBX1  4.112405e-148  0.8617766 0.995 0.878 1.505181e-143       0  YBX1
-## RPL35 1.065975e-146  0.7508455 0.997 0.925 3.901576e-142       0 RPL35
-##       mean.in.cluster mean.out.of.cluster
-## ENO1         3.252366            2.236483
-## RAN          3.051647            2.047964
-## NPM1         3.567663            2.815319
-## HSPE1        2.379066            1.335002
-## YBX1         3.037216            2.191537
-## RPL35        3.341096            2.583264
+##          p_val avg_log2FC pct.1 pct.2 p_val_adj cluster     gene
+## RBFOX1       0   1.801003 0.891 0.315         0       0   RBFOX1
+## NXPE1        0   1.609535 0.970 0.495         0       0    NXPE1
+## ADAMTSL1     0   1.599482 0.935 0.410         0       0 ADAMTSL1
+## DPP10        0   1.434679 0.643 0.154         0       0    DPP10
+## EYA2         0   1.422714 0.496 0.085         0       0     EYA2
+## XIST         0   1.396557 0.896 0.281         0       0     XIST
+##          mean.in.cluster mean.out.of.cluster
+## RBFOX1         2.5396188           0.7812035
+## NXPE1          3.1683411           1.3435546
+## ADAMTSL1       2.8933510           1.0967794
+## DPP10          1.3751032           0.3315594
+## EYA2           0.9699287           0.1683474
+## XIST           2.3334639           0.7333243
 ```
 
 ## Finishing up clusters.
@@ -705,47 +735,47 @@ head(experiment.merged[[]])
 
 ```
 ##                             orig.ident nCount_RNA nFeature_RNA percent.mito
-## AAACCTGCAGACTCGC-conv_COVID conv_COVID       7321         2560    0.3824614
-## AAACGGGTCTGGGCCA-conv_COVID conv_COVID       6765         2128    0.8869180
-## AAACGGGTCTTAGAGC-conv_COVID conv_COVID      11471         2964    0.4794700
-## AAAGATGCATCCTAGA-conv_COVID conv_COVID       9610         2605    0.9261186
-## AAAGCAAAGAGTAAGG-conv_COVID conv_COVID       7242         2051    0.3314002
-## AAAGCAAAGCCTATGT-conv_COVID conv_COVID       1016          772    1.6732283
-##                                 S.Score    G2M.Score Phase  old.ident
-## AAACCTGCAGACTCGC-conv_COVID -0.04879952 -0.026197357    G1 conv_COVID
-## AAACGGGTCTGGGCCA-conv_COVID -0.01441873 -0.031983183    G1 conv_COVID
-## AAACGGGTCTTAGAGC-conv_COVID -0.05208459 -0.003787519    G1 conv_COVID
-## AAAGATGCATCCTAGA-conv_COVID -0.02179640 -0.011175856    G1 conv_COVID
-## AAAGCAAAGAGTAAGG-conv_COVID  0.11342246  0.019373865     S conv_COVID
-## AAAGCAAAGCCTATGT-conv_COVID  0.03533120 -0.017761709     S conv_COVID
+## AAACCCAAGTTATGGA_A001-C-007 A001-C-007       2076         1547    0.5780347
+## AAACCCACAACGCCCA_A001-C-007 A001-C-007        854          687    1.5222482
+## AAACCCACAGAAGTTA_A001-C-007 A001-C-007        540          466    1.6666667
+## AAACCCACATGATAGA_A001-C-007 A001-C-007        514          438    3.5019455
+## AAACCCAGTCAGTCCG_A001-C-007 A001-C-007        605          538    0.9917355
+## AAACGAAGTTGGTGTT_A001-C-007 A001-C-007        948          766    0.0000000
+##                                  S.Score    G2M.Score Phase  old.ident
+## AAACCCAAGTTATGGA_A001-C-007  0.022821930 -0.104890463     S A001-C-007
+## AAACCCACAACGCCCA_A001-C-007 -0.008428992  0.123912762   G2M A001-C-007
+## AAACCCACAGAAGTTA_A001-C-007  0.016243559 -0.055675102     S A001-C-007
+## AAACCCACATGATAGA_A001-C-007  0.095646766  0.173522408   G2M A001-C-007
+## AAACCCAGTCAGTCCG_A001-C-007  0.162755666 -0.009395696     S A001-C-007
+## AAACGAAGTTGGTGTT_A001-C-007 -0.074341196 -0.047294231    G1 A001-C-007
 ##                             RNA_snn_res.0.25 RNA_snn_res.0.75 RNA_snn_res.1.25
-## AAACCTGCAGACTCGC-conv_COVID                6                8                8
-## AAACGGGTCTGGGCCA-conv_COVID                0                0                0
-## AAACGGGTCTTAGAGC-conv_COVID                0                0                0
-## AAAGATGCATCCTAGA-conv_COVID                6                8                8
-## AAAGCAAAGAGTAAGG-conv_COVID                2                2                2
-## AAAGCAAAGCCTATGT-conv_COVID                5                7                7
+## AAACCCAAGTTATGGA_A001-C-007                0                1                7
+## AAACCCACAACGCCCA_A001-C-007                6               10               15
+## AAACCCACAGAAGTTA_A001-C-007                9               13               12
+## AAACCCACATGATAGA_A001-C-007                7               11               10
+## AAACCCAGTCAGTCCG_A001-C-007                3                3                1
+## AAACGAAGTTGGTGTT_A001-C-007               11               16               17
 ##                             RNA_snn_res.1.75 RNA_snn_res.2.25 RNA_snn_res.2.75
-## AAACCTGCAGACTCGC-conv_COVID                9                8                6
-## AAACGGGTCTGGGCCA-conv_COVID                3                1               13
-## AAACGGGTCTTAGAGC-conv_COVID                3                1                1
-## AAAGATGCATCCTAGA-conv_COVID                9                8                6
-## AAAGCAAAGAGTAAGG-conv_COVID                1                3                2
-## AAAGCAAAGCCTATGT-conv_COVID                5                7                5
+## AAACCCAAGTTATGGA_A001-C-007               10               15               17
+## AAACCCACAACGCCCA_A001-C-007               18               17               23
+## AAACCCACAGAAGTTA_A001-C-007               13               12               13
+## AAACCCACATGATAGA_A001-C-007                9                9                8
+## AAACCCAGTCAGTCCG_A001-C-007                1                1                4
+## AAACGAAGTTGGTGTT_A001-C-007               21               21               22
 ##                             RNA_snn_res.3.25 RNA_snn_res.3.75 seurat_clusters
-## AAACCTGCAGACTCGC-conv_COVID                6                6               6
-## AAACGGGTCTGGGCCA-conv_COVID               10               11              11
-## AAACGGGTCTTAGAGC-conv_COVID               10               11              11
-## AAAGATGCATCCTAGA-conv_COVID                6                6               6
-## AAAGCAAAGAGTAAGG-conv_COVID                1                0               0
-## AAAGCAAAGCCTATGT-conv_COVID                4                5               5
+## AAACCCAAGTTATGGA_A001-C-007               17               20              20
+## AAACCCACAACGCCCA_A001-C-007               23               24              24
+## AAACCCACAGAAGTTA_A001-C-007               12               12              12
+## AAACCCACATGATAGA_A001-C-007               19               22              22
+## AAACCCAGTCAGTCCG_A001-C-007                4                7               7
+## AAACGAAGTTGGTGTT_A001-C-007               22               23              23
 ##                             finalcluster
-## AAACCTGCAGACTCGC-conv_COVID            8
-## AAACGGGTCTGGGCCA-conv_COVID            0
-## AAACGGGTCTTAGAGC-conv_COVID            0
-## AAAGATGCATCCTAGA-conv_COVID            8
-## AAAGCAAAGAGTAAGG-conv_COVID            2
-## AAAGCAAAGCCTATGT-conv_COVID            7
+## AAACCCAAGTTATGGA_A001-C-007            7
+## AAACCCACAACGCCCA_A001-C-007           15
+## AAACCCACAGAAGTTA_A001-C-007           12
+## AAACCCACATGATAGA_A001-C-007           10
+## AAACCCAGTCAGTCCG_A001-C-007            1
+## AAACGAAGTTGGTGTT_A001-C-007           17
 ```
 
 ```r
@@ -754,18 +784,32 @@ table(experiment.merged$finalcluster, experiment.merged$orig.ident)
 
 ```
 ##     
-##      conv_COVID conv_MMR conv_Tdap norm_COVID
-##   0         235      278       245          2
-##   1         194      322       198          0
-##   2          93      156       113          0
-##   3           1        1         0        331
-##   4           9        0         5        284
-##   5          97       63        50          3
-##   7          49       74        67          0
-##   8          57       65        64          0
-##   10         57       71        47          0
-##   12          0        3        70          0
-##   13          1        0         0         38
+##      A001-C-007 A001-C-104 B001-A-301
+##   0           1          4       1182
+##   3          91        826          4
+##   1         922          1          0
+##   2           3          1        891
+##   4           3          3        684
+##   5           1          4        677
+##   6          13        660          1
+##   7         234        402          4
+##   8           1         16        617
+##   9           0          1        404
+##   10         14        380          7
+##   11         56        331          2
+##   12         83        164         83
+##   13          2          1        269
+##   14         45        226          0
+##   15        114         75         81
+##   16          1          5        203
+##   17         96         66         34
+##   18          2         57         98
+##   19         76         43         27
+##   20          6         46         40
+##   22          4         48         28
+##   23          2         46          1
+##   24          4          9         31
+##   26          0          1         37
 ```
 
 ## Subsetting samples and plotting
@@ -773,40 +817,40 @@ table(experiment.merged$finalcluster, experiment.merged$orig.ident)
 If you want to look at the representation of just one sample, or sets of samples
 
 ```r
-experiment.sample1 <- subset(experiment.merged, orig.ident == "conv_COVID")
+experiment.sample1 <- subset(experiment.merged, orig.ident == "A001-C-007")
 
 DimPlot(object = experiment.sample1, group.by = "RNA_snn_res.0.25", pt.size=0.5, label = TRUE, reduction = "tsne")
 ```
 
 ![](scRNA_Workshop-PART5_files/figure-html/subset-1.png)<!-- -->
 
-### Adding in a new metadata column representing samples within clusters. So differential expression of PBMC2 vs PBMC3 within cluster 7
+### Adding in a new metadata column representing samples within clusters. So differential expression of A001-C-007 vs B001-A-301 within cluster 0
 
 
 ```r
-experiment.merged$samplecluster = paste(experiment.merged$orig.ident,experiment.merged$finalcluster,sep = '-')
+experiment.merged$samplecluster = paste(experiment.merged$orig.ident,experiment.merged$finalcluster,sep = '_')
 
 # set the identity to the new variable
 Idents(experiment.merged) <- "samplecluster"
 
-markers.comp <- FindMarkers(experiment.merged, ident.1 = c("conv_COVID-0","conv_MMR-0"), ident.2= "conv_Tdap-0")
+markers.comp <- FindMarkers(experiment.merged, ident.1 = c("A001-C-007_12", "A001-C-104_12"), ident.2= "B001-A-301_12")
 
 head(markers.comp)
 ```
 
 ```
-##               p_val avg_log2FC pct.1 pct.2    p_val_adj
-## MX1    2.899403e-12  0.6841773 0.238 0.033 1.061210e-07
-## IFI6   1.505343e-09  0.4599844 0.197 0.033 5.509704e-05
-## IRF7   3.922838e-09  0.5680142 0.267 0.086 1.435798e-04
-## IRF9   2.554919e-07  0.4152099 0.495 0.314 9.351260e-03
-## PLSCR1 3.368926e-07  0.3033803 0.238 0.086 1.233061e-02
-## TRIM22 1.483418e-06  0.4121095 0.253 0.102 5.429457e-02
+##                p_val avg_log2FC pct.1 pct.2    p_val_adj
+## SLC26A2 1.103276e-42  -3.406530 0.138 0.904 2.317432e-38
+## XIST    2.145342e-34  -3.351456 0.000 0.530 4.506291e-30
+## GUCA2A  4.025474e-31  -3.190970 0.020 0.554 8.455508e-27
+## PDE3A   8.506056e-27  -2.909730 0.032 0.530 1.786697e-22
+## PHGR1   2.436331e-26  -2.546360 0.113 0.699 5.117514e-22
+## SLC26A3 4.059153e-26  -2.597649 0.089 0.663 8.526252e-22
 ```
 
 ```r
-experiment.subset <- subset(experiment.merged, samplecluster %in%  c( "conv_COVID-0", "conv_MMR-0", "conv_Tdap-0" ))
-DoHeatmap(experiment.subset, features = head(rownames(markers.comp),20))
+experiment.subset <- subset(experiment.merged, samplecluster %in%  c( "A001-C-007_12", "A001-C-104_12", "B001-A-301_12" ))
+DoHeatmap(object = experiment.subset, features = head(rownames(markers.comp),20))
 ```
 
 ![](scRNA_Workshop-PART5_files/figure-html/unnamed-chunk-1-1.png)<!-- -->
@@ -837,12 +881,12 @@ sessionInfo()
 
 ```
 ## R version 4.1.2 (2021-11-01)
-## Platform: aarch64-apple-darwin20 (64-bit)
-## Running under: macOS Monterey 12.0.1
+## Platform: x86_64-apple-darwin17.0 (64-bit)
+## Running under: macOS Catalina 10.15.7
 ## 
 ## Matrix products: default
-## BLAS:   /Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/lib/libRblas.0.dylib
-## LAPACK: /Library/Frameworks/R.framework/Versions/4.1-arm64/Resources/lib/libRlapack.dylib
+## BLAS:   /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRblas.0.dylib
+## LAPACK: /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRlapack.dylib
 ## 
 ## locale:
 ## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
@@ -854,7 +898,7 @@ sessionInfo()
 ## [1] dplyr_1.0.8        ggplot2_3.3.5      SeuratObject_4.0.4 Seurat_4.1.0      
 ## 
 ## loaded via a namespace (and not attached):
-##   [1] Rtsne_0.15            colorspace_2.0-3      deldir_1.0-6         
+##   [1] Rtsne_0.15            colorspace_2.0-2      deldir_1.0-6         
 ##   [4] ellipsis_0.3.2        ggridges_0.5.3        rstudioapi_0.13      
 ##   [7] spatstat.data_2.1-2   farver_2.1.0          leiden_0.3.9         
 ##  [10] listenv_0.8.0         ggrepel_0.9.1         RSpectra_0.16-0      
@@ -864,33 +908,33 @@ sessionInfo()
 ##  [22] uwot_0.1.11           shiny_1.7.1           sctransform_0.3.3    
 ##  [25] spatstat.sparse_2.1-0 compiler_4.1.2        httr_1.4.2           
 ##  [28] assertthat_0.2.1      Matrix_1.4-0          fastmap_1.1.0        
-##  [31] lazyeval_0.2.2        limma_3.50.1          cli_3.2.0            
+##  [31] lazyeval_0.2.2        limma_3.50.0          cli_3.2.0            
 ##  [34] later_1.3.0           htmltools_0.5.2       tools_4.1.2          
 ##  [37] igraph_1.2.11         gtable_0.3.0          glue_1.6.2           
 ##  [40] RANN_2.6.1            reshape2_1.4.4        Rcpp_1.0.8.3         
-##  [43] scattermore_0.8       jquerylib_0.1.4       vctrs_0.3.8          
+##  [43] scattermore_0.7       jquerylib_0.1.4       vctrs_0.3.8          
 ##  [46] ape_5.6-2             nlme_3.1-155          lmtest_0.9-39        
-##  [49] spatstat.random_2.1-0 xfun_0.30             stringr_1.4.0        
-##  [52] globals_0.14.0        mime_0.12             miniUI_0.1.1.1       
-##  [55] lifecycle_1.0.1       irlba_2.3.5           goftest_1.2-3        
-##  [58] future_1.24.0         MASS_7.3-55           zoo_1.8-9            
-##  [61] scales_1.1.1          spatstat.core_2.4-0   promises_1.2.0.1     
-##  [64] spatstat.utils_2.3-0  parallel_4.1.2        RColorBrewer_1.1-2   
-##  [67] yaml_2.3.5            reticulate_1.24       pbapply_1.5-0        
-##  [70] gridExtra_2.3         sass_0.4.0            rpart_4.1.16         
-##  [73] stringi_1.7.6         highr_0.9             rlang_1.0.2          
-##  [76] pkgconfig_2.0.3       matrixStats_0.61.0    evaluate_0.15        
-##  [79] lattice_0.20-45       ROCR_1.0-11           purrr_0.3.4          
-##  [82] tensor_1.5            labeling_0.4.2        patchwork_1.1.1      
-##  [85] htmlwidgets_1.5.4     cowplot_1.1.1         tidyselect_1.1.2     
-##  [88] parallelly_1.30.0     RcppAnnoy_0.0.19      plyr_1.8.6           
-##  [91] magrittr_2.0.2        R6_2.5.1              generics_0.1.2       
-##  [94] DBI_1.1.2             withr_2.5.0           mgcv_1.8-39          
-##  [97] pillar_1.7.0          fitdistrplus_1.1-8    survival_3.3-1       
-## [100] abind_1.4-5           tibble_3.1.6          future.apply_1.8.1   
-## [103] crayon_1.5.0          KernSmooth_2.23-20    utf8_1.2.2           
-## [106] spatstat.geom_2.3-2   plotly_4.10.0         rmarkdown_2.13       
-## [109] grid_4.1.2            data.table_1.14.2     digest_0.6.29        
-## [112] xtable_1.8-4          tidyr_1.2.0           httpuv_1.6.5         
-## [115] munsell_0.5.0         viridisLite_0.4.0     bslib_0.3.1
+##  [49] xfun_0.29             stringr_1.4.0         globals_0.14.0       
+##  [52] mime_0.12             miniUI_0.1.1.1        lifecycle_1.0.1      
+##  [55] irlba_2.3.5           goftest_1.2-3         future_1.23.0        
+##  [58] MASS_7.3-55           zoo_1.8-9             scales_1.1.1         
+##  [61] spatstat.core_2.3-2   promises_1.2.0.1      spatstat.utils_2.3-0 
+##  [64] parallel_4.1.2        RColorBrewer_1.1-2    yaml_2.3.5           
+##  [67] reticulate_1.24       pbapply_1.5-0         gridExtra_2.3        
+##  [70] sass_0.4.0            rpart_4.1.16          stringi_1.7.6        
+##  [73] highr_0.9             rlang_1.0.2           pkgconfig_2.0.3      
+##  [76] matrixStats_0.61.0    evaluate_0.14         lattice_0.20-45      
+##  [79] ROCR_1.0-11           purrr_0.3.4           tensor_1.5           
+##  [82] labeling_0.4.2        patchwork_1.1.1       htmlwidgets_1.5.4    
+##  [85] cowplot_1.1.1         tidyselect_1.1.2      parallelly_1.30.0    
+##  [88] RcppAnnoy_0.0.19      plyr_1.8.6            magrittr_2.0.2       
+##  [91] R6_2.5.1              generics_0.1.2        DBI_1.1.2            
+##  [94] withr_2.4.3           mgcv_1.8-38           pillar_1.7.0         
+##  [97] fitdistrplus_1.1-6    survival_3.2-13       abind_1.4-5          
+## [100] tibble_3.1.6          future.apply_1.8.1    crayon_1.5.0         
+## [103] KernSmooth_2.23-20    utf8_1.2.2            spatstat.geom_2.3-1  
+## [106] plotly_4.10.0         rmarkdown_2.11        grid_4.1.2           
+## [109] data.table_1.14.2     digest_0.6.29         xtable_1.8-4         
+## [112] tidyr_1.2.0           httpuv_1.6.5          munsell_0.5.0        
+## [115] viridisLite_0.4.0     bslib_0.3.1
 ```
