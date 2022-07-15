@@ -349,6 +349,7 @@ Cell Ranger does produce a more readable HTML report with the same statistics an
 4. Copy contents of the script to your **scrnaseq_example** folder and do a test run.
 
     ```bash
+    cd /share/workshop/scRNA_workshop/$USER/scrnaseq_example
     wget https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-July-Single-Cell-RNA-Seq-Analysis/main/software_scripts/scripts/cellranger-counts.sh cellranger-counts.sh
     ```
 
