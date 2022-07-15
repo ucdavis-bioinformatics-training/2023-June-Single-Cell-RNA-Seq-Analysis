@@ -363,24 +363,24 @@ Cell Ranger does produce a more readable HTML report with the same statistics an
 
     ```bash
     cd /share/workshop/scRNA_workshop/$USER/scrnaseq_example
-    ln -s /share/workshop/scRNA_workshop/cellranger_out/Pool1_gex Pool1_gex_copy
+    ln -s /share/workshop/scRNA_workshop/cellranger.outs/A001-C-007 ./A001-C-007-copy
     ```
 
-	1. In the folder Pool1_gex_copy, which output folders/files were generated from this script?
+	1. In the folder A001-C-007-copy, which output folders/files were generated from this script?
 	2. Review the metrics_summary.csv file
 		1. What where the total number of reads in this sample?
 		2. Reads Mapped Confidently to transcriptome?
 		3. Sequencing Saturation?
 		4. Mean Reads per Cell?
 		5. Median UMI Counts per Cell?
-	3. head the files under raw_gene_bc_matrices and filtered_gene_bc_matrices
-    4. Transfer the html file to your computer
-    5. Transfer the matrix files and hdf5 file to your computer. (However, we will be using data from the entirety of Pool 1 instead of this subset).
-	6. If time remains, uncomment the `eval $call` line to run the script.
+	3. head the files under raw_feature_bc_matrix and filtered_feature_bc_matrix
+	4. Transfer the html file to your computer
+	5. Transfer the matrix files and hdf5 file to your computer. (However, we will be using data from the full datasets for all three samples instead of this subset).
 
 In the intereste of time, the dataset we use for this step is a small subset of the original data. The cellranger summary file is [here](fullset_web_summary.html)
 
-### Cellranger features and multi pipeline
+
+### Bonus: cellranger features and multi pipeline
 
 Feature barcodes allow you to capture additional information within your cells by using an addition oligo on the GEM beads. This can be from Antibody capture, Crispr guide capture, or a custom capture (like hash tagging).
 

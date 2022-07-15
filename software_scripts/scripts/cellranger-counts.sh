@@ -10,6 +10,8 @@
 #SBATCH --account=workshop
 #SBATCH --output=counts-cellrngr-%A-%a.out # File to which STDOUT will be written
 #SBATCH --error=counts-cellrngr-%A-%a.err # File to which STDERR will be written
+#SBATCH --mail-type=END # Type of email notification- BEGIN,END,FAIL,ALL
+#SBATCH --mail-user=youremail@whatever.edu # Email to which notifications will be sent
 
 ## Record the start time
 start=`date +%s`
