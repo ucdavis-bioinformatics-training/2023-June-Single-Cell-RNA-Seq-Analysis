@@ -79,7 +79,6 @@ function showResults(myq, qc, rc){
 }
 </script>
 
-
 # Part 6: Enrichment, Model-Based DE, and Cell-Type Identification
 
 
@@ -144,32 +143,31 @@ names(geneList) <- all.genes
 
 ```
 ##         GO.ID                                                            Term Annotated Significant Expected  Fisher
-## 1  GO:0050852                               T cell receptor signaling pathway       111           4     0.23 7.4e-05
-## 2  GO:0050861        positive regulation of B cell receptor signaling pathway         7           2     0.01 8.7e-05
-## 3  GO:0072659                         protein localization to plasma membrane       237           5     0.49 0.00011
-## 4  GO:0050727                             regulation of inflammatory response       218           4     0.45 0.00098
-## 5  GO:0021762                                    substantia nigra development        32           2     0.07 0.00198
+## 1  GO:0050852                               T cell receptor signaling pathway       114           4     0.24 8.2e-05
+## 2  GO:0050861        positive regulation of B cell receptor signaling pathway         7           2     0.01 8.6e-05
+## 3  GO:0072659                         protein localization to plasma membrane       236           5     0.49 0.00011
+## 4  GO:0050727                             regulation of inflammatory response       227           4     0.47 0.00113
+## 5  GO:0021762                                    substantia nigra development        32           2     0.07 0.00197
 ## 6  GO:0000304                                      response to singlet oxygen         1           1     0.00 0.00208
 ## 7  GO:0042351                     'de novo' GDP-L-fucose biosynthetic process         1           1     0.00 0.00208
 ## 8  GO:2000473        positive regulation of hematopoietic stem cell migration         1           1     0.00 0.00208
 ## 9  GO:0051623                    positive regulation of norepinephrine uptake         1           1     0.00 0.00208
 ## 10 GO:0032745                positive regulation of interleukin-21 production         1           1     0.00 0.00208
 ## 11 GO:0072749                             cellular response to cytochalasin B         1           1     0.00 0.00208
-## 12 GO:0060964                           regulation of gene silencing by miRNA        39           2     0.08 0.00294
-## 13 GO:1905475                  regulation of protein localization to membrane       144           3     0.30 0.00319
-## 14 GO:0034113                                  heterotypic cell-cell adhesion        44           2     0.09 0.00372
-## 15 GO:1903615    positive regulation of protein tyrosine phosphatase activity         2           1     0.00 0.00416
-## 16 GO:0031022                           nuclear migration along microfilament         2           1     0.00 0.00416
-## 17 GO:1904155                                   DN2 thymocyte differentiation         2           1     0.00 0.00416
-## 18 GO:0006933 negative regulation of cell adhesion involved in substrate-b...         2           1     0.00 0.00416
-## 19 GO:0002728 negative regulation of natural killer cell cytokine producti...         2           1     0.00 0.00416
-## 20 GO:0044855                               plasma membrane raft distribution         2           1     0.00 0.00416
+## 12 GO:1905475                  regulation of protein localization to membrane       140           3     0.29 0.00292
+## 13 GO:0010629                          negative regulation of gene expression       757           7     1.57 0.00295
+## 14 GO:0034113                                  heterotypic cell-cell adhesion        45           2     0.09 0.00388
+## 15 GO:1903615    positive regulation of protein tyrosine phosphatase activity         2           1     0.00 0.00415
+## 16 GO:0031022                           nuclear migration along microfilament         2           1     0.00 0.00415
+## 17 GO:0021817 nucleokinesis involved in cell motility in cerebral cortex r...         2           1     0.00 0.00415
+## 18 GO:1904155                                   DN2 thymocyte differentiation         2           1     0.00 0.00415
+## 19 GO:0002728 negative regulation of natural killer cell cytokine producti...         2           1     0.00 0.00415
+## 20 GO:0044855                               plasma membrane raft distribution         2           1     0.00 0.00415
 ```
 * Annotated: number of genes (out of all.genes) that are annotated with that GO term
 * Significant: number of genes that are annotated with that GO term and meet our criteria for "expressed"
 * Expected: Under random chance, number of genes that would be expected to be annotated with that GO term and meeting our criteria for "expressed"
 * Fisher: (Raw) p-value from Fisher's Exact Test
-
 
 ## Quiz 1
 
@@ -195,20 +193,20 @@ myQuestions1 = [
   {
     question: "How many genes annotated with the top GO term are expressed in cluster 12?",
     answers: {
-      a: "142",
-      b: "17.73",
+      a: "114",
+      b: "0.24",
       c: "0",
-      d: "111"
+      d: "4"
     },
     correctAnswer: "d"
   },
   {
     question: "How many expressed genes would be expected to be annotated with the top GO term under random chance?",
     answers: {
-      a: "142",
-      b: "0.23",
+      a: "114",
+      b: "0.24",
       c: "0",
-      d: "108"
+      d: "4"
     },
     correctAnswer: "b"
   }
@@ -218,9 +216,11 @@ buildQuiz(myQuestions1, quizContainer1);
 submitButton1.addEventListener('click', function() {showResults(myQuestions1, quizContainer1, resultsContainer1);});
 </script>
 
-
 ## Challenge Questions 
 If you have extra time:
+
+1. Rerun the enrichment analysis for the molecular function (MF) ontology.
+2. Think about how you write code to repeat the above enrichment analysis for every cluster (hint: ?base::sapply).
 
 # 2. Model-based DE analysis in limma
 [limma](https://bioconductor.org/packages/release/bioc/html/limma.html) is an R package for differential expression analysis of bulk RNASeq and microarray data.  We apply it here to single cell data.
@@ -235,18 +235,18 @@ expr2 <- expr[keep,]
 
 # Set up "design matrix" with statistical model
 cluster12$proper.ident <- make.names(cluster12$orig.ident)
-mm <- model.matrix(~0 + proper.ident, data = cluster12[[]])
+mm <- model.matrix(~0 + proper.ident + S.Score + G2M.Score + percent.mito + nFeature_RNA, data = cluster12[[]])
 head(mm)
 ```
 
 ```
-##                             proper.identA001.C.007 proper.identA001.C.104 proper.identB001.A.301
-## AAACCCACAGAAGTTA_A001-C-007                      1                      0                      0
-## AAACGCTAGGAGCAAA_A001-C-007                      1                      0                      0
-## AAACGCTTCTCTGCTG_A001-C-007                      1                      0                      0
-## AAAGAACCACGAAGAC_A001-C-007                      1                      0                      0
-## AACAGGGGTCCCTGAG_A001-C-007                      1                      0                      0
-## AAGGTAATCCTCAGAA_A001-C-007                      1                      0                      0
+##                             proper.identA001.C.007 proper.identA001.C.104 proper.identB001.A.301      S.Score   G2M.Score percent.mito nFeature_RNA
+## AAACCCACAGAAGTTA_A001-C-007                      1                      0                      0  0.016243559 -0.05567510    1.6666667          466
+## AAACGCTAGGAGCAAA_A001-C-007                      1                      0                      0 -0.059688163  0.01823853    2.0519836          626
+## AAACGCTTCTCTGCTG_A001-C-007                      1                      0                      0  0.244774911  0.74333121    1.1502030         1104
+## AAAGAACCACGAAGAC_A001-C-007                      1                      0                      0 -0.003307564  0.09956644    1.4218009          535
+## AACAGGGGTCCCTGAG_A001-C-007                      1                      0                      0 -0.035800756  0.01552573    0.7968127          744
+## AAGGTAATCCTCAGAA_A001-C-007                      1                      0                      0 -0.062652203  0.04392439    0.9419152          546
 ```
 
 ```r
@@ -254,13 +254,13 @@ tail(mm)
 ```
 
 ```
-##                             proper.identA001.C.007 proper.identA001.C.104 proper.identB001.A.301
-## TTCCGTGTCCGCTGTT_B001-A-301                      0                      0                      1
-## TTCTGTACATAGACTC_B001-A-301                      0                      0                      1
-## TTCTTCCAGTCCCAAT_B001-A-301                      0                      0                      1
-## TTGGATGCACGGTGCT_B001-A-301                      0                      0                      1
-## TTTACGTGTGTCTTAG_B001-A-301                      0                      0                      1
-## TTTCGATAGACAACAT_B001-A-301                      0                      0                      1
+##                             proper.identA001.C.007 proper.identA001.C.104 proper.identB001.A.301     S.Score    G2M.Score percent.mito nFeature_RNA
+## TTCCGTGTCCGCTGTT_B001-A-301                      0                      0                      1 -0.08190609 -0.045416409    0.6387509         1064
+## TTCTGTACATAGACTC_B001-A-301                      0                      0                      1  0.02359308 -0.056658892    0.3048780          536
+## TTCTTCCAGTCCCAAT_B001-A-301                      0                      0                      1  0.02491281 -0.088061413    0.3700278          862
+## TTGGATGCACGGTGCT_B001-A-301                      0                      0                      1 -0.04342491  0.071349069    0.9578544          451
+## TTTACGTGTGTCTTAG_B001-A-301                      0                      0                      1 -0.09985271 -0.093126270    0.5780347          942
+## TTTCGATAGACAACAT_B001-A-301                      0                      0                      1  0.04867999  0.004383793    0.4915730         2371
 ```
 
 ```r
@@ -270,19 +270,18 @@ head(coef(fit))
 ```
 
 ```
-##        proper.identA001.C.007 proper.identA001.C.104 proper.identB001.A.301
-## CCNL2               0.5986870              0.4153912             0.41790229
-## CDK11A              0.7792449              0.1782896             0.22297892
-## GNB1                0.8793928              0.6281440             0.73183266
-## SKI                 0.2834711              0.4465787             0.05454021
-## KCNAB2              0.3073824              0.4218045             0.28888714
-## CAMTA1              0.1343611              0.2076775             0.47916465
+##        proper.identA001.C.007 proper.identA001.C.104 proper.identB001.A.301    S.Score  G2M.Score percent.mito  nFeature_RNA
+## CCNL2               0.2396261           -0.006494329             0.05299145  0.1177847 -0.3851735  0.099257545  0.0003433512
+## CDK11A              0.6641791            0.089012473             0.09024772 -0.6450108  0.6608372 -0.013579988  0.0001919251
+## GNB1                0.5498174            0.363893455             0.38644072  0.2396164  0.2658143 -0.001826895  0.0004433892
+## SKI                 0.2285806            0.398793577            -0.12774089 -0.1044831 -0.4867745 -0.059676145  0.0002570741
+## KCNAB2              0.4760345            0.765881330             0.54504314  0.9751246  0.6724686 -0.103461311 -0.0001717929
+## CAMTA1             -0.1310409           -0.095618782             0.07542118 -0.4560094 -0.4501812 -0.002074261  0.0004712436
 ```
 
 ```r
-# Test B001-A-301 - A001-C-007
+# Test 'B001-A-301' - 'A001-C-007'
 contr <- makeContrasts(proper.identB001.A.301 - proper.identA001.C.007, levels = colnames(coef(fit)))
-levels <- colnames(coef(fit))
 contr
 ```
 
@@ -292,6 +291,10 @@ contr
 ##   proper.identA001.C.007                                              -1
 ##   proper.identA001.C.104                                               0
 ##   proper.identB001.A.301                                               1
+##   S.Score                                                              0
+##   G2M.Score                                                            0
+##   percent.mito                                                         0
+##   nFeature_RNA                                                         0
 ```
 
 ```r
@@ -302,37 +305,37 @@ head(out, 30)
 ```
 
 ```
-##               logFC   AveExpr          t      P.Value    adj.P.Val          B
-## SLC26A2   2.8822283 1.0629482  18.098433 6.268188e-52 1.212894e-48 106.877809
-## XIST      1.4542383 0.3657630  12.730437 1.083975e-30 1.048746e-27  58.888645
-## PHGR1     1.9590238 0.7501501  12.122078 2.071322e-28 1.336003e-25  53.731545
-## GUCA2A    1.5400474 0.4334461  12.078235 3.013116e-28 1.457595e-25  53.363616
-## SLC26A3   1.7533252 0.6555777  11.370757 1.180260e-25 4.567607e-23  47.503355
-## PDE3A     1.4602304 0.4332776  11.190702 5.261502e-25 1.696834e-22  46.036641
-## MT-CO2   -1.9796188 2.7289681 -10.328533 5.771672e-22 1.595455e-19  39.170184
-## PIGR      1.8777320 1.3447380   8.986565 1.713251e-17 4.143926e-15  29.082220
-## ATP1A1    1.4211688 0.6672922   8.878497 3.787588e-17 8.143314e-15  28.306074
-## CLCA4     1.0493355 0.3366567   8.657707 1.881022e-16 3.639779e-14  26.738694
-## CKB       1.7948701 1.4913849   8.543888 4.255755e-16 7.486260e-14  25.940527
-## MUC12     1.2885756 0.5705467   8.456585 7.924369e-16 1.277804e-13  25.332934
-## CCND3     1.7789964 1.3641127   8.236113 3.740579e-15 5.567709e-13  23.816805
-## FKBP5     1.7713394 1.3421646   8.129783 7.832342e-15 1.082542e-12  23.095140
-## PARP8     1.4550661 0.9387516   7.408418 9.944179e-13 1.282799e-10  18.371304
-## RNF213   -1.5051780 1.4710884  -6.798509 4.673553e-11 5.652079e-09  14.626670
-## FTH1      1.0852623 0.6892685   6.769212 5.589514e-11 6.362182e-09  14.452875
-## PIP4K2A   1.4152607 1.1825719   6.759170 5.942364e-11 6.388042e-09  14.393437
-## S100A6    1.3140613 0.9677000   6.559153 1.983667e-10 2.020208e-08  13.223694
-## NXPE1     0.9531856 0.4764160   6.342688 7.094551e-10 6.741109e-08  11.988575
-## TMSB4X    1.2496508 1.0055437   6.337401 7.315932e-10 6.741109e-08  11.958816
-## CEACAM7   0.8182380 0.3321876   6.196347 1.648992e-09 1.450363e-07  11.172106
-## SATB2     0.9949205 0.5617362   5.999302 5.014199e-09 4.218467e-07  10.096854
-## MUC13     0.9554270 0.5686166   5.975058 5.738627e-09 4.570052e-07   9.966490
-## HSP90AA1 -1.0299812 0.6331681  -5.969930 5.904459e-09 4.570052e-07   9.938973
-## FABP1     0.9958427 0.5854007   5.918083 7.867180e-09 5.854998e-07   9.661821
-## FCGBP     0.7940343 0.3592995   5.660737 3.177359e-08 2.277107e-06   8.315487
-## NCL      -0.8218150 0.4153055  -5.651066 3.345371e-08 2.311890e-06   8.265849
-## RPL13    -1.1459746 1.0205946  -5.632584 3.690815e-08 2.462664e-06   8.171197
-## SELENOP   0.7471779 0.3588361   5.500210 7.406662e-08 4.777297e-06   7.500782
+##               logFC   AveExpr         t      P.Value    adj.P.Val         B
+## SLC26A2   3.0491797 1.0629482 17.062816 1.279092e-47 2.475042e-44 96.842841
+## GUCA2A    1.6316995 0.4334461 11.246381 3.615387e-25 3.497887e-22 46.344851
+## PHGR1     1.9817254 0.7501501 10.812613 1.263317e-23 8.148397e-21 42.872558
+## XIST      1.3225033 0.3657630 10.380945 4.060678e-22 1.702613e-19 39.482858
+## SLC26A3   1.8205559 0.6555777 10.370872 4.399517e-22 1.702613e-19 39.404586
+## PDE3A     1.4273415 0.4332776  9.692689 8.833021e-20 2.848649e-17 34.228170
+## CKB       2.0132899 1.4913849  8.459897 7.999548e-16 2.211304e-13 25.345494
+## PIGR      1.9395745 1.3447380  8.150402 6.989238e-15 1.690522e-12 23.235771
+## ATP1A1    1.4142129 0.6672922  7.771705 9.228991e-14 1.984233e-11 20.726518
+## CLCA4     1.0457945 0.3366567  7.582066 3.258275e-13 6.304761e-11 19.501071
+## MT-CO2   -1.5085157 2.7289681 -7.503861 5.447945e-13 9.583431e-11 19.001933
+## MUC12     1.2542062 0.5705467  7.222223 3.364764e-12 5.425683e-10 17.235244
+## TMSB4X    1.4108471 1.0055437  6.294871 9.469176e-10 1.409450e-07 11.778234
+## FTH1      1.1423795 0.6892685  6.268453 1.102695e-09 1.519892e-07 11.631283
+## CCND3     1.5327817 1.3641127  6.256938 1.178211e-09 1.519892e-07 11.567378
+## S100A6    1.4073711 0.9677000  6.161607 2.031648e-09 2.457025e-07 11.041922
+## CEACAM7   0.9032732 0.3321876  6.006647 4.859850e-09 5.531652e-07 10.201561
+## NXPE1     1.0027720 0.4764160  5.894184 9.055717e-09 9.734896e-07  9.602475
+## FKBP5     1.3994918 1.3421646  5.776481 1.720380e-08 1.752071e-06  8.985344
+## FABP1     1.0951597 0.5854007  5.710409 2.455702e-08 2.375892e-06  8.643388
+## HSP90AA1 -1.1122036 0.6331681 -5.655640 3.290375e-08 3.031846e-06  8.362388
+## PIP4K2A   1.3017235 1.1825719  5.524949 6.555718e-08 5.766052e-06  7.700923
+## PARP8     1.2093942 0.9387516  5.482825 8.164914e-08 6.869178e-06  7.490466
+## SELENOP   0.8384054 0.3588361  5.438166 1.028959e-07 8.295982e-06  7.268813
+## MUC13     0.9862040 0.5686166  5.423396 1.110395e-07 8.594456e-06  7.195839
+## B2M       1.2463700 1.0201418  5.398320 1.263212e-07 9.211562e-06  7.072330
+## NCL      -0.8912419 0.4153055 -5.394937 1.285334e-07 9.211562e-06  7.055704
+## RNF213   -1.3405337 1.4710884 -5.370101 1.459659e-07 1.008729e-05  6.933916
+## FRYL      1.1859519 1.1869102  5.063632 6.749130e-07 4.503299e-05  5.470366
+## TSPAN1    0.6987805 0.2775711  4.992235 9.543618e-07 6.155634e-05  5.139976
 ```
 
 ### Output columns:
@@ -342,7 +345,6 @@ head(out, 30)
 * P.Value: Raw p-value (based on t) from test that logFC differs from 0
 * adj.P.Val: Benjamini-Hochberg false discovery rate adjusted p-value
 * B: log-odds that gene is DE 
-
 
 ## Quiz 2
 
@@ -358,7 +360,7 @@ myQuestions2 = [
   {
     question: "How many genes have adj.P.Val < 0.05?",
     answers: {
-      a: "194",
+      a: "125",
       b: "131",
       c: "0",
       d: "100"
@@ -366,9 +368,9 @@ myQuestions2 = [
     correctAnswer: "a"
   },
   {
-    question: "How many genes are significantly (adj.P.Val < 0.05) downregulated in A001-C-007 relative to B001-A-301??",
+    question: "How many genes are significantly (adj.P.Val < 0.05) downregulated in B001-A-301 relative to A001-C-007?",
     answers: {
-      a: "131",
+      a: "53",
       b: "65",
       c: "0",
       d: "24"
@@ -379,7 +381,7 @@ myQuestions2 = [
     question: "Revise the code to test 'A001-C-007' - 'A001-C-104'.  How many genes are differentially expressed between these groups? (adj.P.Val < 0.05)?  (Hint: ?makeContrasts)",
     answers: {
       a: "0",
-      b: "54",
+      b: "36",
       c: "283",
       d: "27"
     },
@@ -429,7 +431,7 @@ table(result$uniformR$annotationResult)
 ```
 
 ```
-## 
+## UniformR
 ##  Epithelial cells      Goblet cells           Neurons         Podocytes       Enterocytes    T memory cells       Macrophages      Plasma cells Endothelial cells    B cells memory        Tuft cells 
 ##              4556              1356               978              1992               819               329               195               142                99                80                49
 ```
@@ -480,14 +482,14 @@ table(experiment.merged$CellType, experiment.merged$finalcluster)
 DimPlot(experiment.merged, group.by = "CellType", label = TRUE)
 ```
 
-![](scRNA_Workshop-PART6_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
-
+![](scRNA_Workshop-PART6_with_quizzes_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
 
 ## Get the next Rmd file
 
 ```r
 download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-July-Single-Cell-RNA-Seq-Analysis/main/data_analysis/scRNA_Workshop-PART7.Rmd", "scRNA_Workshop-PART7.Rmd")
 ```
+
                  
 ## Session Information
 
@@ -496,31 +498,29 @@ sessionInfo()
 ```
 
 ```
-## R version 4.1.2 (2021-11-01)
-## Platform: x86_64-apple-darwin17.0 (64-bit)
-## Running under: macOS Catalina 10.15.7
+## R version 4.2.1 (2022-06-23 ucrt)
+## Platform: x86_64-w64-mingw32/x64 (64-bit)
+## Running under: Windows 10 x64 (build 19044)
 ## 
 ## Matrix products: default
-## BLAS:   /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRblas.0.dylib
-## LAPACK: /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRlapack.dylib
 ## 
 ## locale:
-## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+## [1] LC_COLLATE=English_United States.utf8  LC_CTYPE=English_United States.utf8    LC_MONETARY=English_United States.utf8 LC_NUMERIC=C                           LC_TIME=English_United States.utf8    
 ## 
 ## attached base packages:
-## [1] stats4    stats     graphics  grDevices utils     datasets  methods   base     
+## [1] stats4    stats     graphics  grDevices datasets  utils     methods   base     
 ## 
 ## other attached packages:
-##  [1] scMRMA_1.0           networkD3_0.4        data.tree_1.0.0      tidyr_1.2.0          RANN_2.6.1           plyr_1.8.6           irlba_2.3.5          Matrix_1.4-0         org.Hs.eg.db_3.14.0  topGO_2.46.0         SparseM_1.81         GO.db_3.14.0         AnnotationDbi_1.56.2 IRanges_2.28.0       S4Vectors_0.32.3     Biobase_2.54.0       graph_1.72.0         BiocGenerics_0.40.0  limma_3.50.0         ggplot2_3.3.5        SeuratObject_4.0.4  
-## [22] Seurat_4.1.0        
+##  [1] scMRMA_1.0           networkD3_0.4        data.tree_1.0.0      tidyr_1.2.0          RANN_2.6.1           plyr_1.8.7           irlba_2.3.5          Matrix_1.4-1         org.Hs.eg.db_3.15.0  topGO_2.48.0         SparseM_1.81         GO.db_3.15.0         AnnotationDbi_1.58.0 IRanges_2.30.0       S4Vectors_0.34.0     Biobase_2.56.0       graph_1.74.0         BiocGenerics_0.42.0  limma_3.52.2         ggplot2_3.3.6        sp_1.5-0            
+## [22] SeuratObject_4.1.0   Seurat_4.1.1        
 ## 
 ## loaded via a namespace (and not attached):
-##   [1] igraph_1.2.11          lazyeval_0.2.2         splines_4.1.2          listenv_0.8.0          scattermore_0.7        usethis_2.1.5          GenomeInfoDb_1.30.0    digest_0.6.29          htmltools_0.5.2        fansi_1.0.2            magrittr_2.0.2         memoise_2.0.1          tensor_1.5             cluster_2.1.2          ROCR_1.0-11            remotes_2.4.2          globals_0.14.0         Biostrings_2.62.0      matrixStats_0.61.0    
-##  [20] spatstat.sparse_2.1-0  prettyunits_1.1.1      colorspace_2.0-2       blob_1.2.2             ggrepel_0.9.1          xfun_0.29              dplyr_1.0.8            callr_3.7.0            crayon_1.5.0           RCurl_1.98-1.5         jsonlite_1.8.0         spatstat.data_2.1-2    survival_3.2-13        zoo_1.8-9              glue_1.6.2             polyclip_1.10-0        gtable_0.3.0           zlibbioc_1.40.0        XVector_0.34.0        
-##  [39] leiden_0.3.9           pkgbuild_1.3.1         future.apply_1.8.1     abind_1.4-5            scales_1.1.1           DBI_1.1.2              miniUI_0.1.1.1         Rcpp_1.0.8.3           viridisLite_0.4.0      xtable_1.8-4           reticulate_1.24        spatstat.core_2.3-2    bit_4.0.4              htmlwidgets_1.5.4      httr_1.4.2             RColorBrewer_1.1-2     ellipsis_0.3.2         ica_1.0-2              farver_2.1.0          
-##  [58] pkgconfig_2.0.3        sass_0.4.0             uwot_0.1.11            deldir_1.0-6           utf8_1.2.2             labeling_0.4.2         tidyselect_1.1.2       rlang_1.0.2            reshape2_1.4.4         later_1.3.0            munsell_0.5.0          tools_4.1.2            cachem_1.0.6           cli_3.2.0              generics_0.1.2         RSQLite_2.2.9          devtools_2.4.3         ggridges_0.5.3         evaluate_0.14         
-##  [77] stringr_1.4.0          fastmap_1.1.0          yaml_2.3.5             goftest_1.2-3          processx_3.5.2         fs_1.5.2               knitr_1.37             bit64_4.0.5            fitdistrplus_1.1-6     purrr_0.3.4            KEGGREST_1.34.0        pbapply_1.5-0          future_1.23.0          nlme_3.1-155           mime_0.12              brio_1.1.3             compiler_4.1.2         rstudioapi_0.13        plotly_4.10.0         
-##  [96] png_0.1-7              testthat_3.1.2         spatstat.utils_2.3-0   tibble_3.1.6           bslib_0.3.1            stringi_1.7.6          highr_0.9              ps_1.6.0               desc_1.4.0             lattice_0.20-45        vctrs_0.3.8            pillar_1.7.0           lifecycle_1.0.1        spatstat.geom_2.3-1    lmtest_0.9-39          jquerylib_0.1.4        RcppAnnoy_0.0.19       data.table_1.14.2      cowplot_1.1.1         
-## [115] bitops_1.0-7           httpuv_1.6.5           patchwork_1.1.1        R6_2.5.1               promises_1.2.0.1       KernSmooth_2.23-20     gridExtra_2.3          parallelly_1.30.0      sessioninfo_1.2.2      codetools_0.2-18       pkgload_1.2.4          MASS_7.3-55            assertthat_0.2.1       rprojroot_2.0.2        withr_2.4.3            sctransform_0.3.3      GenomeInfoDbData_1.2.7 mgcv_1.8-38            parallel_4.1.2        
-## [134] grid_4.1.2             rpart_4.1.16           rmarkdown_2.11         Rtsne_0.15             shiny_1.7.1
+##   [1] igraph_1.3.3           lazyeval_0.2.2         splines_4.2.1          listenv_0.8.0          scattermore_0.8        usethis_2.1.6          GenomeInfoDb_1.32.2    digest_0.6.29          htmltools_0.5.2        fansi_1.0.3            magrittr_2.0.3         memoise_2.0.1          tensor_1.5             cluster_2.1.3          ROCR_1.0-11            remotes_2.4.2          globals_0.15.1         Biostrings_2.64.0      matrixStats_0.62.0    
+##  [20] spatstat.sparse_2.1-1  prettyunits_1.1.1      colorspace_2.0-3       blob_1.2.3             ggrepel_0.9.1          xfun_0.31              dplyr_1.0.9            callr_3.7.1            RCurl_1.98-1.7         crayon_1.5.1           jsonlite_1.8.0         progressr_0.10.1       spatstat.data_2.2-0    survival_3.3-1         zoo_1.8-10             glue_1.6.2             polyclip_1.10-0        gtable_0.3.0           zlibbioc_1.42.0       
+##  [39] XVector_0.36.0         leiden_0.4.2           pkgbuild_1.3.1         future.apply_1.9.0     abind_1.4-5            scales_1.2.0           DBI_1.1.3              spatstat.random_2.2-0  miniUI_0.1.1.1         Rcpp_1.0.9             viridisLite_0.4.0      xtable_1.8-4           reticulate_1.25        spatstat.core_2.4-4    bit_4.0.4              htmlwidgets_1.5.4      httr_1.4.3             RColorBrewer_1.1-3     ellipsis_0.3.2        
+##  [58] ica_1.0-3              farver_2.1.1           pkgconfig_2.0.3        sass_0.4.2             uwot_0.1.11            deldir_1.0-6           utf8_1.2.2             labeling_0.4.2         tidyselect_1.1.2       rlang_1.0.4            reshape2_1.4.4         later_1.3.0            munsell_0.5.0          tools_4.2.1            cachem_1.0.6           cli_3.3.0              generics_0.1.3         RSQLite_2.2.14         devtools_2.4.3        
+##  [77] ggridges_0.5.3         evaluate_0.15          stringr_1.4.0          fastmap_1.1.0          yaml_2.3.5             goftest_1.2-3          processx_3.7.0         fs_1.5.2               knitr_1.39             bit64_4.0.5            fitdistrplus_1.1-8     purrr_0.3.4            KEGGREST_1.36.3        pbapply_1.5-0          future_1.26.1          nlme_3.1-157           mime_0.12              compiler_4.2.1         rstudioapi_0.13       
+##  [96] plotly_4.10.0          png_0.1-7              spatstat.utils_2.3-1   tibble_3.1.7           bslib_0.4.0            stringi_1.7.8          highr_0.9              ps_1.7.1               rgeos_0.5-9            lattice_0.20-45        vctrs_0.4.1            pillar_1.8.0           lifecycle_1.0.1        spatstat.geom_2.4-0    lmtest_0.9-40          jquerylib_0.1.4        RcppAnnoy_0.0.19       bitops_1.0-7           data.table_1.14.2     
+## [115] cowplot_1.1.1          httpuv_1.6.5           patchwork_1.1.1        R6_2.5.1               promises_1.2.0.1       renv_0.15.5            KernSmooth_2.23-20     gridExtra_2.3          parallelly_1.32.0      sessioninfo_1.2.2      codetools_0.2-18       pkgload_1.3.0          MASS_7.3-57            withr_2.5.0            sctransform_0.3.3      GenomeInfoDbData_1.2.8 mgcv_1.8-40            parallel_4.2.1         grid_4.2.1            
+## [134] rpart_4.1.16           rmarkdown_2.14         Rtsne_0.16             shiny_1.7.1
 ```
