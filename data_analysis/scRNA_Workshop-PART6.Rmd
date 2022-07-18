@@ -73,7 +73,7 @@ expr2 <- expr[keep,]
 
 # Set up "design matrix" with statistical model
 cluster12$proper.ident <- make.names(cluster12$orig.ident)
-mm <- model.matrix(~0 + proper.ident, data = cluster12[[]])
+mm <- model.matrix(~0 + proper.ident + S.Score + G2M.Score + percent.mito + nFeature_RNA, data = cluster12[[]])
 head(mm)
 tail(mm)
 
@@ -81,9 +81,8 @@ tail(mm)
 fit <- lmFit(expr2, mm)
 head(coef(fit))
 
-# Test 'A001-C-007' - 'B001-A-301'
-contr <- makeContrasts(proper.identA001.C.007 - proper.identB001.A.301, levels = colnames(coef(fit)))
-levels <- colnames(coef(fit))
+# Test 'B001-A-301' - 'A001-C-007'
+contr <- makeContrasts(proper.identB001.A.301 - proper.identA001.C.007, levels = colnames(coef(fit)))
 contr
 fit2 <- contrasts.fit(fit, contrasts = contr)
 fit2 <- eBayes(fit2)
