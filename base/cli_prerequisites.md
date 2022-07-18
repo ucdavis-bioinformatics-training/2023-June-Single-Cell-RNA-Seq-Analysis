@@ -572,7 +572,7 @@ Generally, we do not use any options for sbatch ... we typically give it a scrip
 #SBATCH --mem=500 # Memory pool for all cores (see also --mem-per-cpu)
 #SBATCH --partition=production # cluster partition
 #SBATCH --account=workshop # cluster account to use for the job
-#SBATCH --reservation=workshop # cluster account reservation
+#SBATCH --reservation=scworkshop # cluster account reservation
 ##SBATCH --array=1-16 # Task array indexing, see https://slurm.schedmd.com/job_array.html, the double # means this line is commented out
 #SBATCH --output=stdout.out # File to which STDOUT will be written
 #SBATCH --error=stderr.err # File to which STDERR will be written
