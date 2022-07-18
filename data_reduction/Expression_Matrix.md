@@ -350,7 +350,7 @@ Cell Ranger does produce a more readable HTML report with the same statistics an
 
     ```bash
     cd /share/workshop/scRNA_workshop/$USER/scrnaseq_example
-    wget https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-July-Single-Cell-RNA-Seq-Analysis/main/software_scripts/scripts/cellranger-counts.sh cellranger-counts.sh
+    wget https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-July-Single-Cell-RNA-Seq-Analysis/main/software_scripts/scripts/cellranger-counts.sh
     ```
 
     update the email address in the script if you like.
