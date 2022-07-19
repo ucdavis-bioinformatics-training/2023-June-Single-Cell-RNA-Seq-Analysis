@@ -8,7 +8,7 @@ Name the new directory (e.g. Differential_Expression), and check "use renv with 
 
 Learn more about [renv](https://rstudio.github.io/renv/articles/renv.html).
 
-Run the following commands to set some options and make sure the packages Seurat, sva, ggplot2, dplyr, limma, and topGO are installed (if not install it), and then load them and verify they all loaded correctly.
+Run the following commands to set some options and make sure the packages Seurat, ggplot2, dplyr, limma, and topGO are installed (if not install it), and then load them and verify they all loaded correctly.
 
 **In the R console** run the following commands:
 ```r
@@ -95,7 +95,6 @@ library(biomaRt)
 library(limma)
 library(topGO)
 library(org.Hs.eg.db)
-library(sva)
 library(scran)
 
 sessionInfo()
