@@ -76,6 +76,10 @@ if (!any(rownames(installed.packages()) == "scran")){
   BiocManager::install("scran")
 }
 
+if (!any(rownames(installed.packages()) == "remotes")){
+  install.packages("remotes")
+}
+
 if (!any(rownames(installed.packages()) == "DoubletFinder")){
   remotes::install_github('chris-mcginnis-ucsf/DoubletFinder')
 }
