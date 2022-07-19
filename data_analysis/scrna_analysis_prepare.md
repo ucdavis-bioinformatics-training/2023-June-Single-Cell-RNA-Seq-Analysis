@@ -68,10 +68,6 @@ if (!any(rownames(installed.packages()) == "topGO")){
   BiocManager::install("topGO")
 }
 
-if (!any(rownames(installed.packages()) == "sva")){
-  BiocManager::install("sva")
-}
-
 if (!any(rownames(installed.packages()) == "scran")){
   BiocManager::install("scran")
 }
