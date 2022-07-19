@@ -328,7 +328,7 @@ A summary of the alignment and assignment of reads to cells and genes is present
 
 Cell Ranger does produce a more readable HTML report with the same statistics and some "analysis".
 
-[Cell Ranger V7 web summary](web_summary.html)
+[Cell Ranger V7 web summary](fullset_web_summary.html)
 
 ## Exercises
 
