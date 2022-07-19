@@ -73,7 +73,7 @@ if (!any(rownames(installed.packages()) == "scran")){
 }
 
 if (!any(rownames(installed.packages()) == "remotes")){
-  install.packages("remotes")
+  utils::install.packages("remotes")
 }
 
 if (!any(rownames(installed.packages()) == "DoubletFinder")){
