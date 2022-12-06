@@ -2,7 +2,7 @@
 
 All posted times are **Pacific** time zone. At least one break will be provided each morning and afternoon.
 
-### Monday, July 18
+### Monday, December 12
 
 |:----------- |:------------------- |
 |**8:50 am**  | Zoom session starts |
@@ -16,11 +16,12 @@ All posted times are **Pacific** time zone. At least one break will be provided 
 |**2:15 pm**  | Creating an Expression Matrix |
 |**4:30 pm** | Zoom session ends |
 
-### Tuesday, July 19
+### Tuesday, December 13
 
 |:----------- |:------------------- |
 |**8:50 am**  | Zoom session starts |
-|**9:00 am**  | Intro 2 R |
+|**9:00 am**  | Single Cell library prep talk from Dr. Hong Qiu of the DNATech Core
+|**10:00 am**  | Intro 2 R |
 |**11:00 am**  | Installing R Packages |
 |**11:30 am**  | PerkinElmer Sponsor Talk |
 |**12:00 pm**  | Lunch |
@@ -28,7 +29,7 @@ All posted times are **Pacific** time zone. At least one break will be provided 
 |**1:30 pm**   | Data Analysis Parts 1 - 2  |
 |**4:30 pm** | Zoom session ends |
 
-### Wednesday, July 20
+### Wednesday, December 14
 
 |:----------- |:------------------- |
 |**8:50 am**  | Zoom session starts |
