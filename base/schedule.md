@@ -7,7 +7,6 @@ All posted times are **Pacific** time zone. At least one break will be provided 
 |:----------- |:------------------- |
 |**8:50 am**  | Zoom session starts |
 |**9:00 am**  | Introductions |
-|**9:30 am**  | DNATech Core Talk (Hong Qiu) |
 |**10:00 am**  | Intro 2 Command Line |
 |**11:30 am**  | 10x Genomics Sponsor Talk |
 |**12:00 am**  | Lunch |
@@ -20,7 +19,7 @@ All posted times are **Pacific** time zone. At least one break will be provided 
 
 |:----------- |:------------------- |
 |**8:50 am**  | Zoom session starts |
-|**9:00 am**  | Single Cell library prep talk from Dr. Hong Qiu of the DNATech Core
+|**9:00 am**  | Single Cell library prep talk by Dr. Hong Qiu from the DNATech Core
 |**10:00 am**  | Intro 2 R |
 |**11:00 am**  | Installing R Packages |
 |**11:30 am**  | PerkinElmer Sponsor Talk |
