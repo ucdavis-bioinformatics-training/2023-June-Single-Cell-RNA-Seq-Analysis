@@ -104,7 +104,7 @@ sessionInfo()
 
 In the R console run the following command to download part 1 of data analysis
 ```r
-download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-July-Single-Cell-RNA-Seq-Analysis/main/data_analysis/scRNA_Workshop-PART1.Rmd", "scRNA_Workshop-PART1.Rmd")
+download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-December-Single-Cell-RNA-Seq-Analysis/main/data_analysis/scRNA_Workshop-PART1.Rmd", "scRNA_Workshop-PART1.Rmd")
 ```
 
 ### Download the data for the workshop, extract it.
@@ -114,7 +114,7 @@ In the R console run the following command to download and extract the dataset (
 ```r
 options(timeout=3000)
 download.file("https://bioshare.bioinformatics.ucdavis.edu/bioshare/download/feb28v7lew62um4/expression_data_cellranger.zip", "expression_data_cellranger.zip")
-system("unzip expression_data_cellranger.zip") # works in Linux and Mac, not sure about Windows"
+system("unzip expression_data_cellranger.zip") # works in Linux and Mac, not sure about Windows
 ```
 
 **This way of downloading the file might be very slow (could take > 1hr). So, the recommended way to download the file is to use scp on Mac/Windows Powershell, or Filezilla/WinSCP on Windows.**
@@ -123,11 +123,11 @@ system("unzip expression_data_cellranger.zip") # works in Linux and Mac, not sur
 scp username@tadpole.genomecenter.ucdavis.edu:/share/workshop/scRNA_workshop/cellranger.outs/expression_data_cellranger.zip ./
 ```
 
-If the system command didn't work to extract the zip file, navigate to the folder you downloaded the data in and manually unzip the archive file.
+If the system command didn't work in extracting the zip file, navigate to the folder you downloaded the data in and manually unzip the archive file. Please make sure you see three folders: A001-C-007, A001-C-104 and B001-A-301. Make sure "scRNA_Workshop-PART1.Rmd" file is in the same folder.
 
 ### Edit the file YAML portion
 
-The top YAML (YAML ain't markup language) portion of the doc tells RStudio how to parse the document.
+Please open the downloaded "scRNA_Workshop-PART1.Rmd" in RStudio. The top YAML (YAML ain't markup language) portion of the doc tells RStudio how to parse the document.
 
 <pre><code>---
 title: "Introduction to Single Cell RNAseq Part 1"

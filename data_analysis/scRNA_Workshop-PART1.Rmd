@@ -6,7 +6,7 @@ output:
       keep_md: TRUE
 ---
 
-Last Updated: July 10, 2022
+Last Updated: December 7, 2022
 
 # Part 1: Loading data from CellRanger into R
 
@@ -16,7 +16,7 @@ Our first Markdown document concentrates on getting data into R and setting up o
 
 [Seurat](http://satijalab.org/seurat/) (now Version 4) is a popular R package that is designed for QC, analysis, and exploration of single cell data. Seurat aims to enable users to identify and interpret sources of heterogeneity from single cell transcriptomic measurements, and to integrate diverse types of single cell data. Further, the authors provide several [tutorials](https://satijalab.org/seurat/vignettes.html), on their website.
 
-The **expression_data_cellranger.zip** file contains the single cell matrix files and HDF5 files for three single nuclei RNASeq samples from [Becker et al., 2022](https://www.nature.com/articles/s41588-022-01088-x)
+The **expression_data_cellranger.zip** file that we have downloaded in previous step contains the single cell matrix files and HDF5 files for three single nuclei RNASeq samples from [Becker et al., 2022](https://www.nature.com/articles/s41588-022-01088-x). After uncompress the file, please make sure that you see three folders: A001-C-007, A001-C-104 and B001-A-301 in the same folder as this R markdown file.
 
 We start each markdown document with loading needed libraries for R:
 
@@ -220,7 +220,7 @@ save(experiment.aggregate,file="original_seurat_object.RData")
 
 ## Get the next Rmd file
 ```{r getnextfile, eval=TRUE}
-download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-July-Single-Cell-RNA-Seq-Analysis/main/data_analysis/scRNA_Workshop-PART2.Rmd", "scRNA_Workshop-PART2.Rmd")
+download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-December-Single-Cell-RNA-Seq-Analysis/main/data_analysis/scRNA_Workshop-PART2.Rmd", "scRNA_Workshop-PART2.Rmd")
 ```
 
 ## Session Information

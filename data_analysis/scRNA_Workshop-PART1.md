@@ -6,7 +6,7 @@ output:
       keep_md: TRUE
 ---
 
-Last Updated: July 10, 2022
+Last Updated: December 7, 2022
 
 # Part 1: Loading data from CellRanger into R
 
@@ -16,7 +16,7 @@ Our first Markdown document concentrates on getting data into R and setting up o
 
 [Seurat](http://satijalab.org/seurat/) (now Version 4) is a popular R package that is designed for QC, analysis, and exploration of single cell data. Seurat aims to enable users to identify and interpret sources of heterogeneity from single cell transcriptomic measurements, and to integrate diverse types of single cell data. Further, the authors provide several [tutorials](https://satijalab.org/seurat/vignettes.html), on their website.
 
-The **expression_data_cellranger.zip** file contains the single cell matrix files and HDF5 files for three single nuclei RNASeq samples from [Becker et al., 2022](https://www.nature.com/articles/s41588-022-01088-x)
+The **expression_data_cellranger.zip** file that we have downloaded in previous step contains the single cell matrix files and HDF5 files for three single nuclei RNASeq samples from [Becker et al., 2022](https://www.nature.com/articles/s41588-022-01088-x). After uncompress the file, please make sure that you see three folders: A001-C-007, A001-C-104 and B001-A-301 in the same folder as this R markdown file.
 
 We start each markdown document with loading needed libraries for R:
 
@@ -34,7 +34,7 @@ library(ggplot2)
 
 ```r
 experiment_name = "Colon Cancer"
-dataset_loc <- "./expression_data_cellranger"
+dataset_loc <- "./"
 ids <- c("A001-C-007", "A001-C-104", "B001-A-301")
 ```
 
@@ -263,6 +263,11 @@ plot_cellranger_cells <- function(ind){
 plot_cellranger_cells(1)
 ```
 
+```
+## Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
+## ℹ Please use `linewidth` instead.
+```
+
 ![](scRNA_Workshop-PART1_files/figure-html/fig_barcode_umi-1.png)<!-- -->
 
 ```r
@@ -375,7 +380,7 @@ str(experiment.aggregate)
 ##   ..@ project.name: chr "Colon Cancer"
 ##   ..@ misc        : list()
 ##   ..@ version     :Classes 'package_version', 'numeric_version'  hidden list of 1
-##   .. ..$ : int [1:3] 4 0 4
+##   .. ..$ : int [1:3] 4 1 3
 ##   ..@ commands    : list()
 ##   ..@ tools       : list()
 ```
@@ -445,7 +450,7 @@ save(experiment.aggregate,file="original_seurat_object.RData")
 ## Get the next Rmd file
 
 ```r
-download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-July-Single-Cell-RNA-Seq-Analysis/main/data_analysis/scRNA_Workshop-PART2.Rmd", "scRNA_Workshop-PART2.Rmd")
+download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-December-Single-Cell-RNA-Seq-Analysis/main/data_analysis/scRNA_Workshop-PART2.Rmd", "scRNA_Workshop-PART2.Rmd")
 ```
 
 ## Session Information
@@ -455,13 +460,13 @@ sessionInfo()
 ```
 
 ```
-## R version 4.1.2 (2021-11-01)
+## R version 4.2.2 (2022-10-31)
 ## Platform: x86_64-apple-darwin17.0 (64-bit)
 ## Running under: macOS Catalina 10.15.7
 ## 
 ## Matrix products: default
-## BLAS:   /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRblas.0.dylib
-## LAPACK: /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRlapack.dylib
+## BLAS:   /Library/Frameworks/R.framework/Versions/4.2/Resources/lib/libRblas.0.dylib
+## LAPACK: /Library/Frameworks/R.framework/Versions/4.2/Resources/lib/libRlapack.dylib
 ## 
 ## locale:
 ## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
@@ -470,48 +475,48 @@ sessionInfo()
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] ggplot2_3.3.5      kableExtra_1.3.4   SeuratObject_4.0.4 Seurat_4.1.0      
+## [1] ggplot2_3.4.0      kableExtra_1.3.4   SeuratObject_4.1.3 Seurat_4.3.0      
 ## 
 ## loaded via a namespace (and not attached):
-##   [1] Rtsne_0.15            colorspace_2.0-2      deldir_1.0-6         
-##   [4] ellipsis_0.3.2        ggridges_0.5.3        rstudioapi_0.13      
-##   [7] spatstat.data_2.1-2   farver_2.1.0          leiden_0.3.9         
-##  [10] listenv_0.8.0         bit64_4.0.5           ggrepel_0.9.1        
-##  [13] fansi_1.0.2           xml2_1.3.3            codetools_0.2-18     
-##  [16] splines_4.1.2         knitr_1.37            polyclip_1.10-0      
-##  [19] jsonlite_1.8.0        ica_1.0-2             cluster_2.1.2        
-##  [22] png_0.1-7             uwot_0.1.11           shiny_1.7.1          
-##  [25] sctransform_0.3.3     spatstat.sparse_2.1-0 compiler_4.1.2       
-##  [28] httr_1.4.2            assertthat_0.2.1      Matrix_1.4-0         
-##  [31] fastmap_1.1.0         lazyeval_0.2.2        cli_3.2.0            
-##  [34] later_1.3.0           htmltools_0.5.2       tools_4.1.2          
-##  [37] igraph_1.2.11         gtable_0.3.0          glue_1.6.2           
-##  [40] RANN_2.6.1            reshape2_1.4.4        dplyr_1.0.8          
-##  [43] Rcpp_1.0.8.3          scattermore_0.7       jquerylib_0.1.4      
-##  [46] vctrs_0.3.8           svglite_2.1.0         nlme_3.1-155         
-##  [49] lmtest_0.9-39         xfun_0.29             stringr_1.4.0        
-##  [52] globals_0.14.0        rvest_1.0.2           mime_0.12            
-##  [55] miniUI_0.1.1.1        lifecycle_1.0.1       irlba_2.3.5          
-##  [58] goftest_1.2-3         future_1.23.0         MASS_7.3-55          
-##  [61] zoo_1.8-9             scales_1.1.1          spatstat.core_2.3-2  
-##  [64] promises_1.2.0.1      spatstat.utils_2.3-0  parallel_4.1.2       
-##  [67] RColorBrewer_1.1-2    yaml_2.3.5            reticulate_1.24      
-##  [70] pbapply_1.5-0         gridExtra_2.3         sass_0.4.0           
-##  [73] rpart_4.1.16          stringi_1.7.6         highr_0.9            
-##  [76] systemfonts_1.0.4     rlang_1.0.2           pkgconfig_2.0.3      
-##  [79] matrixStats_0.61.0    evaluate_0.14         lattice_0.20-45      
-##  [82] ROCR_1.0-11           purrr_0.3.4           tensor_1.5           
-##  [85] patchwork_1.1.1       htmlwidgets_1.5.4     bit_4.0.4            
-##  [88] cowplot_1.1.1         tidyselect_1.1.2      parallelly_1.30.0    
-##  [91] RcppAnnoy_0.0.19      plyr_1.8.6            magrittr_2.0.2       
-##  [94] R6_2.5.1              generics_0.1.2        DBI_1.1.2            
-##  [97] withr_2.4.3           mgcv_1.8-38           pillar_1.7.0         
-## [100] fitdistrplus_1.1-6    survival_3.2-13       abind_1.4-5          
-## [103] tibble_3.1.6          future.apply_1.8.1    hdf5r_1.3.5          
-## [106] crayon_1.5.0          KernSmooth_2.23-20    utf8_1.2.2           
-## [109] spatstat.geom_2.3-1   plotly_4.10.0         rmarkdown_2.11       
-## [112] grid_4.1.2            data.table_1.14.2     webshot_0.5.2        
-## [115] digest_0.6.29         xtable_1.8-4          tidyr_1.2.0          
-## [118] httpuv_1.6.5          munsell_0.5.0         viridisLite_0.4.0    
-## [121] bslib_0.3.1
+##   [1] Rtsne_0.16             colorspace_2.0-3       deldir_1.0-6          
+##   [4] ellipsis_0.3.2         ggridges_0.5.4         rstudioapi_0.14       
+##   [7] spatstat.data_3.0-0    farver_2.1.1           leiden_0.4.3          
+##  [10] listenv_0.8.0          bit64_4.0.5            ggrepel_0.9.2         
+##  [13] fansi_1.0.3            xml2_1.3.3             codetools_0.2-18      
+##  [16] splines_4.2.2          cachem_1.0.6           knitr_1.41            
+##  [19] polyclip_1.10-4        jsonlite_1.8.3         ica_1.0-3             
+##  [22] cluster_2.1.4          png_0.1-8              uwot_0.1.14           
+##  [25] shiny_1.7.3            sctransform_0.3.5      spatstat.sparse_3.0-0 
+##  [28] compiler_4.2.2         httr_1.4.4             assertthat_0.2.1      
+##  [31] Matrix_1.5-3           fastmap_1.1.0          lazyeval_0.2.2        
+##  [34] cli_3.4.1              later_1.3.0            htmltools_0.5.3       
+##  [37] tools_4.2.2            igraph_1.3.5           gtable_0.3.1          
+##  [40] glue_1.6.2             RANN_2.6.1             reshape2_1.4.4        
+##  [43] dplyr_1.0.10           Rcpp_1.0.9             scattermore_0.8       
+##  [46] jquerylib_0.1.4        vctrs_0.5.1            svglite_2.1.0         
+##  [49] nlme_3.1-160           spatstat.explore_3.0-5 progressr_0.11.0      
+##  [52] lmtest_0.9-40          spatstat.random_3.0-1  xfun_0.35             
+##  [55] stringr_1.4.1          globals_0.16.2         rvest_1.0.3           
+##  [58] mime_0.12              miniUI_0.1.1.1         lifecycle_1.0.3       
+##  [61] irlba_2.3.5.1          goftest_1.2-3          future_1.29.0         
+##  [64] MASS_7.3-58.1          zoo_1.8-11             scales_1.2.1          
+##  [67] promises_1.2.0.1       spatstat.utils_3.0-1   parallel_4.2.2        
+##  [70] RColorBrewer_1.1-3     yaml_2.3.6             reticulate_1.26       
+##  [73] pbapply_1.6-0          gridExtra_2.3          sass_0.4.4            
+##  [76] stringi_1.7.8          highr_0.9              systemfonts_1.0.4     
+##  [79] rlang_1.0.6            pkgconfig_2.0.3        matrixStats_0.63.0    
+##  [82] evaluate_0.18          lattice_0.20-45        tensor_1.5            
+##  [85] ROCR_1.0-11            purrr_0.3.5            patchwork_1.1.2       
+##  [88] htmlwidgets_1.5.4      bit_4.0.5              cowplot_1.1.1         
+##  [91] tidyselect_1.2.0       parallelly_1.32.1      RcppAnnoy_0.0.20      
+##  [94] plyr_1.8.8             magrittr_2.0.3         R6_2.5.1              
+##  [97] generics_0.1.3         DBI_1.1.3              withr_2.5.0           
+## [100] pillar_1.8.1           fitdistrplus_1.1-8     survival_3.4-0        
+## [103] abind_1.4-5            sp_1.5-1               tibble_3.1.8          
+## [106] future.apply_1.10.0    hdf5r_1.3.7            KernSmooth_2.23-20    
+## [109] utf8_1.2.2             spatstat.geom_3.0-3    plotly_4.10.1         
+## [112] rmarkdown_2.18         grid_4.2.2             data.table_1.14.6     
+## [115] webshot_0.5.4          digest_0.6.30          xtable_1.8-4          
+## [118] tidyr_1.2.1            httpuv_1.6.6           munsell_0.5.0         
+## [121] viridisLite_0.4.1      bslib_0.4.1
 ```
