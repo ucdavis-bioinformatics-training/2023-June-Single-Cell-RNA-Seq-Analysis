@@ -123,7 +123,7 @@ system("unzip expression_data_cellranger.zip") # works in Linux and Mac, not sur
 scp username@tadpole.genomecenter.ucdavis.edu:/share/workshop/scRNA_workshop/cellranger.outs/expression_data_cellranger.zip ./
 ```
 
-If the system command didn't work in extracting the zip file, navigate to the folder you downloaded the data in and manually unzip the archive file. Please make sure you see three folders: A001-C-007, A001-C-104 and B001-A-301. Make sure "scRNA_Workshop-PART1.Rmd" file is in the same folder.
+If the system command didn't work in extracting the zip file, navigate to the folder you downloaded the data in and manually unzip the archive file. Please make sure you see three folders: A001-C-007, A001-C-104 and B001-A-301. Make sure "scRNA_Workshop-PART1.Rmd" file is in the same location.
 
 ### Edit the file YAML portion
 
