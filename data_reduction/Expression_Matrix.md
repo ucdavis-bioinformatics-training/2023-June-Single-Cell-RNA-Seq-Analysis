@@ -344,13 +344,13 @@ Cell Ranger does produce a more readable HTML report with the same statistics an
     module load cellranger/7.0.0
     ```
 
-3. Review the [cellranger-counts.sh](https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-July-Single-Cell-RNA-Seq-Analysis/main/software_scripts/scripts/cellranger-counts.sh) script used to map reads in the fastq files.
+3. Review the [cellranger-counts.sh](https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-December-Single-Cell-RNA-Seq-Analysis/main/software_scripts/scripts/cellranger-counts.sh) script used to map reads in the fastq files.
 
 4. Copy contents of the script to your **scrnaseq_example** folder and do a test run.
 
     ```bash
     cd /share/workshop/scRNA_workshop/$USER/scrnaseq_example
-    wget https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-July-Single-Cell-RNA-Seq-Analysis/main/software_scripts/scripts/cellranger-counts.sh
+    wget https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-December-Single-Cell-RNA-Seq-Analysis/main/software_scripts/scripts/cellranger-counts.sh
     ```
 
     update the email address in the script if you like.
@@ -381,7 +381,7 @@ Cell Ranger does produce a more readable HTML report with the same statistics an
 In the intereste of time, the dataset we use for this step is a small subset of the original data. The cellranger summary file is [here](fullset_web_summary.html)
 
 
-### Bonus: cellranger features and multi pipeline
+### Bonus 1: cellranger features and multi pipeline
 
 Feature barcodes allow you to capture additional information within your cells by using an addition oligo on the GEM beads. This can be from Antibody capture, Crispr guide capture, or a custom capture (like hash tagging).
 
@@ -485,3 +485,8 @@ Section: [samples]
 
 
 ---
+
+### Bonus 2: Data preprocessing for Parse Biosciences
+
+Parse Biosciences 
+
