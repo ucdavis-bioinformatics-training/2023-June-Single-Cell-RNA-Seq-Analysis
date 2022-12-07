@@ -380,6 +380,7 @@ Cell Ranger does produce a more readable HTML report with the same statistics an
 
 In the intereste of time, the dataset we use for this step is a small subset of the original data. The cellranger summary file is [here](fullset_web_summary.html)
 
+---
 
 ### Bonus 1: cellranger features and multi pipeline
 
@@ -486,7 +487,7 @@ Section: [samples]
 
 ---
 
-### Bonus 2: Data preprocessing for Parse Biosciences: combinatorial barcoding
+### Bonus 2: Data preprocessing for Parse Biosciences
 
 #### Advantages
 
