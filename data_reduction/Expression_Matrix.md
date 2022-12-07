@@ -486,7 +486,37 @@ Section: [samples]
 
 ---
 
-### Bonus 2: Data preprocessing for Parse Biosciences
+### Bonus 2: Data preprocessing for Parse Biosciences: combinatorial barcoding
 
-Parse Biosciences 
+#### Advantages
 
+* scalable experiments: 10K to 1M cells in a single experiment
+* A workflow includes sample fixing that allows easy collection of samples over time
+* Better sensitivity to detect more genes and transcripts per cell
+* Flexibility in cell types
+* No hardware required
+
+
+#### Analysis
+
+* Step 1: Analysis per-sublibrary
+
+call="split-pipe \
+--mode all --nthreads 20 \
+--kit WT_mega \
+--samp_list sample_plate.txt \
+--genome_dir $refP/Mus_musculus_splitpipe \
+-f $R1 \
+--fq2 $R2 \
+--output_dir $alnP/$SAMPLE"
+
+
+* Step 2: Combining multiple sublibraries
+
+call="split-pipe --mode comb --nthreads 20 \
+--sublibraries $alnP/* \
+--output_dir $outP \
+--genome_dir $refP/Mus_musculus_splitpipe"
+
+
+---
