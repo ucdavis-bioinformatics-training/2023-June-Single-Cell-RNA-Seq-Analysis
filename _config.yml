@@ -54,9 +54,9 @@ navigation:
   - title: scRNAseq Analysis - PART4
     url: data_analysis/scRNA_Workshop-PART4
   - title: scRNAseq Analysis - PART5
-    url: data_analysis/scRNA_Workshop-PART5
+    url: data_analysis/scRNA_Workshop-PART5_with_quizzes
   - title: scRNAseq Analysis - PART6
-    url: data_analysis/scRNA_Workshop-PART6_with_quizzes
+    url: data_analysis/scRNA_Workshop-PART6
   - title: scRNAseq Analysis - PART7
     url: data_analysis/scRNA_Workshop-PART7
   # - title: Shiny App (extra)
