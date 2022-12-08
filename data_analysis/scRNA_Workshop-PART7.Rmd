@@ -1,211 +1,125 @@
 ---
-title: "Introduction to Single Cell RNAseq Part 1"
+title: "Introduction to Single Cell RNAseq Part 7"
 author: "UCD Bioinformatics Core"
 output:
     html_document:
       keep_md: TRUE
 ---
 
-Last Updated: July 15, 2022
 
-# Part 7: Add Doublet Detection
+Last Updated: December 8, 2022
 
-Doublets are cells that appear to be, but are not, real cells. There are two major types of doublets: heterotypic and homotypic. Heterotypic doublets are formed by cells with distinct transcriptional profiles. Homotypic doublets are formed by cells with similar transcriptional profiles. Heterotypic doublets are relatively easier to detect compared with homotypic doublets. Depending on the protocols used to barcode single cells/nuclei, doublet rates vary significantly and it can reach as high as 40%.
+# Part 7: Integrate multiple single cell samples / batch correction
 
-Experimental strategies have been developed to reduce the doublet rate, such as [cell hashing](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-018-1603-1), [demuxlet](https://www.nature.com/articles/nbt.4042), and [MULTI-Seq](https://www.nature.com/articles/s41592-019-0433-8). However, these techniques require extra steps in sample preparation which leads to extra costs, time and they do not guarantee to remove all doublets.
+More and more experiments involve a large number of samples/datasets, that may have been prepared in separate batches. Or in the case where one would like to include or integrate publically available datasets. It is important to properly integrate these datasets, and we will see the effect the integration has at the end of this documentation.
 
-Naturally, removing doublets _in silico_ is very appealing and there have been many tools/methods developed to achieve this: [DoubletFinder](https://www.cell.com/cell-systems/pdfExtended/S2405-4712(19)30073-0), DoubletDetection(https://github.com/JonathanShor/DoubletDetection), [DoubletDecon](https://www.sciencedirect.com/science/article/pii/S2211124719312860), among others.
-
-<p align = "center">
-<img src="figures/doublets.jpg" alt="micribial" width="85%"/>
-</p>
-
-<p align = "right" style="font-family:Times;font-size:12px;">
-Xi, etc., Cell Systems, 2021, https://www.sciencedirect.com/science/article/pii/S2405471220304592
-</p>
+Most of the methods that were developed to integrate single cell datasets fall into two categories. The first is the "anchor" based approach. In this approach, the first step is to select a batch as the "anchor" and convert other batches to the "anchor" batch. Among this approach, there are [MNN](https://github.com/MarioniLab/MNN2017), [iMAP](https://github.com/Svvord/iMAP) and [SCALEX](https://github.com/jsxlei/SCALEX). The advantage of this approach is that different batches of cells can be studied under the same experimental conditions, and the disadvantage is that it is not possible to fully combine the features of each batch because the cell types contained in each batch are unknown. The second approach is to transform all batches of data to a low-dimensional space to correct batch effects, such as implemented in [Scanorama](https://github.com/brianhie/scanorama), [Harmony](https://github.com/immunogenomics/harmony), [DESC](https://www.nature.com/articles/s41467-020-15851-3), [BBKNN](https://github.com/Teichlab/bbknn), [STACAS](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8098019/) and [Seurat's integration](https://www.cell.com/cell/fulltext/S0092-8674(19)30559-8). This second approach has the advantage of extracting biologically relevant latent features and reducing the impact of noise, but it cannot be used for differential gene expression analysis. Many of these existing methods work well when the batches of datasets have the same cell types, however, they fail when there are different cell types involved in different datasets. Very recently (earlier this year), a [new approach](https://www.mdpi.com/1422-0067/23/4/2082) has been developed that uses connected graphs and generative adversarial networks (GAN) to achieve the goal of eliminating nonbiological noise between batches of datasets. This new method has been demonstrated to work well both in the situation where datasets have the same cell types and in the situation where datasets may have different cell types.
 
 
-## Doublet detection with DoubletFinder
-
-[DoubletFinder](https://github.com/chris-mcginnis-ucsf/DoubletFinder) takes fully pre-processed data from Seurat (NormalizeData, FindVariableGenes, ScaleData, RunPCA and RunTSNE) as input and the process should be done for each sample individually. The input data should be processed to remove low-quality cell clusters first.
-
-We are going to run DoubletFinder on sample _A001-C-007_.
-
-We start each markdown document with installing/loading needed libraries for R:
+In this workshop, we are going to look at Seurat's integration approach using reciprocal PCA, which is supurior to its first integration approach using canonical correlation analysis. The basic idea is to identify cross-dataset pairs cells that are in a matched biological state ("anchors"), and use them to correct technical differences between datasets. The integration method we use has been implemented in Seurat and you can find the details of the method in [its publication](https://www.sciencedirect.com/science/article/pii/S0092867419305598?via%3Dihub).
 
 
-```{r, warning=FALSE,error=FALSE,message=FALSE}
-# must install DoubletFinder
-if (!any(rownames(installed.packages()) == "DoubletFinder")){
-  remotes::install_github('chris-mcginnis-ucsf/DoubletFinder')
-}
-
-library(DoubletFinder)
-
-# must have Seurat
+## Load libraries
+```{r libraries, warning=FALSE,error=FALSE,message=FALSE}
 library(Seurat)
-library(kableExtra)
-library(ggplot2)
+```
 
+## Load the Seurat object from the provided data and split to individual samples
+
+The provided data is raw data that has only gone through the filtering step.
+
+```{r download_rdata, eval=FALSE, warning=FALSE,error=FALSE,message=FALSE}
+download.file("https://bioshare.bioinformatics.ucdavis.edu/bioshare/download/feb28v7lew62um4/sample_filtered.RData", "sample_filtered.RData")
 ```
 
 
-### Setup the experiment folder and data info
-```{r exp_setup, warning=FALSE,error=FALSE, message=FALSE}
-experiment_name = "Colon Cancer"
-dataset_loc <- "./expression_data_cellranger"
-ids <- c("A001-C-007", "A001-C-104", "B001-A-301")
+```{r load_rdata, warning=FALSE,error=FALSE,message=FALSE}
+load(file="sample_filtered.RData")
+experiment.aggregate
+experiment.split <- SplitObject(experiment.aggregate, split.by = "ident")
 ```
 
+## Normalize and find variable features for each individual sample
 
-## Load the Cell Ranger Matrix Data and create the base Seurat object.
-This section is done the same way as in __scRNA_Workshop-PART1.Rmd__
+By default, we employ a global-scaling normalization method LogNormalize that normalizes the gene expression measurements for each cell by the total expression, multiplies this by a scale factor (10,000 by default), and then log-transforms the data.
 
-Seurat provides a function `Read10X` and `Read10X_h5` to read in 10X data folder. First we read in data from each individual sample folder. 
 
-Later, we initialize the Seurat object (`CreateSeuratObject`) with the raw (non-normalized data). Keep all cells with at least 200 detected genes. Also extracting sample names, calculating and adding in the metadata mitochondrial percentage of each cell. Adding in the metadata batchid and cell cycle. Finally, saving the raw Seurat object.
+```{r normalize_help, eval=FALSE}
+?NormalizeData
+```
 
-## Load the Cell Ranger Matrix Data (hdf5 file) and create the base Seurat object.
-```{r load_data_hdf5, warning=FALSE,error=FALSE, message=FALSE}
-d10x.data <- lapply(ids[1], function(i){
-  d10x <- Read10X_h5(file.path(dataset_loc, i, "outs","raw_feature_bc_matrix.h5"))
-  colnames(d10x) <- paste(sapply(strsplit(colnames(d10x),split="-"),'[[',1L),i,sep="-")
-  d10x
+The function FindVariableFeatures identifies the most highly variable genes (default 2000 genes) by fitting a line to the relationship of log(variance) and log(mean) using loess smoothing, uses this information to standardize the data, then calculates the variance of the standardized data.  This helps avoid selecting genes that only appear variable due to their expression level.
+
+
+```{r, find_variable_genes_help, eval=FALSE}
+?FindVariableFeatures
+```
+
+Now, let's carry out these two processes for each sample
+
+
+```{r, echo=TRUE, warning=FALSE, error=FALSE, message=FALSE}
+experiment.split <- lapply(X = experiment.split, FUN=function(x){
+  x <- NormalizeData(x)
+  x <- FindVariableFeatures(x, selection.method = "vst", nfeatures = 2000)
 })
-names(d10x.data) <- ids[1]
-
-str(d10x.data)
 ```
 
-If you don't have the needed hdf5 libraries you can read in the matrix files like such
+## Select features that are repeatedly variable across samples and run PCA on each sample
 
-```{r load_data_matrix, eval=FALSE}
-d10x.data <- sapply(ids[1], function(i){
-  d10x <- Read10X(file.path(dataset_loc, i, "/outs","raw_feature_bc_matrix"))
-  colnames(d10x) <- paste(sapply(strsplit(colnames(d10x), split="-"), '[[', 1L), i, sep="-")
-  d10x
+```{r, echo=TRUE, warning=FALSE, error=FALSE, message=FALSE}
+features <- SelectIntegrationFeatures(object.list = experiment.split)
+experiment.split <- lapply(X = experiment.split, FUN = function(x){
+  x <- ScaleData(x, features = features)
+  x <- RunPCA(x, features = features)
 })
-names(d10x.data) <- ids[1]
+```
+
+## Idenfity integration anchors
+
+```{r, echo=TRUE, warning=FALSE, error=FALSE, message=FALSE}
+anchors <- FindIntegrationAnchors(object.list = experiment.split, anchor.features = features, reduction = "rpca")
 ```
 
 
-### Create the Seurat object
+## Perform integration
 
-Filter criteria: remove genes that do not occur in a minimum of 0 cells and remove cells that don't have a minimum of 200 features/genes
-
-```{r create_seurat_object, warning=FALSE,error=FALSE, message=FALSE}
-experiment.data <- CreateSeuratObject(
-  d10x.data[[1]],
-  project = "A001-C-007",
-  min.cells = 0,
-  min.features = 200,
-  names.field = 2,
-  names.delim = "\\-")
-
+```{r, echo=TRUE, warning=FALSE, error=FALSE, message=FALSE}
+experiment.integrated <- IntegrateData(anchorset = anchors)
 ```
 
-### The percentage of reads that map to the mitochondrial genome
 
-* Low-quality / dying cells often exhibit extensive mitochondrial contamination.
-* We calculate mitochondrial QC metrics with the PercentageFeatureSet function, which calculates the percentage of counts originating from a set of features.
-* We use the set of all genes, in mouse these genes can be identified as those that begin with 'mt', in human data they begin with MT.
+#### Question(s)
 
-```{r explore, warning=FALSE,error=FALSE, message=FALSE}
-experiment.data$percent.mito <- PercentageFeatureSet(experiment.data, pattern = "^MT-")
-summary(experiment.data$percent.mito)
+1. Explore the object "experiment.integrated" to see what information is available.
+
+## PCA plot before integration
+
+```{r, echo=TRUE, warning=FALSE, error=FALSE, message=FALSE}
+experiment.test <- ScaleData(object=experiment.aggregate, assay="RNA")
+experiment.test <- FindVariableFeatures(object=experiment.test, assay="RNA")
+experiment.test <- RunPCA(object=experiment.test, assay="RNA")
+DimPlot(object = experiment.test, group.by="ident", reduction="pca", shuffle=TRUE)
 ```
 
-Violin plot of 1) number of genes, 2) number of UMI and 3) percent mitochondrial genes
-```{r violins, warning=FALSE,error=FALSE,message=FALSE, fig.height=12}
-VlnPlot(
-  experiment.data,
-  features = c("nFeature_RNA", "nCount_RNA","percent.mito"),
-  ncol = 1, pt.size = 0.3)
+## PCA plot after integration
+
+```{r, echo=TRUE, warning=FALSE, error=FALSE, message=FALSE}
+experiment.integrated <- ScaleData(object=experiment.integrated, assay="integrated")
+experiment.integrated <- RunPCA(object=experiment.integrated, assay="integrated")
+DimPlot(object = experiment.integrated, group.by="ident", reduction="pca", shuffle=TRUE)
 ```
 
-plot ridge plots of the same data
+## 
 
-```{r ridgeplot_pre, warning=FALSE,error=FALSE,message=FALSE}
-RidgePlot(experiment.data, features=c("nFeature_RNA","nCount_RNA", "percent.mito"), log=T, ncol = 2)
+## Save the integrated data
+
+```{r save, eval=TRUE}
+save(experiment.integrated, file="sample_integrated.RData")
 ```
 
-### Cell filtering
-
-We use the information above to filter out cells. Here we choose those that have percent mitochondrial genes max of 8%, unique UMI counts under 1,000 or greater than 12,000 and contain at least 400 features within them.
-
-```{r, cell_filtering, warning=FALSE,error=FALSE,message=FALSE}
-table(experiment.data$orig.ident)
-
-experiment.data <- subset(experiment.data, percent.mito <= 8)
-
-experiment.data <- subset(experiment.data, nFeature_RNA >= 400 & nFeature_RNA <= 4000)
-
-experiment.data <- subset(experiment.data, nCount_RNA >= 500 & nCount_RNA <= 12000)
-
-experiment.data
-
-table(experiment.data$orig.ident)
-```
-
-<br>
-
-Lets se the ridge plots now after filtering
-```{r ridgeplot_post, warning=FALSE,error=FALSE,message=FALSE}
-RidgePlot(experiment.data, features=c("nFeature_RNA","nCount_RNA", "percent.mito"), log=T, ncol = 2)
-```
-
-<br>
-
-```{r preprocess, warning=FALSE,error=FALSE,message=FALSE}
-experiment.data <- NormalizeData(experiment.data)
-experiment.data <- FindVariableFeatures(experiment.data, selection.method = "vst", nfeatures = 2000)
-experiment.data <- ScaleData(experiment.data)
-experiment.data <- RunPCA(experiment.data)
-experiment.data <- FindNeighbors(experiment.data, reduction="pca", dims = 1:20)
-experiment.data <- FindClusters(
-    object = experiment.data,
-    resolution = seq(0.25,4,0.5),
-    verbose = FALSE
-)
-experiment.data <- RunUMAP(experiment.data, dims=1:20)
-DimPlot(object = experiment.data, pt.size=0.5, reduction = "umap", label = T)
-
-```
-
-```{r doubletfinder, warning=FALSE,error=FALSE,message=FALSE}
-sweep.res <- paramSweep_v3(experiment.data, PCs = 1:20, sct = FALSE)
-sweep.stats <- summarizeSweep(sweep.res, GT = FALSE)
-bcmvn <- find.pK(sweep.stats)
-pK.set <- unique(sweep.stats$pK)[2]
-```
-<br>
-
-```{r doubletfinder-param, warning=FALSE,error=FALSE,message=FALSE}
-nExp_poi <- round(0.08*nrow(experiment.data@meta.data))
-```
-
-```{r doubletfinder-final, warning=FALSE,error=FALSE,message=FALSE}
-experiment.data <- doubletFinder_v3(experiment.data, PCs = 1:20, pN = 0.25, pK = as.numeric(as.character(pK.set)), nExp = nExp_poi, reuse.pANN = FALSE, sct = FALSE)
-```
-
-## The following code can be used if literature assisted cell type identification is available
-
-```{r doubletfinder-param-ct, eval=FALSE, warning=FALSE,error=FALSE,message=FALSE}
-annotations <- experiment.data@meta.data$seurat_clusters
-homotypic.prop <- modelHomotypic(annotations)
-nExp_poi <- round(0.08*nrow(experiment.data@meta.data))
-nExp_poi.adj <- round(nExp_poi*(1-homotypic.prop))
-experiment.data <- doubletFinder_v3(experiment.data, PCs = 1:20, pN = 0.25, pK = as.numeric(as.character(pK.set)), nExp = nExp_poi.adj, reuse.pANN = "pANN_0.25_0.02_142", sct = FALSE)
-```
-
-## Remove doublets
-
-
-```{r doubletfinder-remove, eval=FALSE, warning=FALSE,error=FALSE,message=FALSE}
-experiment.data <- subset(experiment.data,  DF.classifications_0.25_0.02_142 == "Singlet")
-```
 
 ## Session Information
-```{r sessioinfo}
+```{r sessioninfo}
 sessionInfo()
 ```

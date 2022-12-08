@@ -1,531 +1,148 @@
 ---
-title: "Introduction to Single Cell RNAseq Part 1"
+title: "Introduction to Single Cell RNAseq Part 7"
 author: "UCD Bioinformatics Core"
 output:
     html_document:
       keep_md: TRUE
 ---
 
-Last Updated: July 15, 2022
 
-# Part 7: Add Doublet Detection
+Last Updated: December 8, 2022
 
-Doublets are cells that appear to be, but are not, real cells. There are two major types of doublets: heterotypic and homotypic. Heterotypic doublets are formed by cells with distinct transcriptional profiles. Homotypic doublets are formed by cells with similar transcriptional profiles. Heterotypic doublets are relatively easier to detect compared with homotypic doublets. Depending on the protocols used to barcode single cells/nuclei, doublet rates vary significantly and it can reach as high as 40%.
+# Part 7: Integrate multiple single cell samples / batch correction
 
-Experimental strategies have been developed to reduce the doublet rate, such as [cell hashing](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-018-1603-1), [demuxlet](https://www.nature.com/articles/nbt.4042), and [MULTI-Seq](https://www.nature.com/articles/s41592-019-0433-8). However, these techniques require extra steps in sample preparation which leads to extra costs, time and they do not guarantee to remove all doublets.
+More and more experiments involve a large number of samples/datasets, that may have been prepared in separate batches. Or in the case where one would like to include or integrate publically available datasets. It is important to properly integrate these datasets, and we will see the effect the integration has at the end of this documentation.
 
-Naturally, removing doublets _in silico_ is very appealing and there have been many tools/methods developed to achieve this: [DoubletFinder](https://www.cell.com/cell-systems/pdfExtended/S2405-4712(19)30073-0), DoubletDetection(https://github.com/JonathanShor/DoubletDetection), [DoubletDecon](https://www.sciencedirect.com/science/article/pii/S2211124719312860), among others.
-
-<p align = "center">
-<img src="figures/doublets.jpg" alt="micribial" width="85%"/>
-</p>
-
-<p align = "right" style="font-family:Times;font-size:12px;">
-Xi, etc., Cell Systems, 2021, https://www.sciencedirect.com/science/article/pii/S2405471220304592
-</p>
+Most of the methods that were developed to integrate single cell datasets fall into two categories. The first is the "anchor" based approach. In this approach, the first step is to select a batch as the "anchor" and convert other batches to the "anchor" batch. Among this approach, there are [MNN](https://github.com/MarioniLab/MNN2017), [iMAP](https://github.com/Svvord/iMAP) and [SCALEX](https://github.com/jsxlei/SCALEX). The advantage of this approach is that different batches of cells can be studied under the same experimental conditions, and the disadvantage is that it is not possible to fully combine the features of each batch because the cell types contained in each batch are unknown. The second approach is to transform all batches of data to a low-dimensional space to correct batch effects, such as implemented in [Scanorama](https://github.com/brianhie/scanorama), [Harmony](https://github.com/immunogenomics/harmony), [DESC](https://www.nature.com/articles/s41467-020-15851-3), [BBKNN](https://github.com/Teichlab/bbknn), [STACAS](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8098019/) and [Seurat's integration](https://www.cell.com/cell/fulltext/S0092-8674(19)30559-8). This second approach has the advantage of extracting biologically relevant latent features and reducing the impact of noise, but it cannot be used for differential gene expression analysis. Many of these existing methods work well when the batches of datasets have the same cell types, however, they fail when there are different cell types involved in different datasets. Very recently (earlier this year), a [new approach](https://www.mdpi.com/1422-0067/23/4/2082) has been developed that uses connected graphs and generative adversarial networks (GAN) to achieve the goal of eliminating nonbiological noise between batches of datasets. This new method has been demonstrated to work well both in the situation where datasets have the same cell types and in the situation where datasets may have different cell types.
 
 
-## Doublet detection with DoubletFinder
-
-[DoubletFinder](https://github.com/chris-mcginnis-ucsf/DoubletFinder) takes fully pre-processed data from Seurat (NormalizeData, FindVariableGenes, ScaleData, RunPCA and RunTSNE) as input and the process should be done for each sample individually. The input data should be processed to remove low-quality cell clusters first.
-
-We are going to run DoubletFinder on sample _A001-C-007_.
-
-We start each markdown document with installing/loading needed libraries for R:
+In this workshop, we are going to look at Seurat's integration approach using reciprocal PCA, which is supurior to its first integration approach using canonical correlation analysis. The basic idea is to identify cross-dataset pairs cells that are in a matched biological state ("anchors"), and use them to correct technical differences between datasets. The integration method we use has been implemented in Seurat and you can find the details of the method in [its publication](https://www.sciencedirect.com/science/article/pii/S0092867419305598?via%3Dihub).
 
 
+## Load libraries
 
 ```r
-# must install DoubletFinder
-if (!any(rownames(installed.packages()) == "DoubletFinder")){
-  remotes::install_github('chris-mcginnis-ucsf/DoubletFinder')
-}
-
-library(DoubletFinder)
-
-# must have Seurat
 library(Seurat)
-library(kableExtra)
-library(ggplot2)
 ```
 
+## Load the Seurat object from the provided data and split to individual samples
 
-### Setup the experiment folder and data info
-
-```r
-experiment_name = "Colon Cancer"
-dataset_loc <- "./expression_data_cellranger"
-ids <- c("A001-C-007", "A001-C-104", "B001-A-301")
-```
-
-
-## Load the Cell Ranger Matrix Data and create the base Seurat object.
-This section is done the same way as in __scRNA_Workshop-PART1.Rmd__
-
-Seurat provides a function `Read10X` and `Read10X_h5` to read in 10X data folder. First we read in data from each individual sample folder. 
-
-Later, we initialize the Seurat object (`CreateSeuratObject`) with the raw (non-normalized data). Keep all cells with at least 200 detected genes. Also extracting sample names, calculating and adding in the metadata mitochondrial percentage of each cell. Adding in the metadata batchid and cell cycle. Finally, saving the raw Seurat object.
-
-## Load the Cell Ranger Matrix Data (hdf5 file) and create the base Seurat object.
-
-```r
-d10x.data <- lapply(ids[1], function(i){
-  d10x <- Read10X_h5(file.path(dataset_loc, i, "outs","raw_feature_bc_matrix.h5"))
-  colnames(d10x) <- paste(sapply(strsplit(colnames(d10x),split="-"),'[[',1L),i,sep="-")
-  d10x
-})
-names(d10x.data) <- ids[1]
-
-str(d10x.data)
-```
-
-```
-## List of 1
-##  $ A001-C-007:Formal class 'dgCMatrix' [package "Matrix"] with 6 slots
-##   .. ..@ i       : int [1:16845098] 13849 300 539 916 2153 2320 3196 4057 4317 4786 ...
-##   .. ..@ p       : int [1:1189230] 0 1 1 100 101 102 103 240 241 241 ...
-##   .. ..@ Dim     : int [1:2] 36601 1189229
-##   .. ..@ Dimnames:List of 2
-##   .. .. ..$ : chr [1:36601] "MIR1302-2HG" "FAM138A" "OR4F5" "AL627309.1" ...
-##   .. .. ..$ : chr [1:1189229] "AAACCCAAGAAACCCA-A001-C-007" "AAACCCAAGAAACCCG-A001-C-007" "AAACCCAAGAAACTGT-A001-C-007" "AAACCCAAGAAAGCGA-A001-C-007" ...
-##   .. ..@ x       : num [1:16845098] 1 1 1 1 1 1 1 1 1 1 ...
-##   .. ..@ factors : list()
-```
-
-If you don't have the needed hdf5 libraries you can read in the matrix files like such
+The provided data is raw data that has only gone through the filtering step.
 
 
 ```r
-d10x.data <- sapply(ids[1], function(i){
-  d10x <- Read10X(file.path(dataset_loc, i, "/outs","raw_feature_bc_matrix"))
-  colnames(d10x) <- paste(sapply(strsplit(colnames(d10x), split="-"), '[[', 1L), i, sep="-")
-  d10x
-})
-names(d10x.data) <- ids[1]
+download.file("https://bioshare.bioinformatics.ucdavis.edu/bioshare/download/feb28v7lew62um4/sample_filtered.RData", "sample_filtered.RData")
 ```
 
-
-### Create the Seurat object
-
-Filter criteria: remove genes that do not occur in a minimum of 0 cells and remove cells that don't have a minimum of 200 features/genes
 
 
 ```r
-experiment.data <- CreateSeuratObject(
-  d10x.data[[1]],
-  project = "A001-C-007",
-  min.cells = 0,
-  min.features = 200,
-  names.field = 2,
-  names.delim = "\\-")
-```
-
-### The percentage of reads that map to the mitochondrial genome
-
-* Low-quality / dying cells often exhibit extensive mitochondrial contamination.
-* We calculate mitochondrial QC metrics with the PercentageFeatureSet function, which calculates the percentage of counts originating from a set of features.
-* We use the set of all genes, in mouse these genes can be identified as those that begin with 'mt', in human data they begin with MT.
-
-
-```r
-experiment.data$percent.mito <- PercentageFeatureSet(experiment.data, pattern = "^MT-")
-summary(experiment.data$percent.mito)
-```
-
-```
-##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##   0.000   2.283   3.285   3.324   4.255  46.647
-```
-
-Violin plot of 1) number of genes, 2) number of UMI and 3) percent mitochondrial genes
-
-```r
-VlnPlot(
-  experiment.data,
-  features = c("nFeature_RNA", "nCount_RNA","percent.mito"),
-  ncol = 1, pt.size = 0.3)
-```
-
-![](scRNA_Workshop-PART7_files/figure-html/violins-1.png)<!-- -->
-
-plot ridge plots of the same data
-
-
-```r
-RidgePlot(experiment.data, features=c("nFeature_RNA","nCount_RNA", "percent.mito"), log=T, ncol = 2)
-```
-
-![](scRNA_Workshop-PART7_files/figure-html/ridgeplot_pre-1.png)<!-- -->
-
-### Cell filtering
-
-We use the information above to filter out cells. Here we choose those that have percent mitochondrial genes max of 8%, unique UMI counts under 1,000 or greater than 12,000 and contain at least 400 features within them.
-
-
-```r
-table(experiment.data$orig.ident)
-```
-
-```
-## 
-##  A001 
-## 17908
-```
-
-```r
-experiment.data <- subset(experiment.data, percent.mito <= 8)
-
-experiment.data <- subset(experiment.data, nFeature_RNA >= 400 & nFeature_RNA <= 4000)
-
-experiment.data <- subset(experiment.data, nCount_RNA >= 500 & nCount_RNA <= 12000)
-
-experiment.data
+load(file="sample_filtered.RData")
+experiment.aggregate
 ```
 
 ```
 ## An object of class Seurat 
-## 36601 features across 1777 samples within 1 assay 
-## Active assay: RNA (36601 features, 0 variable features)
+## 21005 features across 10595 samples within 1 assay 
+## Active assay: RNA (21005 features, 0 variable features)
 ```
 
 ```r
-table(experiment.data$orig.ident)
+experiment.split <- SplitObject(experiment.aggregate, split.by = "ident")
 ```
 
+## Normalize and find variable features for each individual sample
+
+By default, we employ a global-scaling normalization method LogNormalize that normalizes the gene expression measurements for each cell by the total expression, multiplies this by a scale factor (10,000 by default), and then log-transforms the data.
+
+
+
+```r
+?NormalizeData
 ```
+
+The function FindVariableFeatures identifies the most highly variable genes (default 2000 genes) by fitting a line to the relationship of log(variance) and log(mean) using loess smoothing, uses this information to standardize the data, then calculates the variance of the standardized data.  This helps avoid selecting genes that only appear variable due to their expression level.
+
+
+
+```r
+?FindVariableFeatures
+```
+
+Now, let's carry out these two processes for each sample
+
+
+
+```r
+experiment.split <- lapply(X = experiment.split, FUN=function(x){
+  x <- NormalizeData(x)
+  x <- FindVariableFeatures(x, selection.method = "vst", nfeatures = 2000)
+})
+```
+
+## Select features that are repeatedly variable across samples and run PCA on each sample
+
+
+```r
+features <- SelectIntegrationFeatures(object.list = experiment.split)
+experiment.split <- lapply(X = experiment.split, FUN = function(x){
+  x <- ScaleData(x, features = features)
+  x <- RunPCA(x, features = features)
+})
+```
+
+## Idenfity integration anchors
+
+
+```r
+anchors <- FindIntegrationAnchors(object.list = experiment.split, anchor.features = features, reduction = "rpca")
+```
+
+
+## Perform integration
+
+
+```r
+experiment.integrated <- IntegrateData(anchorset = anchors)
+```
+
+
+#### Question(s)
+
+1. Explore the object "experiment.integrated" to see what information is available.
+
+## PCA plot before integration
+
+
+```r
+experiment.test <- ScaleData(object=experiment.aggregate, assay="RNA")
+experiment.test <- FindVariableFeatures(object=experiment.test, assay="RNA")
+experiment.test <- RunPCA(object=experiment.test, assay="RNA")
+DimPlot(object = experiment.test, group.by="ident", reduction="pca", shuffle=TRUE)
+```
+
+![](scRNA_Workshop-PART7_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
+
+## PCA plot after integration
+
+
+```r
+experiment.integrated <- ScaleData(object=experiment.integrated, assay="integrated")
+experiment.integrated <- RunPCA(object=experiment.integrated, assay="integrated")
+DimPlot(object = experiment.integrated, group.by="ident", reduction="pca", shuffle=TRUE)
+```
+
+![](scRNA_Workshop-PART7_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
+
 ## 
-## A001 
-## 1777
-```
 
-<br>
-
-Lets se the ridge plots now after filtering
-
-```r
-RidgePlot(experiment.data, features=c("nFeature_RNA","nCount_RNA", "percent.mito"), log=T, ncol = 2)
-```
-
-![](scRNA_Workshop-PART7_files/figure-html/ridgeplot_post-1.png)<!-- -->
-
-<br>
+## Save the integrated data
 
 
 ```r
-experiment.data <- NormalizeData(experiment.data)
-experiment.data <- FindVariableFeatures(experiment.data, selection.method = "vst", nfeatures = 2000)
-experiment.data <- ScaleData(experiment.data)
-experiment.data <- RunPCA(experiment.data)
-experiment.data <- FindNeighbors(experiment.data, reduction="pca", dims = 1:20)
-experiment.data <- FindClusters(
-    object = experiment.data,
-    resolution = seq(0.25,4,0.5),
-    verbose = FALSE
-)
-experiment.data <- RunUMAP(experiment.data, dims=1:20)
-DimPlot(object = experiment.data, pt.size=0.5, reduction = "umap", label = T)
+save(experiment.integrated, file="sample_integrated.RData")
 ```
 
-![](scRNA_Workshop-PART7_files/figure-html/preprocess-1.png)<!-- -->
-
-
-```r
-sweep.res <- paramSweep_v3(experiment.data, PCs = 1:20, sct = FALSE)
-```
-
-```
-## [1] "Creating artificial doublets for pN = 5%"
-## [1] "Creating Seurat object..."
-## [1] "Normalizing Seurat object..."
-## [1] "Finding variable genes..."
-## [1] "Scaling data..."
-## [1] "Running PCA..."
-## [1] "Calculating PC distance matrix..."
-## [1] "Defining neighborhoods..."
-## [1] "Computing pANN across all pK..."
-## [1] "pK = 0.01..."
-## [1] "pK = 0.02..."
-## [1] "pK = 0.03..."
-## [1] "pK = 0.04..."
-## [1] "pK = 0.05..."
-## [1] "pK = 0.06..."
-## [1] "pK = 0.07..."
-## [1] "pK = 0.08..."
-## [1] "pK = 0.09..."
-## [1] "pK = 0.1..."
-## [1] "pK = 0.11..."
-## [1] "pK = 0.12..."
-## [1] "pK = 0.13..."
-## [1] "pK = 0.14..."
-## [1] "pK = 0.15..."
-## [1] "pK = 0.16..."
-## [1] "pK = 0.17..."
-## [1] "pK = 0.18..."
-## [1] "pK = 0.19..."
-## [1] "pK = 0.2..."
-## [1] "pK = 0.21..."
-## [1] "pK = 0.22..."
-## [1] "pK = 0.23..."
-## [1] "pK = 0.24..."
-## [1] "pK = 0.25..."
-## [1] "pK = 0.26..."
-## [1] "pK = 0.27..."
-## [1] "pK = 0.28..."
-## [1] "pK = 0.29..."
-## [1] "pK = 0.3..."
-## [1] "Creating artificial doublets for pN = 10%"
-## [1] "Creating Seurat object..."
-## [1] "Normalizing Seurat object..."
-## [1] "Finding variable genes..."
-## [1] "Scaling data..."
-## [1] "Running PCA..."
-## [1] "Calculating PC distance matrix..."
-## [1] "Defining neighborhoods..."
-## [1] "Computing pANN across all pK..."
-## [1] "pK = 0.01..."
-## [1] "pK = 0.02..."
-## [1] "pK = 0.03..."
-## [1] "pK = 0.04..."
-## [1] "pK = 0.05..."
-## [1] "pK = 0.06..."
-## [1] "pK = 0.07..."
-## [1] "pK = 0.08..."
-## [1] "pK = 0.09..."
-## [1] "pK = 0.1..."
-## [1] "pK = 0.11..."
-## [1] "pK = 0.12..."
-## [1] "pK = 0.13..."
-## [1] "pK = 0.14..."
-## [1] "pK = 0.15..."
-## [1] "pK = 0.16..."
-## [1] "pK = 0.17..."
-## [1] "pK = 0.18..."
-## [1] "pK = 0.19..."
-## [1] "pK = 0.2..."
-## [1] "pK = 0.21..."
-## [1] "pK = 0.22..."
-## [1] "pK = 0.23..."
-## [1] "pK = 0.24..."
-## [1] "pK = 0.25..."
-## [1] "pK = 0.26..."
-## [1] "pK = 0.27..."
-## [1] "pK = 0.28..."
-## [1] "pK = 0.29..."
-## [1] "pK = 0.3..."
-## [1] "Creating artificial doublets for pN = 15%"
-## [1] "Creating Seurat object..."
-## [1] "Normalizing Seurat object..."
-## [1] "Finding variable genes..."
-## [1] "Scaling data..."
-## [1] "Running PCA..."
-## [1] "Calculating PC distance matrix..."
-## [1] "Defining neighborhoods..."
-## [1] "Computing pANN across all pK..."
-## [1] "pK = 0.01..."
-## [1] "pK = 0.02..."
-## [1] "pK = 0.03..."
-## [1] "pK = 0.04..."
-## [1] "pK = 0.05..."
-## [1] "pK = 0.06..."
-## [1] "pK = 0.07..."
-## [1] "pK = 0.08..."
-## [1] "pK = 0.09..."
-## [1] "pK = 0.1..."
-## [1] "pK = 0.11..."
-## [1] "pK = 0.12..."
-## [1] "pK = 0.13..."
-## [1] "pK = 0.14..."
-## [1] "pK = 0.15..."
-## [1] "pK = 0.16..."
-## [1] "pK = 0.17..."
-## [1] "pK = 0.18..."
-## [1] "pK = 0.19..."
-## [1] "pK = 0.2..."
-## [1] "pK = 0.21..."
-## [1] "pK = 0.22..."
-## [1] "pK = 0.23..."
-## [1] "pK = 0.24..."
-## [1] "pK = 0.25..."
-## [1] "pK = 0.26..."
-## [1] "pK = 0.27..."
-## [1] "pK = 0.28..."
-## [1] "pK = 0.29..."
-## [1] "pK = 0.3..."
-## [1] "Creating artificial doublets for pN = 20%"
-## [1] "Creating Seurat object..."
-## [1] "Normalizing Seurat object..."
-## [1] "Finding variable genes..."
-## [1] "Scaling data..."
-## [1] "Running PCA..."
-## [1] "Calculating PC distance matrix..."
-## [1] "Defining neighborhoods..."
-## [1] "Computing pANN across all pK..."
-## [1] "pK = 0.01..."
-## [1] "pK = 0.02..."
-## [1] "pK = 0.03..."
-## [1] "pK = 0.04..."
-## [1] "pK = 0.05..."
-## [1] "pK = 0.06..."
-## [1] "pK = 0.07..."
-## [1] "pK = 0.08..."
-## [1] "pK = 0.09..."
-## [1] "pK = 0.1..."
-## [1] "pK = 0.11..."
-## [1] "pK = 0.12..."
-## [1] "pK = 0.13..."
-## [1] "pK = 0.14..."
-## [1] "pK = 0.15..."
-## [1] "pK = 0.16..."
-## [1] "pK = 0.17..."
-## [1] "pK = 0.18..."
-## [1] "pK = 0.19..."
-## [1] "pK = 0.2..."
-## [1] "pK = 0.21..."
-## [1] "pK = 0.22..."
-## [1] "pK = 0.23..."
-## [1] "pK = 0.24..."
-## [1] "pK = 0.25..."
-## [1] "pK = 0.26..."
-## [1] "pK = 0.27..."
-## [1] "pK = 0.28..."
-## [1] "pK = 0.29..."
-## [1] "pK = 0.3..."
-## [1] "Creating artificial doublets for pN = 25%"
-## [1] "Creating Seurat object..."
-## [1] "Normalizing Seurat object..."
-## [1] "Finding variable genes..."
-## [1] "Scaling data..."
-## [1] "Running PCA..."
-## [1] "Calculating PC distance matrix..."
-## [1] "Defining neighborhoods..."
-## [1] "Computing pANN across all pK..."
-## [1] "pK = 0.01..."
-## [1] "pK = 0.02..."
-## [1] "pK = 0.03..."
-## [1] "pK = 0.04..."
-## [1] "pK = 0.05..."
-## [1] "pK = 0.06..."
-## [1] "pK = 0.07..."
-## [1] "pK = 0.08..."
-## [1] "pK = 0.09..."
-## [1] "pK = 0.1..."
-## [1] "pK = 0.11..."
-## [1] "pK = 0.12..."
-## [1] "pK = 0.13..."
-## [1] "pK = 0.14..."
-## [1] "pK = 0.15..."
-## [1] "pK = 0.16..."
-## [1] "pK = 0.17..."
-## [1] "pK = 0.18..."
-## [1] "pK = 0.19..."
-## [1] "pK = 0.2..."
-## [1] "pK = 0.21..."
-## [1] "pK = 0.22..."
-## [1] "pK = 0.23..."
-## [1] "pK = 0.24..."
-## [1] "pK = 0.25..."
-## [1] "pK = 0.26..."
-## [1] "pK = 0.27..."
-## [1] "pK = 0.28..."
-## [1] "pK = 0.29..."
-## [1] "pK = 0.3..."
-## [1] "Creating artificial doublets for pN = 30%"
-## [1] "Creating Seurat object..."
-## [1] "Normalizing Seurat object..."
-## [1] "Finding variable genes..."
-## [1] "Scaling data..."
-## [1] "Running PCA..."
-## [1] "Calculating PC distance matrix..."
-## [1] "Defining neighborhoods..."
-## [1] "Computing pANN across all pK..."
-## [1] "pK = 0.01..."
-## [1] "pK = 0.02..."
-## [1] "pK = 0.03..."
-## [1] "pK = 0.04..."
-## [1] "pK = 0.05..."
-## [1] "pK = 0.06..."
-## [1] "pK = 0.07..."
-## [1] "pK = 0.08..."
-## [1] "pK = 0.09..."
-## [1] "pK = 0.1..."
-## [1] "pK = 0.11..."
-## [1] "pK = 0.12..."
-## [1] "pK = 0.13..."
-## [1] "pK = 0.14..."
-## [1] "pK = 0.15..."
-## [1] "pK = 0.16..."
-## [1] "pK = 0.17..."
-## [1] "pK = 0.18..."
-## [1] "pK = 0.19..."
-## [1] "pK = 0.2..."
-## [1] "pK = 0.21..."
-## [1] "pK = 0.22..."
-## [1] "pK = 0.23..."
-## [1] "pK = 0.24..."
-## [1] "pK = 0.25..."
-## [1] "pK = 0.26..."
-## [1] "pK = 0.27..."
-## [1] "pK = 0.28..."
-## [1] "pK = 0.29..."
-## [1] "pK = 0.3..."
-```
-
-```r
-sweep.stats <- summarizeSweep(sweep.res, GT = FALSE)
-bcmvn <- find.pK(sweep.stats)
-```
-
-![](scRNA_Workshop-PART7_files/figure-html/doubletfinder-1.png)<!-- -->
-
-```
-## NULL
-```
-
-```r
-pK.set <- unique(sweep.stats$pK)[2]
-```
-<br>
-
-
-```r
-nExp_poi <- round(0.08*nrow(experiment.data@meta.data))
-```
-
-
-```r
-experiment.data <- doubletFinder_v3(experiment.data, PCs = 1:20, pN = 0.25, pK = as.numeric(as.character(pK.set)), nExp = nExp_poi, reuse.pANN = FALSE, sct = FALSE)
-```
-
-```
-## [1] "Creating 592 artificial doublets..."
-## [1] "Creating Seurat object..."
-## [1] "Normalizing Seurat object..."
-## [1] "Finding variable genes..."
-## [1] "Scaling data..."
-## [1] "Running PCA..."
-## [1] "Calculating PC distance matrix..."
-## [1] "Computing pANN..."
-## [1] "Classifying doublets.."
-```
-
-## The following code can be used if literature assisted cell type identification is available
-
-
-```r
-annotations <- experiment.data@meta.data$seurat_clusters
-homotypic.prop <- modelHomotypic(annotations)
-nExp_poi <- round(0.08*nrow(experiment.data@meta.data))
-nExp_poi.adj <- round(nExp_poi*(1-homotypic.prop))
-experiment.data <- doubletFinder_v3(experiment.data, PCs = 1:20, pN = 0.25, pK = as.numeric(as.character(pK.set)), nExp = nExp_poi.adj, reuse.pANN = "pANN_0.25_0.02_142", sct = FALSE)
-```
-
-## Remove doublets
-
-
-
-```r
-experiment.data <- subset(experiment.data,  DF.classifications_0.25_0.02_142 == "Singlet")
-```
 
 ## Session Information
 
@@ -534,13 +151,13 @@ sessionInfo()
 ```
 
 ```
-## R version 4.1.2 (2021-11-01)
+## R version 4.2.2 (2022-10-31)
 ## Platform: x86_64-apple-darwin17.0 (64-bit)
 ## Running under: macOS Catalina 10.15.7
 ## 
 ## Matrix products: default
-## BLAS:   /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRblas.0.dylib
-## LAPACK: /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRlapack.dylib
+## BLAS:   /Library/Frameworks/R.framework/Versions/4.2/Resources/lib/libRblas.0.dylib
+## LAPACK: /Library/Frameworks/R.framework/Versions/4.2/Resources/lib/libRlapack.dylib
 ## 
 ## locale:
 ## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
@@ -549,51 +166,46 @@ sessionInfo()
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-##  [1] ROCR_1.0-11         KernSmooth_2.23-20  fields_14.0        
-##  [4] viridis_0.6.2       viridisLite_0.4.0   spam_2.8-0         
-##  [7] ggplot2_3.3.5       kableExtra_1.3.4    SeuratObject_4.0.4 
-## [10] Seurat_4.1.0        DoubletFinder_2.0.3
+## [1] SeuratObject_4.1.3 Seurat_4.3.0      
 ## 
 ## loaded via a namespace (and not attached):
-##   [1] Rtsne_0.15            colorspace_2.0-2      deldir_1.0-6         
-##   [4] ellipsis_0.3.2        ggridges_0.5.3        rstudioapi_0.13      
-##   [7] spatstat.data_2.1-2   farver_2.1.0          leiden_0.3.9         
-##  [10] listenv_0.8.0         bit64_4.0.5           ggrepel_0.9.1        
-##  [13] RSpectra_0.16-0       fansi_1.0.2           xml2_1.3.3           
-##  [16] codetools_0.2-18      splines_4.1.2         knitr_1.37           
-##  [19] polyclip_1.10-0       jsonlite_1.8.0        ica_1.0-2            
-##  [22] cluster_2.1.2         png_0.1-7             uwot_0.1.11          
-##  [25] shiny_1.7.1           sctransform_0.3.3     spatstat.sparse_2.1-0
-##  [28] compiler_4.1.2        httr_1.4.2            assertthat_0.2.1     
-##  [31] Matrix_1.4-0          fastmap_1.1.0         lazyeval_0.2.2       
-##  [34] cli_3.2.0             later_1.3.0           htmltools_0.5.2      
-##  [37] tools_4.1.2           dotCall64_1.0-1       igraph_1.2.11        
-##  [40] gtable_0.3.0          glue_1.6.2            RANN_2.6.1           
-##  [43] reshape2_1.4.4        dplyr_1.0.8           maps_3.4.0           
-##  [46] Rcpp_1.0.8.3          scattermore_0.7       jquerylib_0.1.4      
-##  [49] vctrs_0.3.8           svglite_2.1.0         nlme_3.1-155         
-##  [52] lmtest_0.9-39         xfun_0.29             stringr_1.4.0        
-##  [55] globals_0.14.0        rvest_1.0.2           mime_0.12            
-##  [58] miniUI_0.1.1.1        lifecycle_1.0.1       irlba_2.3.5          
-##  [61] goftest_1.2-3         future_1.23.0         MASS_7.3-55          
-##  [64] zoo_1.8-9             scales_1.1.1          spatstat.core_2.3-2  
-##  [67] promises_1.2.0.1      spatstat.utils_2.3-0  parallel_4.1.2       
-##  [70] RColorBrewer_1.1-2    yaml_2.3.5            reticulate_1.24      
-##  [73] pbapply_1.5-0         gridExtra_2.3         sass_0.4.0           
-##  [76] rpart_4.1.16          stringi_1.7.6         highr_0.9            
-##  [79] systemfonts_1.0.4     rlang_1.0.2           pkgconfig_2.0.3      
-##  [82] matrixStats_0.61.0    evaluate_0.14         lattice_0.20-45      
-##  [85] purrr_0.3.4           tensor_1.5            labeling_0.4.2       
-##  [88] patchwork_1.1.1       htmlwidgets_1.5.4     bit_4.0.4            
-##  [91] cowplot_1.1.1         tidyselect_1.1.2      parallelly_1.30.0    
-##  [94] RcppAnnoy_0.0.19      plyr_1.8.6            magrittr_2.0.2       
-##  [97] R6_2.5.1              generics_0.1.2        DBI_1.1.2            
-## [100] withr_2.4.3           mgcv_1.8-38           pillar_1.7.0         
-## [103] fitdistrplus_1.1-6    survival_3.2-13       abind_1.4-5          
-## [106] tibble_3.1.6          future.apply_1.8.1    hdf5r_1.3.5          
-## [109] crayon_1.5.0          utf8_1.2.2            spatstat.geom_2.3-1  
-## [112] plotly_4.10.0         rmarkdown_2.11        grid_4.1.2           
-## [115] data.table_1.14.2     webshot_0.5.2         digest_0.6.29        
-## [118] xtable_1.8-4          tidyr_1.2.0           httpuv_1.6.5         
-## [121] munsell_0.5.0         bslib_0.3.1
+##   [1] Rtsne_0.16             colorspace_2.0-3       deldir_1.0-6          
+##   [4] ellipsis_0.3.2         ggridges_0.5.4         rstudioapi_0.14       
+##   [7] spatstat.data_3.0-0    farver_2.1.1           leiden_0.4.3          
+##  [10] listenv_0.8.0          ggrepel_0.9.2          fansi_1.0.3           
+##  [13] codetools_0.2-18       splines_4.2.2          cachem_1.0.6          
+##  [16] knitr_1.41             polyclip_1.10-4        jsonlite_1.8.4        
+##  [19] ica_1.0-3              cluster_2.1.4          png_0.1-8             
+##  [22] uwot_0.1.14            shiny_1.7.3            sctransform_0.3.5     
+##  [25] spatstat.sparse_3.0-0  compiler_4.2.2         httr_1.4.4            
+##  [28] assertthat_0.2.1       Matrix_1.5-3           fastmap_1.1.0         
+##  [31] lazyeval_0.2.2         cli_3.4.1              later_1.3.0           
+##  [34] htmltools_0.5.3        tools_4.2.2            igraph_1.3.5          
+##  [37] gtable_0.3.1           glue_1.6.2             RANN_2.6.1            
+##  [40] reshape2_1.4.4         dplyr_1.0.10           Rcpp_1.0.9            
+##  [43] scattermore_0.8        jquerylib_0.1.4        vctrs_0.5.1           
+##  [46] nlme_3.1-160           spatstat.explore_3.0-5 progressr_0.11.0      
+##  [49] lmtest_0.9-40          spatstat.random_3.0-1  xfun_0.35             
+##  [52] stringr_1.4.1          globals_0.16.2         mime_0.12             
+##  [55] miniUI_0.1.1.1         lifecycle_1.0.3        irlba_2.3.5.1         
+##  [58] goftest_1.2-3          future_1.29.0          MASS_7.3-58.1         
+##  [61] zoo_1.8-11             scales_1.2.1           promises_1.2.0.1      
+##  [64] spatstat.utils_3.0-1   parallel_4.2.2         RColorBrewer_1.1-3    
+##  [67] yaml_2.3.6             reticulate_1.26        pbapply_1.6-0         
+##  [70] gridExtra_2.3          ggplot2_3.4.0          sass_0.4.4            
+##  [73] stringi_1.7.8          highr_0.9              rlang_1.0.6           
+##  [76] pkgconfig_2.0.3        matrixStats_0.63.0     evaluate_0.18         
+##  [79] lattice_0.20-45        tensor_1.5             ROCR_1.0-11           
+##  [82] purrr_0.3.5            labeling_0.4.2         patchwork_1.1.2       
+##  [85] htmlwidgets_1.5.4      cowplot_1.1.1          tidyselect_1.2.0      
+##  [88] parallelly_1.32.1      RcppAnnoy_0.0.20       plyr_1.8.8            
+##  [91] magrittr_2.0.3         R6_2.5.1               generics_0.1.3        
+##  [94] DBI_1.1.3              withr_2.5.0            pillar_1.8.1          
+##  [97] fitdistrplus_1.1-8     survival_3.4-0         abind_1.4-5           
+## [100] sp_1.5-1               tibble_3.1.8           future.apply_1.10.0   
+## [103] KernSmooth_2.23-20     utf8_1.2.2             spatstat.geom_3.0-3   
+## [106] plotly_4.10.1          rmarkdown_2.18         grid_4.2.2            
+## [109] data.table_1.14.6      digest_0.6.30          xtable_1.8-4          
+## [112] tidyr_1.2.1            httpuv_1.6.6           munsell_0.5.0         
+## [115] viridisLite_0.4.1      bslib_0.4.1
 ```

@@ -1,139 +1,211 @@
 ---
-title: "Single Cell RNAseq Part 6"
-author: "Bioinformatics Core"
+title: "Introduction to Single Cell RNAseq Part 6"
+author: "UCD Bioinformatics Core"
 output:
     html_document:
       keep_md: TRUE
 ---
 
-# Part 6: Enrichment, Model-Based DE, and Cell-Type Identification
+Last Updated: December 8, 2022
 
-```{r setup_opt, warning=FALSE,error=FALSE,message=FALSE, echo = F}
-options(width = 450)
-```
+# Part 6: Add Doublet Detection
 
-## Load libraries
-```{r load_library, warning=FALSE,error=FALSE,message=FALSE}
+Doublets are cells that appear to be, but are not, real cells. There are two major types of doublets: heterotypic and homotypic. Heterotypic doublets are formed by cells with distinct transcriptional profiles. Homotypic doublets are formed by cells with similar transcriptional profiles. Heterotypic doublets are relatively easier to detect compared with homotypic doublets. Depending on the protocols used to barcode single cells/nuclei, doublet rates vary significantly and it can reach as high as 40%.
+
+Experimental strategies have been developed to reduce the doublet rate, such as [cell hashing](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-018-1603-1), [demuxlet](https://www.nature.com/articles/nbt.4042), and [MULTI-Seq](https://www.nature.com/articles/s41592-019-0433-8). However, these techniques require extra steps in sample preparation which leads to extra costs, time and they do not guarantee to remove all doublets.
+
+Naturally, removing doublets _in silico_ is very appealing and there have been many tools/methods developed to achieve this: [DoubletFinder](https://www.cell.com/cell-systems/pdfExtended/S2405-4712(19)30073-0), DoubletDetection(https://github.com/JonathanShor/DoubletDetection), [DoubletDecon](https://www.sciencedirect.com/science/article/pii/S2211124719312860), among others.
+
+<p align = "center">
+<img src="figures/doublets.jpg" alt="micribial" width="85%"/>
+</p>
+
+<p align = "right" style="font-family:Times;font-size:12px;">
+Xi, etc., Cell Systems, 2021, https://www.sciencedirect.com/science/article/pii/S2405471220304592
+</p>
+
+
+## Doublet detection with DoubletFinder
+
+[DoubletFinder](https://github.com/chris-mcginnis-ucsf/DoubletFinder) takes fully pre-processed data from Seurat (NormalizeData, FindVariableGenes, ScaleData, RunPCA and RunTSNE) as input and the process should be done for each sample individually. The input data should be processed to remove low-quality cell clusters first.
+
+We are going to run DoubletFinder on sample _A001-C-007_.
+
+We start each markdown document with installing/loading needed libraries for R:
+
+
+```{r, warning=FALSE,error=FALSE,message=FALSE}
+# must install DoubletFinder
+if (!any(rownames(installed.packages()) == "DoubletFinder")){
+  remotes::install_github('chris-mcginnis-ucsf/DoubletFinder')
+}
+
+library(DoubletFinder)
+
+# must have Seurat
 library(Seurat)
+library(kableExtra)
 library(ggplot2)
-library(limma)
-library(topGO)
+
 ```
 
-## Load the Seurat object
-```{r load_rdata, warning=FALSE,error=FALSE,message=FALSE}
-load("clusters_seurat_object.RData")
-experiment.merged
-Idents(experiment.merged) <- "finalcluster"
+
+### Setup the experiment folder and data info
+```{r exp_setup, warning=FALSE,error=FALSE, message=FALSE}
+experiment_name = "Colon Cancer"
+dataset_loc <- "./"
+ids <- c("A001-C-007", "A001-C-104", "B001-A-301")
 ```
 
-# 1. Gene Ontology (GO) Enrichment of Genes Expressed in a Cluster
-[Gene Ontology](http://geneontology.org/docs/ontology-documentation/) provides a controlled vocabulary for describing gene products.  Here we use enrichment analysis to identify GO terms that are overrepresented among the gene expressed in cells in a given cluster. 
 
-```{r GO, warning=FALSE,error=FALSE,message=FALSE}
-cluster12 <- subset(experiment.merged, idents = '12')
-expr <- as.matrix(GetAssayData(cluster12))
-# Filter out genes that are 0 for every cell in this cluster
-bad <- which(rowSums(expr) == 0)
-expr <- expr[-bad,]
+## Load the Cell Ranger Matrix Data and create the base Seurat object.
+This section is done the same way as in __scRNA_Workshop-PART1.Rmd__
 
-# Select genes that are expressed > 0 in at least half of cells
-n.gt.0 <- apply(expr, 1, function(x)length(which(x > 0)))
-expressed.genes <- rownames(expr)[which(n.gt.0/ncol(expr) >= 0.5)]
-all.genes <- rownames(expr)
+Seurat provides a function `Read10X` and `Read10X_h5` to read in 10X data folder. First we read in data from each individual sample folder. 
 
-# define geneList as 1 if gene is in expressed.genes, 0 otherwise
-geneList <- ifelse(all.genes %in% expressed.genes, 1, 0)
-names(geneList) <- all.genes
+Later, we initialize the Seurat object (`CreateSeuratObject`) with the raw (non-normalized data). Keep all cells with at least 200 detected genes. Also extracting sample names, calculating and adding in the metadata mitochondrial percentage of each cell. Adding in the metadata batchid and cell cycle. Finally, saving the raw Seurat object.
 
-# Create topGOdata object
-	GOdata <- new("topGOdata",
-		ontology = "BP", # use biological process ontology
-		allGenes = geneList,
-		geneSelectionFun = function(x)(x == 1),
-              annot = annFUN.org, mapping = "org.Hs.eg.db", ID = "symbol")
-# Test for enrichment using Fisher's Exact Test
-	resultFisher <- runTest(GOdata, algorithm = "elim", statistic = "fisher")
-	GenTable(GOdata, Fisher = resultFisher, topNodes = 20, numChar = 60)
-```
-* Annotated: number of genes (out of all.genes) that are annotated with that GO term
-* Significant: number of genes that are annotated with that GO term and meet our criteria for "expressed"
-* Expected: Under random chance, number of genes that would be expected to be annotated with that GO term and meeting our criteria for "expressed"
-* Fisher: (Raw) p-value from Fisher's Exact Test
+## Load the Cell Ranger Matrix Data (hdf5 file) and create the base Seurat object.
+```{r load_data_hdf5, warning=FALSE,error=FALSE, message=FALSE}
+d10x.data <- lapply(ids[1], function(i){
+  d10x <- Read10X_h5(file.path(dataset_loc, i, "outs","raw_feature_bc_matrix.h5"))
+  colnames(d10x) <- paste(sapply(strsplit(colnames(d10x),split="-"),'[[',1L),i,sep="-")
+  d10x
+})
+names(d10x.data) <- ids[1]
 
-# 2. Model-based DE analysis in limma
-[limma](https://bioconductor.org/packages/release/bioc/html/limma.html) is an R package for differential expression analysis of bulk RNASeq and microarray data.  We apply it here to single cell data.
-
-Limma can be used to fit any linear model to expression data and is useful for analyses that go beyond two-group comparisons.  A detailed tutorial of model specification in limma is available [here](https://ucdavis-bioinformatics-training.github.io/2021-June-RNA-Seq-Analysis/data_analysis/DE_Analysis_mm_with_quizzes) and in the [limma User's Guide](https://www.bioconductor.org/packages/devel/bioc/vignettes/limma/inst/doc/usersguide.pdf).
-
-```{r}
-# filter genes to those expressed in at least 10% of cells
-keep <- rownames(expr)[which(n.gt.0/ncol(expr) >= 0.1)]
-expr2 <- expr[keep,]
-
-# Set up "design matrix" with statistical model
-cluster12$proper.ident <- make.names(cluster12$orig.ident)
-mm <- model.matrix(~0 + proper.ident + S.Score + G2M.Score + percent.mito + nFeature_RNA, data = cluster12[[]])
-head(mm)
-tail(mm)
-
-# Fit model in limma
-fit <- lmFit(expr2, mm)
-head(coef(fit))
-
-# Test 'B001-A-301' - 'A001-C-007'
-contr <- makeContrasts(proper.identB001.A.301 - proper.identA001.C.007, levels = colnames(coef(fit)))
-contr
-fit2 <- contrasts.fit(fit, contrasts = contr)
-fit2 <- eBayes(fit2)
-out <- topTable(fit2, n = Inf, sort.by = "P")
-head(out, 30)
+str(d10x.data)
 ```
 
-### Output columns:
-* logFC: log fold change (since we are working with Seurat's natural log transformed data, will be natural log fold change)
-* AveExpr: Average expression across all cells in expr2
-* t: logFC divided by its standard error
-* P.Value: Raw p-value (based on t) from test that logFC differs from 0
-* adj.P.Val: Benjamini-Hochberg false discovery rate adjusted p-value
-* B: log-odds that gene is DE 
+If you don't have the needed hdf5 libraries you can read in the matrix files like such
 
-
-
-# BONUS: Cell type identification with scMRMA
-[scMRMA]([https://academic.oup.com/nar/article/50/2/e7/6396893]) (single cell Multi-Resolution Marker-based Annotation Algorithm) classifies cells by iteratively clustering them then annotating based on a hierarchical external database.
-
-The databases included with the current version are only for use with human and mouse, but a user-constructed hierarchichal database can be used. 
-
-The package can be installed from [Github](https://github.com/JiaLiVUMC/scMRMA):
-
-```{r}
-# Remove hashes to run
-# install.packages("devtools")
-# devtools::install_github("JiaLiVUMC/scMRMA")
+```{r load_data_matrix, eval=FALSE}
+d10x.data <- sapply(ids[1], function(i){
+  d10x <- Read10X(file.path(dataset_loc, i, "/outs","raw_feature_bc_matrix"))
+  colnames(d10x) <- paste(sapply(strsplit(colnames(d10x), split="-"), '[[', 1L), i, sep="-")
+  d10x
+})
+names(d10x.data) <- ids[1]
 ```
 
-```{r, warning = FALSE}
-suppressPackageStartupMessages(library(scMRMA))
-result <- scMRMA(input = experiment.merged,
-                 species = "Hs",
-                 db = "panglaodb")
-table(result$uniformR$annotationResult)
 
-## Add cell types to metadata
-experiment.merged <- AddMetaData(experiment.merged, result$uniformR$annotationResult, col.name = "CellType")
-table(experiment.merged$CellType, experiment.merged$orig.ident)
-table(experiment.merged$CellType, experiment.merged$finalcluster)
-DimPlot(experiment.merged, group.by = "CellType", label = TRUE)
+### Create the Seurat object
+
+Filter criteria: remove genes that do not occur in a minimum of 0 cells and remove cells that don't have a minimum of 200 features/genes
+
+```{r create_seurat_object, warning=FALSE,error=FALSE, message=FALSE}
+experiment.data <- CreateSeuratObject(
+  d10x.data[[1]],
+  project = "A001-C-007",
+  min.cells = 0,
+  min.features = 200,
+  names.field = 2,
+  names.delim = "\\-")
+
 ```
 
-## Get the next Rmd file
-```{r getnextfile, eval=FALSE}
-download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-July-Single-Cell-RNA-Seq-Analysis/main/data_analysis/scRNA_Workshop-PART7.Rmd", "scRNA_Workshop-PART7.Rmd")
+### The percentage of reads that map to the mitochondrial genome
+
+* Low-quality / dying cells often exhibit extensive mitochondrial contamination.
+* We calculate mitochondrial QC metrics with the PercentageFeatureSet function, which calculates the percentage of counts originating from a set of features.
+* We use the set of all genes, in mouse these genes can be identified as those that begin with 'mt', in human data they begin with MT.
+
+```{r explore, warning=FALSE,error=FALSE, message=FALSE}
+experiment.data$percent.mito <- PercentageFeatureSet(experiment.data, pattern = "^MT-")
+summary(experiment.data$percent.mito)
 ```
 
-                 
+Violin plot of 1) number of genes, 2) number of UMI and 3) percent mitochondrial genes
+```{r violins, warning=FALSE,error=FALSE,message=FALSE, fig.height=12}
+VlnPlot(
+  experiment.data,
+  features = c("nFeature_RNA", "nCount_RNA","percent.mito"),
+  ncol = 1, pt.size = 0.3)
+```
+
+plot ridge plots of the same data
+
+```{r ridgeplot_pre, warning=FALSE,error=FALSE,message=FALSE}
+RidgePlot(experiment.data, features=c("nFeature_RNA","nCount_RNA", "percent.mito"), log=T, ncol = 2)
+```
+
+### Cell filtering
+
+We use the information above to filter out cells. Here we choose those that have percent mitochondrial genes max of 8%, unique UMI counts under 1,000 or greater than 12,000 and contain at least 400 features within them.
+
+```{r, cell_filtering, warning=FALSE,error=FALSE,message=FALSE}
+table(experiment.data$orig.ident)
+
+experiment.data <- subset(experiment.data, percent.mito <= 8)
+
+experiment.data <- subset(experiment.data, nFeature_RNA >= 400 & nFeature_RNA <= 4000)
+
+experiment.data <- subset(experiment.data, nCount_RNA >= 500 & nCount_RNA <= 12000)
+
+experiment.data
+
+table(experiment.data$orig.ident)
+```
+
+<br>
+
+Lets se the ridge plots now after filtering
+```{r ridgeplot_post, warning=FALSE,error=FALSE,message=FALSE}
+RidgePlot(experiment.data, features=c("nFeature_RNA","nCount_RNA", "percent.mito"), log=T, ncol = 2)
+```
+
+<br>
+
+```{r preprocess, warning=FALSE,error=FALSE,message=FALSE}
+experiment.data <- NormalizeData(experiment.data)
+experiment.data <- FindVariableFeatures(experiment.data, selection.method = "vst", nfeatures = 2000)
+experiment.data <- ScaleData(experiment.data)
+experiment.data <- RunPCA(experiment.data)
+experiment.data <- FindNeighbors(experiment.data, reduction="pca", dims = 1:20)
+experiment.data <- FindClusters(
+    object = experiment.data,
+    resolution = seq(0.25,4,0.5),
+    verbose = FALSE
+)
+experiment.data <- RunUMAP(experiment.data, dims=1:20)
+DimPlot(object = experiment.data, pt.size=0.5, reduction = "umap", label = T)
+
+```
+
+```{r doubletfinder, warning=FALSE,error=FALSE,message=FALSE}
+sweep.res <- paramSweep_v3(experiment.data, PCs = 1:20, sct = FALSE)
+sweep.stats <- summarizeSweep(sweep.res, GT = FALSE)
+bcmvn <- find.pK(sweep.stats)
+pK.set <- unique(sweep.stats$pK)[2]
+```
+<br>
+
+```{r doubletfinder-param, warning=FALSE,error=FALSE,message=FALSE}
+nExp_poi <- round(0.08*nrow(experiment.data@meta.data))
+```
+
+```{r doubletfinder-final, warning=FALSE,error=FALSE,message=FALSE}
+experiment.data <- doubletFinder_v3(experiment.data, PCs = 1:20, pN = 0.25, pK = as.numeric(as.character(pK.set)), nExp = nExp_poi, reuse.pANN = FALSE, sct = FALSE)
+```
+
+## The following code can be used if literature assisted cell type identification is available
+
+```{r doubletfinder-param-ct, eval=FALSE, warning=FALSE,error=FALSE,message=FALSE}
+annotations <- experiment.data@meta.data$seurat_clusters
+homotypic.prop <- modelHomotypic(annotations)
+nExp_poi <- round(0.08*nrow(experiment.data@meta.data))
+nExp_poi.adj <- round(nExp_poi*(1-homotypic.prop))
+experiment.data <- doubletFinder_v3(experiment.data, PCs = 1:20, pN = 0.25, pK = as.numeric(as.character(pK.set)), nExp = nExp_poi.adj, reuse.pANN = "pANN_0.25_0.02_142", sct = FALSE)
+```
+
+## Remove doublets
+
+
+```{r doubletfinder-remove, eval=FALSE, warning=FALSE,error=FALSE,message=FALSE}
+experiment.data <- subset(experiment.data,  DF.classifications_0.25_0.02_142 == "Singlet")
+```
+
 ## Session Information
-```{r session_info, warning=FALSE,error=FALSE,message=FALSE}
+```{r sessioinfo}
 sessionInfo()
 ```
