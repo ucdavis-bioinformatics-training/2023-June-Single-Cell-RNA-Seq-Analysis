@@ -215,7 +215,7 @@ DimPlot(object = experiment.aggregate, pt.size=0.5, reduction = "tsne", label = 
 ![](scRNA_Workshop-PART4_files/figure-html/plot_tsne-1.png)<!-- -->
 
 
-### uMAP dimensionality reduction plot.
+### UMAP dimensionality reduction plot.
 
 
 ```r
@@ -224,7 +224,7 @@ experiment.aggregate <- RunUMAP(
   dims = use.pcs)
 ```
 
-Plot uMap coloring by the slot 'ident' (default).
+Plot UMAP coloring by the slot 'ident' (default).
 
 ```r
 DimPlot(object = experiment.aggregate, pt.size=0.5, reduction = "umap", label = T)
