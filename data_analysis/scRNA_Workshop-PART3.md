@@ -8,7 +8,7 @@ output:
 
 Last Updated: December 7, 2022
 
-# Part 4: PCA and choice in number of PCS
+# Part 3: PCA and choice in number of PCS
 
 ## Load libraries
 

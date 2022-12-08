@@ -129,7 +129,7 @@ DimPlot(experiment.merged, group.by = "CellType", label = TRUE)
 ```
 
 ## Get the next Rmd file
-```{r getnextfile, eval=FALSE}
+```{r getnextfile, eval=TRUE}
 download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-December-Single-Cell-RNA-Seq-Analysis/main/data_analysis/scRNA_Workshop-PART6.Rmd", "scRNA_Workshop-PART6.Rmd")
 ```
 
