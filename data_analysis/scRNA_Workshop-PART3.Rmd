@@ -6,115 +6,102 @@ output:
       keep_md: TRUE
 ---
 
+Last Updated: December 7, 2022
 
-Last Updated: July 15, 2022
-
-# Part 3: Integrate multiple single cell samples / batch correction
-
-More and more experiments sequence more than one samples/datasets, such as the data from [Becker et al., 2022](https://www.nature.com/articles/s41588-022-01088-x) that we are using. It is important to properly integrate these datasets, and we will see the effect the integration has at the end of this documentation.
-
-Most of the methods that were developed to integrate single cell datasets fall into two categories. The first is the "anchor" based approach. In this approach, the first step is to select a batch as the "anchor" and convert other batches to the "anchor" batch. Among this approach, there are [MNN](https://github.com/MarioniLab/MNN2017), [iMAP](https://github.com/Svvord/iMAP), [SCALEX](https://github.com/jsxlei/SCALEX) and [Seurat's integration](https://www.cell.com/cell/fulltext/S0092-8674(19)30559-8). The advantage of this approach is that different batches of cells can be studied under the same experimental conditions, and the disadvantage is that it is not possible to fully combine the features of each batch because the cell types contained in each batch are unknown. The second approach is to transform all batches of data to a low-dimensional space to correct batch effects, such as implemented in [Scanorama](https://github.com/brianhie/scanorama), [Harmony](https://github.com/immunogenomics/harmony), [DESC](https://www.nature.com/articles/s41467-020-15851-3) and [BBKNN](https://github.com/Teichlab/bbknn). This second approach has the advantage of extracting biologically relevant latent features and reducing the impact of noise, but it cannot be used for differential gene expression analysis. Many of these existing methods work well when the batches of datasets have the same cell types, however, they fail when there are different cell types involved in different datasets. Very recently (earlier this year), a [new approach](https://www.mdpi.com/1422-0067/23/4/2082) has been developed that uses connected graphs and generative adversarial networks (GAN) to achieve the goal of eliminating nonbiological noise between batches of datasets. This new method has been demonstrated to work well both in the situation where datasets have the same cell types and in the situation where datasets may have different cell types.
-
-
-In this workshop, we are going to look at Seurat's integration approach. The basic idea is to identify cross-dataset pairs cells that are in a matched biological state ("anchors"), and use them to correct technical differences between datasets. The integration method we used has been implemented in Seurat and you can find the details of the method in [its publication](https://www.cell.com/cell/fulltext/S0092-8674(19)30559-8).
-
+# Part 4: PCA and choice in number of PCS
 
 ## Load libraries
-```{r libraries, warning=FALSE,error=FALSE,message=FALSE}
+```{r load_libraries, warning=FALSE,error=FALSE,message=FALSE}
 library(Seurat)
+library(biomaRt)
+library(knitr)
+library(ggplot2)
 ```
 
-## Load the Seurat object from the provided data and split to individual samples
-
-The provided data is raw data that has only gone through the filtering step.
-
-```{r download_rdata, eval=FALSE, warning=FALSE,error=FALSE,message=FALSE}
-download.file("https://bioshare.bioinformatics.ucdavis.edu/bioshare/download/feb28v7lew62um4/sample_filtered.RData", "sample_filtered.RData")
-```
-
-
+## Load the Seurat object
 ```{r load_rdata, warning=FALSE,error=FALSE,message=FALSE}
-load(file="sample_filtered.RData")
+load(file="pre_sample_corrected.RData")
 experiment.aggregate
-experiment.split <- SplitObject(experiment.aggregate, split.by = "ident")
 ```
 
-## Normalize and find variable features for each individual sample
+## Scale the data
 
-By default, we employ a global-scaling normalization method LogNormalize that normalizes the gene expression measurements for each cell by the total expression, multiplies this by a scale factor (10,000 by default), and then log-transforms the data.
+ScaleData - Scales and centers genes in the dataset. If variables are provided in vars.to.regress, they are individually regressed against each gene, and the resulting residuals are then scaled and centered unless otherwise specified. Here we regress out cell cycle results S.Score and G2M.Score, percentage mitochondria (percent.mito) and the number of features (nFeature_RNA).
 
-
-```{r normalize_help, eval=FALSE}
-?NormalizeData
+```{r scale_data, warning=FALSE,error=FALSE,message=FALSE}
+experiment.aggregate <- ScaleData(
+  object = experiment.aggregate,
+  vars.to.regress = c("S.Score", "G2M.Score", "percent.mito", "nFeature_RNA"))
 ```
 
-The function FindVariableFeatures identifies the most highly variable genes (default 2000 genes) by fitting a line to the relationship of log(variance) and log(mean) using loess smoothing, uses this information to standardize the data, then calculates the variance of the standardized data.  This helps avoid selecting genes that only appear variable due to their expression level.
+## Dimensionality reduction with PCA
 
+Next we perform PCA (principal components analysis) on the scaled data.  
 
-```{r, find_variable_genes_help, eval=FALSE}
-?FindVariableFeatures
+```{r pca_help, warning=FALSE,error=FALSE,message=FALSE, eval=FALSE}
+?RunPCA
 ```
 
-Now, let's carry out these two processes for each sample
-
-
-```{r, echo=TRUE, warning=FALSE, error=FALSE, message=FALSE}
-experiment.split <- lapply(X = experiment.split, FUN=function(x){
-  x <- NormalizeData(x)
-  x <- FindVariableFeatures(x, selection.method = "vst", nfeatures = 2000)
-})
+```{r pca, warning=FALSE,error=FALSE,message=FALSE}
+experiment.aggregate <- RunPCA(object = experiment.aggregate, npcs=100)
 ```
 
-## Select features that are repeatedly variable across samples and find integration anchors
+Seurat then provides a number of ways to visualize the PCA results
 
-```{r, echo=TRUE, warning=FALSE, error=FALSE, message=FALSE}
-features <- SelectIntegrationFeatures(object.list = experiment.split)
-anchors <- FindIntegrationAnchors(object.list = experiment.split, anchor.features = features)
+Visualize PCA loadings
+```{r viz_pca, warning=FALSE,error=FALSE,message=FALSE}
+VizDimLoadings(experiment.aggregate, dims = 1, ncol = 1) + theme_minimal(base_size = 8)
+VizDimLoadings(experiment.aggregate, dims = 2, ncol = 1) + theme_minimal(base_size = 8)
 ```
 
-
-## Perform integration
-
-```{r, echo=TRUE, warning=FALSE, error=FALSE, message=FALSE}
-experiment.integrated <- IntegrateData(anchorset = anchors)
+Principal components plot
+```{r plot_pca, warning=FALSE,error=FALSE,message=FALSE}
+DimPlot(object = experiment.aggregate, reduction = "pca")
 ```
 
+Draws a heatmap focusing on a principal component. Both cells and genes are sorted by their principal component scores. Allows for nice visualization of sources of heterogeneity in the dataset.
 
-#### Question(s)
+```{r heatmap_pca, warning=FALSE,error=FALSE,message=FALSE}
+DimHeatmap(object = experiment.aggregate, dims = 1:6, cells = 500, balanced = TRUE)
 
-1. Explore the object "experiment.integrated" to see what information is available.
-
-## PCA plot before integration
-
-```{r, echo=TRUE, warning=FALSE, error=FALSE, message=FALSE}
-experiment.test <- NormalizeData(object=experiment.integrated, assay="RNA")
-experiment.test <- ScaleData(object=experiment.test, assay="RNA")
-experiment.test <- FindVariableFeatures(object=experiment.test, assay="RNA")
-experiment.test <- RunPCA(object=experiment.test, assay="RNA")
-DimPlot(object = experiment.test, group.by="ident", reduction="pca", shuffle=TRUE)
+DimHeatmap(object = experiment.aggregate, dims = 7:12, cells = 500, balanced = TRUE)
 ```
 
-## PCA plot after integration
+#### Questions
 
-```{r, echo=TRUE, warning=FALSE, error=FALSE, message=FALSE}
-experiment.test <- ScaleData(object=experiment.integrated, assay="integrated")
-experiment.test <- FindVariableFeatures(object=experiment.test, assay="integrated")
-experiment.test <- RunPCA(object=experiment.test, assay="integrated")
-DimPlot(object = experiment.test, group.by="ident", reduction="pca", shuffle=TRUE)
+1. Go back to the original data (rerun the load RData section) and then try modifying the ScaleData vars.to.regres, remove some variables, try adding in orig.ident? See how choices effect the pca plot
+
+### Selecting which PCs to use
+To overcome the extensive technical noise in any single gene, Seurat clusters cells based on their PCA scores, with each PC essentially representing a metagene that combines information across a correlated gene set. Determining how many PCs to include downstream is therefore an important step.
+
+ElbowPlot plots the standard deviations (or approximate singular values if running PCAFast) of the principle components for easy identification of an elbow in the graph. This elbow often corresponds well with the significant PCs and is much faster to run.  This is the traditional approach to selecting principal components.
+
+```{r elbow, warning=FALSE,error=FALSE,message=FALSE}
+ElbowPlot(experiment.aggregate, ndims = 100)
 ```
 
-## Save the integrated data
+The JackStraw function randomly permutes a subset of data, and calculates projected PCA scores for these 'random' genes, then compares the PCA scores for the 'random' genes with the observed PCA scores to determine statistical signifance. End result is a p-value for each gene's association with each principal component. We identify significant PCs as those who have a strong enrichment of low p-value genes.
 
-```{r save, eval=TRUE}
-save(experiment.integrated, file="sample_integrated.RData")
+```{r jackstraw, warning=FALSE,error=FALSE,message=FALSE}
+experiment.aggregate <- JackStraw(object = experiment.aggregate, dims = 100)
+```
+
+```{r plot_jackstraw, warning=FALSE,error=FALSE,message=FALSE, fig.width=10, fig.height=12, warning=FALSE}
+experiment.aggregate <- ScoreJackStraw(experiment.aggregate, dims = 1:100)
+JackStrawPlot(object = experiment.aggregate, dims = 1:100) + theme(legend.position="bottom")
+```
+
+## Finally, lets save the filtered and normalized data
+```{r save_rdata, eval=TRUE}
+save(experiment.aggregate, file="pca_sample_corrected.RData")
 ```
 
 ## Get the next Rmd file
 ```{r get_next_rmd, eval=TRUE}
-download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-July-Single-Cell-RNA-Seq-Analysis/main/data_analysis/scRNA_Workshop-PART4.Rmd", "scRNA_Workshop-PART4.Rmd")
+download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-December-Single-Cell-RNA-Seq-Analysis/main/data_analysis/scRNA_Workshop-PART4.Rmd", "scRNA_Workshop-PART4.Rmd")
 ```
 
 ## Session Information
-```{r sessioninfo}
+```{r session_info}
 sessionInfo()
 ```
