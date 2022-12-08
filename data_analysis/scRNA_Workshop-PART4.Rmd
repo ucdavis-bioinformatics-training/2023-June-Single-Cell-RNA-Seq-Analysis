@@ -6,99 +6,417 @@ output:
       keep_md: TRUE
 ---
 
-Last Updated: July 15, 2022
+Last Updated: December 8, 2022
 
-# Part 4: PCA and choice in number of PCS
+# Part 4: Clustering
 
 ## Load libraries
 ```{r load_libraries, warning=FALSE,error=FALSE,message=FALSE}
 library(Seurat)
-library(biomaRt)
-library(knitr)
 library(ggplot2)
+library(dplyr)
 ```
 
 ## Load the Seurat object
 ```{r load_rdata, warning=FALSE,error=FALSE,message=FALSE}
-load(file="pre_sample_corrected.RData")
+load(file="pca_sample_corrected.RData")
 experiment.aggregate
 ```
 
-## Scale the data
 
-ScaleData - Scales and centers genes in the dataset. If variables are provided in vars.to.regress, they are individually regressed against each gene, and the resulting residuals are then scaled and centered unless otherwise specified. Here we regress out cell cycle results S.Score and G2M.Score, percentage mitochondria (percent.mito) and the number of features (nFeature_RNA).
+## So how many features should we use? Use too few and your leaving out interesting variation that may define cell types, use too many and you add in noise? maybe?
 
-```{r scale_data, warning=FALSE,error=FALSE,message=FALSE}
-experiment.aggregate <- ScaleData(
+Lets choose the first 25, based on our prior part.
+
+```{r use_pcs, warning=FALSE,error=FALSE,message=FALSE}
+use.pcs = 1:25
+```
+
+## Identifying clusters
+
+Seurat implements an graph-based clustering approach. Distances between the cells are calculated based on previously identified PCs. 
+
+The default method for identifying k-nearest neighbors has been changed in V4 to [annoy](https://github.com/spotify/annoy) ("Approximate Nearest Neighbors Oh Yeah!). This is an approximate nearest-neighbor approach that is widely used for high-dimensional analysis in many fields, including single-cell analysis. Extensive community benchmarking has shown that annoy substantially improves the speed and memory requirements of neighbor discovery, with negligible impact to downstream results. 
+
+
+
+Seurat prior approach was heavily inspired by recent manuscripts which applied graph-based clustering approaches to scRNAseq data. Briefly, Seurat identified clusters of cells by a shared nearest neighbor (SNN) modularity optimization based clustering algorithm. First calculate k-nearest neighbors (KNN) and construct the SNN graph. Then optimize the modularity function to determine clusters. For a full description of the algorithms, see Waltman and van Eck (2013) The European Physical Journal B. You can switch back to using the previous default setting using nn.method="rann".
+
+
+The FindClusters function implements the neighbor based clustering procedure, and contains a resolution parameter that sets the granularity of the downstream clustering, with increased values leading to a greater number of clusters. I tend to like to perform a series of resolutions, investigate and choose.
+
+```{r find_neighbors_help, eval=FALSE}
+?FindNeighbors
+```
+
+```{r find_neighbors, warning=FALSE,error=FALSE,message=FALSE}
+experiment.aggregate <- FindNeighbors(experiment.aggregate, reduction="pca", dims = use.pcs)
+
+experiment.aggregate <- FindClusters(
+    object = experiment.aggregate,
+    resolution = seq(0.25,4,0.5),
+    verbose = FALSE
+)
+```
+
+
+Seurat add the clustering information to the metadata beginning with RNA_snn_res. followed by the resolution
+
+```{r cluster_metadata, warning=FALSE,error=FALSE,message=FALSE}
+head(experiment.aggregate[[]])
+```
+
+
+Lets first investigate how many clusters each resolution produces and set it to the smallest resolutions of 0.5 (fewest clusters).
+
+```{r clusters_per_res, warning=FALSE,error=FALSE,message=FALSE}
+sapply(grep("res",colnames(experiment.aggregate@meta.data),value = TRUE),
+       function(x) length(unique(experiment.aggregate@meta.data[,x])))
+```
+
+### Plot TSNE coloring for each resolution
+
+tSNE dimensionality reduction plots are then used to visualize clustering results. As input to the tSNE, you should use the same PCs as input to the clustering analysis.
+
+```{r create_tsne, warning=FALSE,error=FALSE,message=FALSE}
+experiment.aggregate <- RunTSNE(
   object = experiment.aggregate,
-  vars.to.regress = c("S.Score", "G2M.Score", "percent.mito", "nFeature_RNA"))
+  reduction.use = "pca",
+  dims = use.pcs,
+  do.fast = TRUE)
 ```
 
-## Dimensionality reduction with PCA
 
-Next we perform PCA (principal components analysis) on the scaled data.  
-
-```{r pca_help, warning=FALSE,error=FALSE,message=FALSE, eval=FALSE}
-?RunPCA
+```{r tsne_all_1, warning=FALSE,error=FALSE,message=FALSE, fig.height=10}
+DimPlot(object = experiment.aggregate, group.by=grep("res",colnames(experiment.aggregate@meta.data),value = TRUE)[1:4], ncol=2 , pt.size=3.0, reduction = "tsne", label = T)
 ```
 
-```{r pca, warning=FALSE,error=FALSE,message=FALSE}
-experiment.aggregate <- RunPCA(object = experiment.aggregate, npcs=100)
+```{r tsne_all_2, warning=FALSE,error=FALSE,message=FALSE, fig.height=10}
+DimPlot(object = experiment.aggregate, group.by=grep("res",colnames(experiment.aggregate@meta.data),value = TRUE)[5:8], ncol=2 , pt.size=3.0, reduction = "tsne", label = T)
 ```
 
-Seurat then provides a number of ways to visualize the PCA results
+1. Try exploring different PCS, so first 5, 10, 15, we used 25, what about 100? How does the clustering change?
 
-Visualize PCA loadings
-```{r viz_pca, warning=FALSE,error=FALSE,message=FALSE}
-VizDimLoadings(experiment.aggregate, dims = 1, ncol = 1) + theme_minimal(base_size = 8)
-VizDimLoadings(experiment.aggregate, dims = 2, ncol = 1) + theme_minimal(base_size = 8)
+Once complete go back to 1:25
+
+### Choosing a resolution
+
+Lets set the default identity to a resolution of 1.25 and produce a table of cluster to sample assignments.
+```{r cells_per_res_sample, warning=FALSE,error=FALSE,message=FALSE}
+Idents(experiment.aggregate) <- "RNA_snn_res.1.25"
+table(Idents(experiment.aggregate),experiment.aggregate$orig.ident)
 ```
 
-Principal components plot
-```{r plot_pca, warning=FALSE,error=FALSE,message=FALSE}
-DimPlot(object = experiment.aggregate, reduction = "pca")
+Plot TSNE coloring by the slot 'ident' (default).
+```{r plot_tsne, warning=FALSE,error=FALSE,message=FALSE}
+DimPlot(object = experiment.aggregate, pt.size=0.5, reduction = "tsne", label = T)
 ```
 
-Draws a heatmap focusing on a principal component. Both cells and genes are sorted by their principal component scores. Allows for nice visualization of sources of heterogeneity in the dataset.
 
-```{r heatmap_pca, warning=FALSE,error=FALSE,message=FALSE}
-DimHeatmap(object = experiment.aggregate, dims = 1:6, cells = 500, balanced = TRUE)
+### uMAP dimensionality reduction plot.
 
-DimHeatmap(object = experiment.aggregate, dims = 7:12, cells = 500, balanced = TRUE)
+```{r umap, warning=FALSE,error=FALSE,message=FALSE}
+experiment.aggregate <- RunUMAP(
+  object = experiment.aggregate,
+  dims = use.pcs)
 ```
 
-#### Questions
-
-1. Go back to the original data (rerun the load RData section) and then try modifying the ScaleData vars.to.regres, remove some variables, try adding in orig.ident? See how choices effect the pca plot
-
-### Selecting which PCs to use
-To overcome the extensive technical noise in any single gene, Seurat clusters cells based on their PCA scores, with each PC essentially representing a metagene that combines information across a correlated gene set. Determining how many PCs to include downstream is therefore an important step.
-
-ElbowPlot plots the standard deviations (or approximate singular values if running PCAFast) of the principle components for easy identification of an elbow in the graph. This elbow often corresponds well with the significant PCs and is much faster to run.  This is the traditional approach to selecting principal components.
-
-```{r elbow, warning=FALSE,error=FALSE,message=FALSE}
-ElbowPlot(experiment.aggregate, ndims = 100)
+Plot uMap coloring by the slot 'ident' (default).
+```{r plot_umap, warning=FALSE,error=FALSE,message=FALSE}
+DimPlot(object = experiment.aggregate, pt.size=0.5, reduction = "umap", label = T)
 ```
 
-The JackStraw function randomly permutes a subset of data, and calculates projected PCA scores for these 'random' genes, then compares the PCA scores for the 'random' genes with the observed PCA scores to determine statistical signifance. End result is a p-value for each gene's association with each principal component. We identify significant PCs as those who have a strong enrichment of low p-value genes.
+Catagorical data can be plotted using the DimPlot function.
 
-```{r jackstraw, warning=FALSE,error=FALSE,message=FALSE}
-experiment.aggregate <- JackStraw(object = experiment.aggregate, dims = 100)
+
+TSNE plot by cell cycle
+```{r plot_cellcycle, warning=FALSE,error=FALSE,message=FALSE}
+DimPlot(object = experiment.aggregate, pt.size=0.5, group.by = "Phase", reduction = "umap")
 ```
 
-```{r plot_jackstraw, warning=FALSE,error=FALSE,message=FALSE, fig.width=10, fig.height=12, warning=FALSE}
-experiment.aggregate <- ScoreJackStraw(experiment.aggregate, dims = 1:100)
-JackStrawPlot(object = experiment.aggregate, dims = 1:100) + theme(legend.position="bottom")
+1. Try creating a table, of cluster x cell cycle
+
+### Can use feature plot to plot our read valued metadata, like nUMI, Feature count, and percent Mito
+FeaturePlot can be used to color cells with a 'feature', non categorical data, like number of UMIs
+```{r plot_rna, warning=FALSE,error=FALSE,message=FALSE}
+FeaturePlot(experiment.aggregate, features = c('nCount_RNA'), pt.size=0.5)
 ```
 
-## Finally, lets save the filtered and normalized data
+and number of genes present
+```{r plot_feature, warning=FALSE,error=FALSE,message=FALSE}
+FeaturePlot(experiment.aggregate, features = c('nFeature_RNA'), pt.size=0.5)
+```
+
+percent mitochondrial
+```{r plot_mito, warning=FALSE,error=FALSE,message=FALSE}
+FeaturePlot(experiment.aggregate, features = c('percent.mito'), pt.size=0.5)
+```
+
+## Building a phylogenetic tree relating the 'average' cell from each group in default 'Ident' (currently "RNA_snn_res.1.25"). Tree is estimated based on a distance matrix constructed in either gene expression space or PCA space.
+
+```{r create_tree, warning=FALSE,error=FALSE,message=FALSE}
+Idents(experiment.aggregate) <- "RNA_snn_res.1.25"
+experiment.aggregate <- BuildClusterTree(
+  experiment.aggregate, dims = use.pcs)
+
+PlotClusterTree(experiment.aggregate)
+```
+
+
+1. Create new trees of other data
+
+Once complete go back to Res 1.25
+
+```{r umap_plot2, warning=FALSE,error=FALSE,message=FALSE}
+DimPlot(object = experiment.aggregate, pt.size=0.5, label = TRUE, reduction = "umap")
+DimPlot(experiment.aggregate, pt.size = 0.5, label = TRUE, reduction = "tsne")
+```
+
+### Merging clusters
+
+Merge Clustering results, so lets say clusters 0,  and 21 are actually the same cell type and we don't wish to separate them out as distinct clusters. Same with 3, and 25.
+
+```{r merging_cluster, warning=FALSE,error=FALSE,message=FALSE}
+experiment.merged = experiment.aggregate
+Idents(experiment.merged) <- "RNA_snn_res.1.25"
+
+experiment.merged <- RenameIdents(
+  object = experiment.merged,
+  '21' = '0',
+  '25' = '3'
+)
+
+table(Idents(experiment.merged))
+DimPlot(object = experiment.merged, pt.size=0.5, label = T, reduction = "umap")
+DimPlot(experiment.merged, pt.size = 0.5, label = TRUE, reduction = "tsne" )
+VlnPlot(object = experiment.merged, features = "percent.mito", pt.size = 0.05)
+```
+
+### Reordering the clusters
+
+In order to reorder the clusters for plotting purposes take a look at the levels of the Ident, which indicates the ordering, then relevel as desired.
+
+```{r merging_cluster2, warning=FALSE,error=FALSE,message=FALSE}
+experiment.examples <- experiment.merged
+levels(experiment.examples@active.ident)
+
+experiment.examples@active.ident <- relevel(experiment.examples@active.ident, "12")
+levels(experiment.examples@active.ident)
+# now cluster 12 is the "first" factor
+
+DimPlot(object = experiment.examples, pt.size=0.5, label = T, reduction = "umap")
+VlnPlot(object = experiment.examples, features = "percent.mito", pt.size = 0.05)
+```
+
+
+```{r merging_cluster3, warning=FALSE,error=FALSE,message=FALSE}
+# relevel all the factors to the order I want
+neworder <- sample(levels(experiment.examples), replace=FALSE)
+Idents(experiment.examples) <- factor(experiment.examples@active.ident, levels=neworder)
+levels(experiment.examples@active.ident)
+
+DimPlot(object = experiment.examples, pt.size=0.5, label = T, reduction = "umap")
+VlnPlot(object = experiment.examples, features = "percent.mito", pt.size = 0.05)
+```
+
+
+### Re-assign clustering result (subclustering only cluster 0) to clustering for resolution 3.75  (@ reslution 0.25) [adding a R prefix]
+```{r subclusters, warning=FALSE,error=FALSE,message=FALSE}
+newIdent = as.character(Idents(experiment.examples))
+newIdent[newIdent == '0'] = paste0("R",as.character(experiment.examples$RNA_snn_res.3.75[newIdent == '0']))
+
+Idents(experiment.examples) <- as.factor(newIdent)
+table(Idents(experiment.examples))
+```
+
+```{r subclusters_plot, warning=FALSE,error=FALSE,message=FALSE}
+DimPlot(object = experiment.examples, pt.size=0.5, label = T, reduction = "umap")
+```
+
+Plot UMAP  coloring by the slot 'orig.ident' (sample names) with alpha colors turned on. A pretty picture
+```{r pretty_pre, warning=FALSE,error=FALSE,message=FALSE}
+DimPlot(object = experiment.aggregate, group.by="orig.ident", pt.size=0.5, reduction = "umap", shuffle = TRUE)
+```
+
+
+```{r pretty_post, warning=FALSE,error=FALSE,message=FALSE}
+## Pretty umap using alpha
+alpha.use <- 2/5
+p <- DimPlot(object = experiment.aggregate, group.by="orig.ident", pt.size=0.5, reduction = "umap", shuffle = TRUE)
+p$layers[[1]]$mapping$alpha <- alpha.use
+p + scale_alpha_continuous(range = alpha.use, guide = F)
+
+```
+
+Removing cells assigned to clusters from a plot, So here plot all clusters but cluster 23 (contaminant?)
+```{r removing_cells, warning=FALSE,error=FALSE,message=FALSE}
+# create a new tmp object with those removed
+experiment.aggregate.tmp <- experiment.aggregate[,-which(Idents(experiment.aggregate) %in% c("23"))]
+
+dim(experiment.aggregate)
+dim(experiment.aggregate.tmp)
+```
+
+
+```{r removing_cells_plot, warning=FALSE,error=FALSE,message=FALSE}
+DimPlot(object = experiment.aggregate.tmp, pt.size=0.5, reduction = "umap", label = T)
+```
+
+## Identifying Marker Genes
+
+Seurat can help you find markers that define clusters via differential expression.
+
+`FindMarkers` identifies markers for a cluster relative to all other clusters.
+
+`FindAllMarkers` does so for all clusters
+
+`FindAllMarkersNode` defines all markers that split a Node from the cluster tree
+
+```{r find_markers_help, warning=FALSE,error=FALSE,message=FALSE}
+?FindMarkers
+```
+
+```{r find_markers, warning=FALSE,error=FALSE,message=FALSE}
+markers = FindMarkers(experiment.aggregate, ident.1=c(4,13), ident.2 = c(6,7))
+
+head(markers)
+dim(markers)
+table(markers$avg_log2FC > 0)
+table(markers$p_val_adj < 0.05 & markers$avg_log2FC > 0)
+```
+
+
+pct.1 and pct.2 are the proportion of cells with expression above 0 in ident.1 and ident.2 respectively. p_val is the raw p_value associated with the differntial expression test with adjusted value in p_val_adj. avg_logFC is the average log fold change difference between the two groups.
+
+
+Can use a violin plot to visualize the expression pattern of some markers
+```{r vln, warning=FALSE,error=FALSE,message=FALSE}
+VlnPlot(object = experiment.aggregate, features = rownames(markers)[1:2], pt.size = 0.05)
+```
+
+Or a feature plot
+```{r gene_feature, warning=FALSE,error=FALSE,message=FALSE}
+FeaturePlot(
+    experiment.aggregate,
+    features = c("KCNMA1", "LEFTY1"),
+    cols = c("lightgrey", "blue"),
+    ncol = 2
+)
+```
+
+FindAllMarkers can be used to automate the process across all genes.
+
+```{r find_all_markers, warning=FALSE,error=FALSE,message=FALSE}
+markers_all <- FindAllMarkers(
+    object = experiment.merged,
+    only.pos = TRUE,
+    min.pct = 0.25,
+    thresh.use = 0.25
+)
+dim(markers_all)
+head(markers_all)
+table(table(markers_all$gene))
+
+markers_all_single <- markers_all[markers_all$gene %in% names(table(markers_all$gene))[table(markers_all$gene) == 1],]
+
+dim(markers_all_single)
+table(table(markers_all_single$gene))
+
+table(markers_all_single$cluster)
+
+head(markers_all_single)
+```
+
+Plot a heatmap of genes by cluster for the top 10 marker genes per cluster
+```{r markers_head, warning=FALSE,error=FALSE,message=FALSE, fig.height=7}
+top10 <- markers_all_single %>% group_by(cluster) %>% top_n(10, avg_log2FC)
+DoHeatmap(
+    object = experiment.merged,
+    features = top10$gene
+)
+```
+
+```{r get_means, warning=FALSE,error=FALSE,message=FALSE}
+# Get expression of genes for cells in and out of each cluster
+getGeneClusterMeans <- function(gene, cluster){
+  x <- GetAssayData(experiment.merged)[gene,]
+  m <- tapply(x, ifelse(Idents(experiment.merged) == cluster, 1, 0), mean)
+  mean.in.cluster <- m[2]
+  mean.out.of.cluster <- m[1]
+  return(list(mean.in.cluster = mean.in.cluster, mean.out.of.cluster = mean.out.of.cluster))
+}
+
+## for sake of time only using first six (head)
+means <- mapply(getGeneClusterMeans, head(markers_all[,"gene"]), head(markers_all[,"cluster"]))
+means <- matrix(unlist(means), ncol = 2, byrow = T)
+
+colnames(means) <- c("mean.in.cluster", "mean.out.of.cluster")
+rownames(means) <- head(markers_all[,"gene"])
+markers_all2 <- cbind(head(markers_all), means)
+head(markers_all2)
+```
+
+## Finishing up clusters.
+
+At this point in time you should use the tree, markers, domain knowledge, and goals to finalize your clusters. This may mean adjusting PCA to use, mergers clusters together, choosing a new resolutions, etc. When finished you can further name it cluster by something more informative. Ex.
+```{r finish_cluster, warning=FALSE,error=FALSE,message=FALSE}
+experiment.clusters <- experiment.aggregate
+experiment.clusters <- RenameIdents(
+  object = experiment.clusters,
+  '0' = 'cell_type_A',
+  '1' = 'cell_type_B',
+  '2' = 'cell_type_C'
+)
+# and so on
+
+DimPlot(object = experiment.clusters, pt.size=0.5, label = T, reduction = "tsne")
+```
+
+Right now our results ONLY exist in the Ident data object, lets save it to our metadata table so we don't accidentally loose it.
+```{r save_cluster, warning=FALSE,error=FALSE,message=FALSE}
+experiment.merged$finalcluster <- Idents(experiment.merged)
+head(experiment.merged[[]])
+table(experiment.merged$finalcluster, experiment.merged$orig.ident)
+```
+
+## Subsetting samples and plotting
+
+If you want to look at the representation of just one sample, or sets of samples
+```{r subset, warning=FALSE,error=FALSE,message=FALSE}
+experiment.sample1 <- subset(experiment.merged, orig.ident == "A001-C-007")
+
+DimPlot(object = experiment.sample1, group.by = "RNA_snn_res.0.25", pt.size=0.5, label = TRUE, reduction = "tsne")
+```
+
+### Adding in a new metadata column representing samples within clusters. So differential expression of A001-C-007 vs B001-A-301 within cluster 0
+
+```{r, warning=FALSE,error=FALSE,message=FALSE, fig.height=7}
+experiment.merged$samplecluster = paste(experiment.merged$orig.ident,experiment.merged$finalcluster,sep = '_')
+
+# set the identity to the new variable
+Idents(experiment.merged) <- "samplecluster"
+
+markers.comp <- FindMarkers(experiment.merged, ident.1 = c("A001-C-007_12", "A001-C-104_12"), ident.2= "B001-A-301_12")
+
+head(markers.comp)
+
+experiment.subset <- subset(experiment.merged, samplecluster %in%  c( "A001-C-007_12", "A001-C-104_12", "B001-A-301_12" ))
+DoHeatmap(object = experiment.subset, features = head(rownames(markers.comp),20))
+```
+
+
+```{r change_back_to_final, warning=FALSE,error=FALSE,message=FALSE}
+Idents(experiment.merged) <- "finalcluster"
+```
+
+And last lets save all the Seurat objects in our session.
 ```{r save_rdata, eval=TRUE}
-save(experiment.aggregate, file="pca_sample_corrected.RData")
+save(list=grep('experiment', ls(), value = TRUE), file="clusters_seurat_object.RData")
 ```
 
 ## Get the next Rmd file
-```{r get_next_rmd, eval=TRUE}
-download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-July-Single-Cell-RNA-Seq-Analysis/main/data_analysis/scRNA_Workshop-PART5.Rmd", "scRNA_Workshop-PART5.Rmd")
+```{r get_next_rmd, eval=FALSE}
+download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-December-Single-Cell-RNA-Seq-Analysis/main/data_analysis/scRNA_Workshop-PART5.Rmd", "scRNA_Workshop-PART5.Rmd")
 ```
 
 ## Session Information

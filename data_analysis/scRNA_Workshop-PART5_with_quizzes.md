@@ -6,6 +6,79 @@ output:
       keep_md: TRUE
 ---
 
+<script>
+function buildQuiz(myq, qc){
+  // variable to store the HTML output
+  const output = [];
+
+  // for each question...
+  myq.forEach(
+    (currentQuestion, questionNumber) => {
+
+      // variable to store the list of possible answers
+      const answers = [];
+
+      // and for each available answer...
+      for(letter in currentQuestion.answers){
+
+        // ...add an HTML radio button
+        answers.push(
+          `<label>
+            <input type="radio" name="question${questionNumber}" value="${letter}">
+            ${letter} :
+            ${currentQuestion.answers[letter]}
+          </label><br/>`
+        );
+      }
+
+      // add this question and its answers to the output
+      output.push(
+        `<div class="question"> ${currentQuestion.question} </div>
+        <div class="answers"> ${answers.join('')} </div><br/>`
+      );
+    }
+  );
+
+  // finally combine our output list into one string of HTML and put it on the page
+  qc.innerHTML = output.join('');
+}
+
+function showResults(myq, qc, rc){
+
+  // gather answer containers from our quiz
+  const answerContainers = qc.querySelectorAll('.answers');
+
+  // keep track of user's answers
+  let numCorrect = 0;
+
+  // for each question...
+  myq.forEach( (currentQuestion, questionNumber) => {
+
+    // find selected answer
+    const answerContainer = answerContainers[questionNumber];
+    const selector = `input[name=question${questionNumber}]:checked`;
+    const userAnswer = (answerContainer.querySelector(selector) || {}).value;
+
+    // if answer is correct
+    if(userAnswer === currentQuestion.correctAnswer){
+      // add to the number of correct answers
+      numCorrect++;
+
+      // color the answers green
+      answerContainers[questionNumber].style.color = 'lightgreen';
+    }
+    // if answer is wrong or blank
+    else{
+      // color the answers red
+      answerContainers[questionNumber].style.color = 'red';
+    }
+  });
+
+  // show number of correct answers out of total
+  rc.innerHTML = `${numCorrect} out of ${myq.length}`;
+}
+</script>
+
 # Part 5: Enrichment, Model-Based DE, and Cell-Type Identification
 
 
@@ -95,6 +168,59 @@ names(geneList) <- all.genes
 * Significant: number of genes that are annotated with that GO term and meet our criteria for "expressed"
 * Expected: Under random chance, number of genes that would be expected to be annotated with that GO term and meeting our criteria for "expressed"
 * Fisher: (Raw) p-value from Fisher's Exact Test
+
+## Quiz 1
+
+<div id="quiz1" class="quiz"></div>
+<button id="submit1">Submit Quiz</button>
+<div id="results1" class="output"></div>
+<script>
+quizContainer1 = document.getElementById('quiz1');
+resultsContainer1 = document.getElementById('results1');
+submitButton1 = document.getElementById('submit1');
+
+myQuestions1 = [
+  {
+    question: "What GO term is most significantly enriched for genes expressed in cluster 12?",
+    answers: {
+      a: "T cell receptor signaling pathway",
+      b: "cytoplasmic translation",
+      c: "protein folding",
+      d: "ribosomal large subunit biogenesis"
+    },
+    correctAnswer: "a"
+  },
+  {
+    question: "How many genes annotated with the top GO term are expressed in cluster 12?",
+    answers: {
+      a: "114",
+      b: "0.24",
+      c: "0",
+      d: "4"
+    },
+    correctAnswer: "d"
+  },
+  {
+    question: "How many expressed genes would be expected to be annotated with the top GO term under random chance?",
+    answers: {
+      a: "114",
+      b: "0.24",
+      c: "0",
+      d: "4"
+    },
+    correctAnswer: "b"
+  }
+];
+
+buildQuiz(myQuestions1, quizContainer1);
+submitButton1.addEventListener('click', function() {showResults(myQuestions1, quizContainer1, resultsContainer1);});
+</script>
+
+## Challenge Questions 
+If you have extra time:
+
+1. Rerun the enrichment analysis for the molecular function (MF) ontology.
+2. Think about how you write code to repeat the above enrichment analysis for every cluster (hint: ?base::sapply).
 
 # 2. Model-based DE analysis in limma
 [limma](https://bioconductor.org/packages/release/bioc/html/limma.html) is an R package for differential expression analysis of bulk RNASeq and microarray data.  We apply it here to single cell data.
@@ -220,6 +346,52 @@ head(out, 30)
 * adj.P.Val: Benjamini-Hochberg false discovery rate adjusted p-value
 * B: log-odds that gene is DE 
 
+## Quiz 2
+
+<div id="quiz2" class="quiz"></div>
+<button id="submit2">Submit Quiz</button>
+<div id="results2" class="output"></div>
+<script>
+quizContainer2 = document.getElementById('quiz2');
+resultsContainer2 = document.getElementById('results2');
+submitButton2 = document.getElementById('submit2');
+
+myQuestions2 = [
+  {
+    question: "How many genes have adj.P.Val < 0.05?",
+    answers: {
+      a: "125",
+      b: "131",
+      c: "0",
+      d: "100"
+    },
+    correctAnswer: "a"
+  },
+  {
+    question: "How many genes are significantly (adj.P.Val < 0.05) downregulated in B001-A-301 relative to A001-C-007?",
+    answers: {
+      a: "53",
+      b: "65",
+      c: "0",
+      d: "24"
+    },
+    correctAnswer: "a"
+  },
+  {
+    question: "Revise the code to test 'A001-C-007' - 'A001-C-104'.  How many genes are differentially expressed between these groups? (adj.P.Val < 0.05)?  (Hint: ?makeContrasts)",
+    answers: {
+      a: "0",
+      b: "36",
+      c: "283",
+      d: "27"
+    },
+    correctAnswer: "b"
+  }
+];
+
+buildQuiz(myQuestions2, quizContainer2);
+submitButton2.addEventListener('click', function() {showResults(myQuestions2, quizContainer2, resultsContainer2);});
+</script>
 
 
 # BONUS: Cell type identification with scMRMA
@@ -310,7 +482,7 @@ table(experiment.merged$CellType, experiment.merged$finalcluster)
 DimPlot(experiment.merged, group.by = "CellType", label = TRUE)
 ```
 
-![](scRNA_Workshop-PART5_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
+![](scRNA_Workshop-PART5_with_quizzes_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
 
 ## Get the next Rmd file
 

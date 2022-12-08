@@ -76,6 +76,10 @@ if (!any(rownames(installed.packages()) == "remotes")){
   utils::install.packages("remotes")
 }
 
+if (!any(rownames(installed.packages()) == "ape")){
+  utils::install.packages("ape")
+}
+
 if (!any(rownames(installed.packages()) == "DoubletFinder")){
   remotes::install_github('chris-mcginnis-ucsf/DoubletFinder')
 }
