@@ -489,6 +489,12 @@ Section: [samples]
 
 ### Bonus 2: Data preprocessing for Parse Biosciences
 
+<div class="figure" style="text-align: center">
+<img src="figures/ParseBio.png" alt="Workflow of Parse Biosciences single cell" width="65%" />
+<p class="caption">Workflow of Parse Biosciences</p>
+</div>
+
+
 #### Advantages
 
 * scalable experiments: 10K to 1M cells in a single experiment
