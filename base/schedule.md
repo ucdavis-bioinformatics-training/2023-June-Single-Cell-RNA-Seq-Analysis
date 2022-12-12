@@ -22,7 +22,7 @@ All posted times are **Pacific** time zone. At least one break will be provided 
 |**9:00 am**  | Single Cell library prep talk by Dr. Hong Qiu from the DNATech Core
 |**10:00 am**  | Intro 2 R |
 |**11:00 am**  | Installing R Packages |
-|**11:30 am**  | PerkinElmer Sponsor Talk |
+|**11:30 am**  | Parse BioSciences Sponsor Talk |
 |**12:00 pm**  | Lunch |
 |**1:00 pm**  | Data setup |
 |**1:30 pm**   | Data Analysis Parts 1 - 2  |
@@ -33,7 +33,6 @@ All posted times are **Pacific** time zone. At least one break will be provided 
 |:----------- |:------------------- |
 |**8:50 am**  | Zoom session starts |
 |**9:00 am**   | Data Analysis Parts 3 - 4  |
-|**11:30 am**  | Parse BioSciences Sponsor Talk |
 |**12:00 pm**  | Lunch |
 |**1:00 pm**   | Data Analysis Parts 5 - 7  |
 |**4:30 pm** | Zoom session ends |
