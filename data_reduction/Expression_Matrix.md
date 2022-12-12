@@ -517,6 +517,19 @@ call="split-pipe \
 --fq2 $R2 \
 --output_dir $alnP/$SAMPLE"
 
+The "sample_plate.txt" has two columns separated by whitespace. The first column is the sample ID/name and the second column is the plate ID. An example is show below:
+
+S1 A1-A4
+S2 A5-A8
+S3 A9-A12
+S4 B1-B4
+S5 B5-B8
+S6 B9-B12
+S7 C1-C4
+S8 C5-C8
+S9 C9-C12
+
+
 
 * Step 2: Combining multiple sublibraries
 
@@ -525,5 +538,7 @@ call="split-pipe --mode comb --nthreads 20 \
 --output_dir $outP \
 --genome_dir $refP/Mus_musculus_splitpipe"
 
+
+The output of the two steps include three items per sample: a "analysis_summary.csv" file, a "analysis_summary.html", and a folder that includes all relevant results. The most important results are in DGE_filtered subfolder, which includes "all_genes.csv", "cell_metatdata.csv", and "DGE.mtx". These results can be read into Seurat using ReadParseBio function.
 
 ---
