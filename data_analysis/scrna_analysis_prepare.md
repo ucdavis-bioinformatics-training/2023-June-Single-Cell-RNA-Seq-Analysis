@@ -68,10 +68,6 @@ if (!any(rownames(installed.packages()) == "topGO")){
   BiocManager::install("topGO")
 }
 
-if (!any(rownames(installed.packages()) == "scran")){
-  BiocManager::install("scran")
-}
-
 if (!any(rownames(installed.packages()) == "remotes")){
   utils::install.packages("remotes")
 }
@@ -99,7 +95,6 @@ library(biomaRt)
 library(limma)
 library(topGO)
 library(org.Hs.eg.db)
-library(scran)
 
 sessionInfo()
 ```
