@@ -176,7 +176,7 @@ DimPlot(object = experiment.data, pt.size=0.5, reduction = "umap", label = T)
 sweep.res <- paramSweep_v3(experiment.data, PCs = 1:20, sct = FALSE)
 sweep.stats <- summarizeSweep(sweep.res, GT = FALSE)
 bcmvn <- find.pK(sweep.stats)
-pK.set <- unique(sweep.stats$pK)[2]
+pK.set <- unique(sweep.stats$pK)[3]
 ```
 <br>
 
@@ -201,7 +201,7 @@ experiment.data <- doubletFinder_v3(experiment.data, PCs = 1:20, pN = 0.25, pK =
 ## Remove doublets
 
 
-```{r doubletfinder-remove, eval=TRUE, warning=FALSE,error=FALSE,message=FALSE}
+```{r doubletfinder-remove, eval=FALSE, warning=FALSE,error=FALSE,message=FALSE}
 experiment.data <- subset(experiment.data,  DF.classifications_0.25_0.02_142 == "Singlet")
 ```
 
