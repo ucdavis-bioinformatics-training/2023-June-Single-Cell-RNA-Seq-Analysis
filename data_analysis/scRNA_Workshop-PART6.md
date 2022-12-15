@@ -527,6 +527,21 @@ experiment.data <- doubletFinder_v3(experiment.data, PCs = 1:20, pN = 0.25, pK =
 experiment.data <- subset(experiment.data,  DF.classifications_0.25_0.02_142 == "Singlet")
 ```
 
+
+#### The Rmd file that demonstrate how to apply doublet detection to all samples and get them into shape to be used for standard Seurat workflow
+
+```r
+download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-December-Single-Cell-RNA-Seq-Analysis/main/data_analysis/scRNA_Workshop-PART6-bonus.Rmd", "scRNA_Workshop-PART6-bonus.Rmd")
+```
+
+### Download the Rmd file for Part 7
+
+```r
+download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-December-Single-Cell-RNA-Seq-Analysis/main/data_analysis/scRNA_Workshop-PART7.Rmd", "scRNA_Workshop-PART7.Rmd")
+```
+
+
+
 ## Session Information
 
 ```r
