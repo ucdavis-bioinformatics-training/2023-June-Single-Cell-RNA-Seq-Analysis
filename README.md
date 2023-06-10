@@ -26,7 +26,7 @@ Participants will need access to a computer with a reliable connection to the in
 
 **Can I bring my own data?** … We will provide datasets for use during the workshop, as this helps to keep the workshop moving. There will be time, however, to discuss your own datasets and how you might work with them outside of the workshop.
 
-**How much does it cost?** … The registration fee is $1,500 for current students, postdocs, staff and faculty at Univeristy of California campus' or UC National Labs (LBNL, LANL, LLNL), $1,750 for other academic or non-profit participants and $2,500 for other participants. We accept credit cards, as well as UC Davis recharge accounts, for payment.
+**How much does it cost?** … The registration fee is $1,500 for current students, postdocs, staff and faculty at Univeristy of California campus' or UC National Labs (LBNL, LANL, LLNL), $1,750 for other academic or non-profit participants and $3,000 for other participants. We accept credit cards, as well as UC Davis recharge accounts, for payment.
 
 **How do I apply?** … All registration is “first-come, first-served”. There is no application process.  So, sign up as soon as possible to ensure your place in the workshop.
 
