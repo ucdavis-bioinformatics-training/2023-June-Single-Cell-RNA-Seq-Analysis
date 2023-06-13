@@ -13,7 +13,7 @@ All posted times are **Pacific** time zone. At least one break will be provided 
 |**1:00 pm**  | Using the Cluster |
 |**1:45 pm**  | Project Setup |
 |**2:15 pm**  | Creating an Expression Matrix |
-|**4:30 pm** | Zoom session ends |
+|**5:00 pm** | Zoom session ends |
 
 ### Wednesday, June 21
 
@@ -25,14 +25,15 @@ All posted times are **Pacific** time zone. At least one break will be provided 
 |**12:00 pm**  | Lunch |
 |**1:00 pm**  | Data setup |
 |**1:30 pm**   | Data Analysis Parts 1 - 2  |
-|**4:30 pm** | Zoom session ends |
+|**5:00 pm** | Zoom session ends |
 
 ### Thursday, June 22
 
 |:----------- |:------------------- |
 |**8:50 am**  | Zoom session starts |
-|**9:00 am**   | Data Analysis Parts 3 - 4  |
+|**9:00 am**   | PacBio Sponsor Talk  |
+|**9:45 am**   | Data Analysis Parts 3 - 4  |
 |**11:30 am**  | Parse BioSciences Sponsor Talk |
 |**12:00 pm**  | Lunch |
 |**1:00 pm**   | Data Analysis Parts 5 - 7  |
-|**4:30 pm** | Zoom session ends |
+|**5:00 pm** | Zoom session ends |
