@@ -28,33 +28,6 @@ Our team offers custom bioinformatics services to academic and private organizat
 
    [hpc-help@ucdavis.edu](mailto:hpc-help@ucdavis.edu)
 
-## Structure of the Workshops
-
-Given the current Covid19 pandemic, we've decided to provide a hybrid format to our workshop. Our intent is to offer as much opportunity as possible to everyone who is interested in our workshop. We will hold the same goals and strive for a similar lecture/hand-on ratio. We will be using multiple technologies in order to help facilitate a maximum amount of interaction.
-
-#### Zoom
-
-Course lecture, discussions, and one-on-one help/troubleshooting will be conducted using a zoom meeting.
-
-  * Participants will be provided one-on-one troubleshooting by our staff, screen sharing and even remote control when needed.
-  * The Chat features of Zoom will **not** be our primary mode of text communication as its history is not reliable.
-  * We will stick to a schedule to allow people to plan their day and know when they need to be back at their computers for lecture.
-  * Video recordings of lectures will be made available to participants.
-
-Because video is involved, we ask everyone to be respectful and we reserve the right to remove someone if they are being disrespectful or disruptive.
-
-[Learn more about how we use Zoom in our workshops.](./zoom)
-
-####  Slack
-
-Text based communication will be conducted via a Slack channel. Staff will be monitoring the Slack channel to answer questions (and schedule a Zoom break out room if needed). If you know the answer to someone else's question, feel free to answer it.
-
-[Learn more about how we use Slack in our workshops.](./slack)
-
-#### Patience
-
-We ask for a little more patience as this process is also new to us, but we are committed to providing you the best educational experience we can (under the current conditions).
-
 ### Workshop Goals
 
 * End to End understanding of the basics of single cell RNAseq experiments
@@ -99,4 +72,31 @@ To get an account.
 Request an account -> sponsor is "Bioinformatics Core Workshop"
 
 If you already have, or have had in the past, an account on our systems, then please tell us your username, or email, and we will add you to the workshop. **Do not create a new account.**
+
+## Structure of the Workshops
+
+Given the current Covid19 pandemic, we've decided to provide a hybrid format to our workshop. Our intent is to offer as much opportunity as possible to everyone who is interested in our workshop. We will hold the same goals and strive for a similar lecture/hand-on ratio. We will be using multiple technologies in order to help facilitate a maximum amount of interaction.
+
+#### Zoom
+
+Course lecture, discussions, and one-on-one help/troubleshooting will be conducted using a zoom meeting.
+
+  * Participants will be provided one-on-one troubleshooting by our staff, screen sharing and even remote control when needed.
+  * The Chat features of Zoom will **not** be our primary mode of text communication as its history is not reliable.
+  * We will stick to a schedule to allow people to plan their day and know when they need to be back at their computers for lecture.
+  * Video recordings of lectures will be made available to participants.
+
+Because video is involved, we ask everyone to be respectful and we reserve the right to remove someone if they are being disrespectful or disruptive.
+
+[Learn more about how we use Zoom in our workshops.](./zoom)
+
+####  Slack
+
+Text based communication will be conducted via a Slack channel. Staff will be monitoring the Slack channel to answer questions (and schedule a Zoom break out room if needed). If you know the answer to someone else's question, feel free to answer it.
+
+[Learn more about how we use Slack in our workshops.](./slack)
+
+#### Patience
+
+We ask for a little more patience as there is a wide background in workshop participants, but we are committed to providing you the best educational experience we can (under the current conditions).
 
