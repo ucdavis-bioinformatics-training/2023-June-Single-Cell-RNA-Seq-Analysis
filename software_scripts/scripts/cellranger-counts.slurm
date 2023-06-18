@@ -6,10 +6,10 @@
 #SBATCH --ntasks=4 # Number of cores
 #SBATCH --mem=16000 # Memory pool for all cores (see also --mem-per-cpu)
 #SBATCH --partition=production # Partition to submit to
-#SBATCH --reservation=scworkshop
+#SBATCH --reservation=rnaworkshop
 #SBATCH --account=workshop
-#SBATCH --output=counts-cellrngr-%A-%a.out # File to which STDOUT will be written
-#SBATCH --error=counts-cellrngr-%A-%a.err # File to which STDERR will be written
+#SBATCH --output=slurmout/counts-cellrngr-%A-%a.out # File to which STDOUT will be written
+#SBATCH --error=slurmout/counts-cellrngr-%A-%a.err # File to which STDERR will be written
 #SBATCH --mail-type=END # Type of email notification- BEGIN,END,FAIL,ALL
 #SBATCH --mail-user=youremail@whatever.edu # Email to which notifications will be sent
 
@@ -28,21 +28,21 @@ echo "Allocated memory: " $MEM
 
 ## Where cellranger executable is located
 ## a) by loading a module
-module load cellranger/7.0.0
+#module load cellranger/7.0.0
 
 ## b) or, by placing the location of the executables on the path (edit to your location)
-#export PATH=/share/workshop/scRNA_workshop/software/cellranger-6.1.2/bin:$PATH
+export PATH=/share/workshop/scRNA_workshop/Software/cellranger-7.1.0/bin:$PATH
 
 ## c) or if they are already on the path, do nothing
 
 ## Set the parameters for the run
 basedir="/share/workshop/scRNA_workshop/$USER/scrnaseq_example"
-transcriptome=/share/workshop/scRNA_workshop/software/refdata-gex-GRCh38-2020-A
+transcriptome=/share/workshop/scRNA_workshop/Software/refdata-gex-GRCh38-2020-A
 fastqs="${basedir}/00-RawData"
-
+outdir="${basedir}/01-Cellranger"
 
 ## provide the script the row # of the sample to be run
-sample=`sed "${SLURM_ARRAY_TASK_ID}q;d" samples.txt`
+sample=`sed "${SLURM_ARRAY_TASK_ID}q;d" ${basedir}/samples.txt`
 
 ## https://support.10xgenomics.com/single-cell-gene-expression/software/overview/welcome
 ## Create the call
@@ -51,6 +51,7 @@ call="cellranger count \
   --sample=${sample} \
   --transcriptome=${transcriptome} \
   --fastqs=${fastqs} \
+  --nosecondary \
   --localcores=${THREADS} \
   --localmem=${MEM}"
 
@@ -62,6 +63,9 @@ call="cellranger count \
 ## --r2-length=NUM, if your R2 qualities are really poor
 ## --chemistry=CHEM, should it fail chemistry detection
 
+## Create output directory and change directory
+mkdir -p $outdir
+cd $outdir
 ## Echo the call
 echo $call
 ## Evaluate the call

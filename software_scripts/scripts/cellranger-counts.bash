@@ -13,20 +13,16 @@ echo "Allocated threads: " $THREADS
 echo "Allocated memory: " $MEM
 
 ## Where cellranger executable is located
-## a) by loading a module
-#module load cellranger/6.0.1
-
-## b) or, by placing the location of the executables on the path (edit to your location)
-export PATH=/share/workshop/intro_scrnaseq/software/cellranger-6.0.2/bin:$PATH
-
-## c) or if they are already on the path, do nothing
-
+export PATH=/share/workshop/scRNA_workshop/Software/cellranger-7.1.0/bin:$PATH
 ## Set the parameters for the run
 basedir="/share/workshop/intro_scrnaseq"
 transcriptome=${basedir}/software/refdata-gex-GRCh38-2020-A
 fastqs="/share/workshop/intro_scrnaseq/${USER}/scrnaseq_example/00-RawData"
-
-for sample in `cat samples.txt`
+outdir="${basedir}/01-Cellranger"
+mkdir -p $outdir
+cd $outdir
+## loop over samples in sample sheet, running cellranger on each
+for sample in `cat ${basedir}/samples.txt`
 do
   ## https://support.10xgenomics.com/single-cell-gene-expression/software/overview/welcome
   ## Create the call
@@ -35,6 +31,7 @@ do
     --sample=${sample} \
     --transcriptome=${transcriptome} \
     --fastqs=${fastqs} \
+    --nosecondary \
     --localcores=${THREADS} \
     --localmem=${MEM}"
 
