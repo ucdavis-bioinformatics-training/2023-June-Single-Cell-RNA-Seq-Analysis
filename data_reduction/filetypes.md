@@ -86,19 +86,13 @@ Columns:
 * [NCBI genomes](http://www.ncbi.nlm.nih.gov/genome/)
 * Many species or field-specific databases (e.g. Phytozome, Patric, VectorBase, FlyBase, WormBase)
 
-## Alignment based file types
-
-### SAM/BAM/CRAM
+## Alignment based file types: SAM, BAM, and CRAM
 
 SAM (Sequence Alignment/Map) format is the unified format for storing read alignments to a reference sequence (consistent since Sept. 2011). SAM format [specifications](http://samtools.github.io/hts-specs/SAMv1.pdf) and common software for interacting with the format is managed and maintained by the [HTSlib project](http://www.htslib.org/)
 
-BAM and CRAM format are compressed SAMs (binary, non human-readable).
+BAM and CRAM format are compressed SAMs (binary, non human-readable). The SAM format contains two regions: the header, and the alignments.
 
-#### Understanding the SAM format
-
-The SAM format contains two regions: the header, and the alignments.
-
-##### Header
+### SAM header section
 
 The header section of a SAM file contains information about how the alignments in the file were produced. The header will describe the reference (e.g. genome) to which sequences were aligned, and may include software version and parameters, library prep and sequencer details, miscellaneous comments, and more.
 
@@ -116,7 +110,7 @@ The following tags are required:
 
 Many more tags are detailed in the [specifications](http://samtools.github.io/hts-specs/SAMv1.pdf).
 
-##### Alignment section
+### SAM alignment section
 
 The alignment section consists of 11 tab-delimited fields:
 
@@ -201,7 +195,7 @@ The sequence that was aligned. If hard clipping occurred, only the aligned porti
 **QUAL: segment quality scores**  
 The quality scores of the sequence that was aligned. If hard clipping occurred, only the aligned portion is represented, if soft clipping occurred, the original sequence is present.
 
-#### Compression: BAM and CRAM
+### Compression: BAM and CRAM
 
 BAMs are compressed SAMs. They are binary, and not human-readable. BAM files can be indexed to allow rapid extraction of information, so alignment viewers do not need to uncompress the whole BAM file in order to look at information for a particular coordinate range, somewhere in the file.
 
