@@ -20,7 +20,7 @@ Raw fastq files first need to be preprocessed, extracting any elements that are 
 * Unique Molecular Index (UMI) – Used to identify reads that arise during PCR replication
 * Sequencing Read – Used to identify the gene a read came from
 
-The remaining sequences are mapped to a reference genome/trancriptome. Cell Ranger is based on [STAR](https://github.com/alexdobin/STAR) aligner. Another good choice is a pseudo-alignment method (e.g. [Kallisto](https://pachterlab.github.io/kallisto/), [Salmon](http://salmon.readthedocs.io/en/latest/salmon.html)). For __full-length__ datasets with tens- or hundreds of thousands of reads per cell pseudo-aligners become appealing since their run-time can be several orders of magnitude less than traditional aligners.
+The remaining sequences are mapped to a reference genome/trancriptome. 10x Genomics and Parse Biosciences both maintain custom preprocessing and alignment pipelines fine-tuned for their technologies. 10x's Cell Ranger is based on [STAR](https://github.com/alexdobin/STAR) aligner. Another good choice is a pseudo-alignment method (e.g. [Kallisto](https://pachterlab.github.io/kallisto/), [Salmon](http://salmon.readthedocs.io/en/latest/salmon.html)). For __full-length__ datasets with tens- or hundreds of thousands of reads per cell pseudo-aligners become appealing since their run-time can be several orders of magnitude less than traditional aligners.
 
 __Note__, if _spike-ins_ are used, the _spike-in_ sequences should be added to the reference sequence prior to mapping.
 
@@ -31,12 +31,12 @@ After aligning sequence data to the genome we should evaluate the quality of the
 ### Gene Counting
 
 STAR (and by extension, Cell Ranger), Kallisto, and Salmon all quantify the expression level of each gene for
-each cell as a part of its output. If UMIs were used, duplicates need to be first marked and then gene expression levels recounted. The package [`UMI-tools`](https://github.com/CGATOxford/UMI-tools) can be used to process and correct UMIs. Cell Ranger handles UMI deduplication and cell barcode assignment internally.
+each cell as a part of its output. If UMIs were used, duplicates need to be first marked and then gene expression levels recounted. The package [`UMI-tools`](https://github.com/CGATOxford/UMI-tools) can be used to process and correct UMIs. The Parse Bioscience pipeline and Cell Ranger handle UMI deduplication and cell barcode assignment internally, producing an expression matrix that is ready for analysis.
 
 Specific steps to be performed are dependent on the type of library, the element layout of the read, and the sequencing parameters.
 
 
-[STAR](https://github.com/alexdobin/STAR), [Salmon](https://salmon.readthedocs.io/en/latest/alevin.html), [Kallisto/bustools](https://www.kallistobus.tools/) each have pipelines build specifically for processing single-cell datasets and 10X genomics data.
+[STAR](https://github.com/alexdobin/STAR), [Salmon](https://salmon.readthedocs.io/en/latest/alevin.html), [Kallisto/bustools](https://www.kallistobus.tools/) each have pipelines build specifically for processing single-cell datasets.
 
 
 ## scRNAseq Libraries
@@ -66,12 +66,12 @@ Svensson, etc., 2018, Nature Protocols https://www.nature.com/articles/nprot.201
 * Smart-seq2, Picelli, 2014
 * SMARTer [clontech](http://www.clontech.com/US/Products/cDNA_Synthesis_and_Library_Construction/Next_Gen_Sequencing_Kits/Total_RNA-Seq/Universal_RNA_Seq_Random_Primed)
 * STRT-seq, Islam, 2014
-* SplitSeq, 2018 (NOW [Parse Biosciences](https://www.parsebiosciences.com/technology))
+* SplitSeq, 2018 (now [Parse Biosciences](https://www.parsebiosciences.com/technology))
 * Smart-seq3, Hagemann-Jensen, 2020
 * Smart-seq-total, Isakova, 2021
 * VASA-seq, Salmen, 2022
 
-Differences between the methods are in how they capture a cell and quantify gene expression (either __full-length__ or __tag-based__).
+Methods differ in how they capture a cell and quantify gene expression (either __full-length__ or __tag-based__).
 
 __Full-length__ capture tries to achieve a uniform coverage of each transcript (many reads per transcript). __Tag-based__ protocols only capture either the 5'- or 3'-end of each transcript (single read per transcript). Choice in method determines what types of analyses the data can be used for. __Full-length__ capture can be used to distinguish different iso-forms, where __tag-based__ method is best used for only gene abundance.
 
@@ -126,6 +126,8 @@ cellranger  version 7 has many sub-applications
 14. cellranger upload
 15. cellranger sitecheck
 
+In this workshop, we will only be using the count sub-application.
+
 ### Cell barcode and UMI filtering
 
 * Cell barcodes
@@ -152,7 +154,7 @@ Tags ts:i and pa:i in the output BAM files indicate the number of TSO nucleotide
 ### Alignment
 
 #### Genome Alignment
-Cell Ranger uses an aligner called Orbit (a wrapper around STAR), which performs splicing-aware alignment of reads to the genome. Cell Ranger uses the transcript annotation GTF to bucket the reads into exonic, intronic, and intergenic, and by whether the reads align (confidently) to the genome. A read is exonic if at least 50% of it intersects an exon, intronic if it is non-exonic and intersects an intron, and intergenic otherwise.
+Cell Ranger uses an aligner called Orbit (a wrapper around STAR), which performs splicing-aware alignment of reads to the genome. Cell Ranger uses the transcript annotation GTF to assign the reads to exonic, intronic, and intergenic categories, and by whether the reads align (confidently) to the genome. A read is exonic if at least 50% of it intersects an exon, intronic if it is non-exonic and intersects an intron, and intergenic otherwise.
 
 #### MAPQ adjustment
 For reads that align to a single exonic locus but also align to 1 or more non-exonic loci, the exonic locus is prioritized and the read is considered to be confidently mapped to the exonic locus with MAPQ 255.
@@ -160,7 +162,7 @@ For reads that align to a single exonic locus but also align to 1 or more non-ex
 #### Transcriptome Alignment
 Cell Ranger further aligns exonic reads to annotated transcripts, looking for compatibility. A read that is compatible with the exons of an annotated transcript, and aligned to the same strand, is considered mapped to the transcriptome. If the read is compatible with a single gene annotation, it is considered uniquely (confidently) mapped to the transcriptome. Only reads that are confidently mapped to the transcriptome are used for UMI counting.
 
-In certain cases, such as when the input to the assay consists of nuclei, there may be high levels of intronic reads generated by unspliced transcripts. In order to count these intronic reads, the cellranger count and cellranger multi pipelines can be run with the option 'include-introns' in versions 5.0-6.1. Starting from version 7.0, _cellranger count_ includes the intronic reads in quantification of gene expression by default. For _cellranger multi_, one can set _include-introns_ to true to include the intronic reads.
+In certain cases, such as when the input to the assay consists of nuclei, there may be high levels of intronic reads generated by unspliced transcripts. In order to count these intronic reads, the cellranger count and cellranger multi pipelines can be run with the option 'include-introns' in versions 5.0-6.1. Starting from version 7.0, _cellranger count_ includes the intronic reads in quantification of gene expression by default. For _cellranger multi_, one can set _include-introns_ to true to include the intronic reads. Counts produced with and without intronic reads are likely to differ more in single nucleus assays than in single cell assays due to an enrichment of un-spliced transcripts within the nuclear envelope.
 
 ### UMI Counting
 
@@ -338,19 +340,22 @@ Cell Ranger does produce a more readable HTML report with the same statistics an
     cd /share/workshop/scRNA_workshop/$USER/scrnaseq_example
     ```
 
-2. Load and review cellranger's sub-applications and help docs
+2. Add Cell Ranger to your path, and review cellranger's sub-applications and help docs
 
     ```bash
-    module load cellranger/7.0.0
+		export PATH=/share/workshop/scRNA_workshop/Software/cellranger-7.1.0/bin:$PATH
+		cellranger --help
+		cellranger count --help
     ```
 
-3. Review the [cellranger-counts.sh](https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-December-Single-Cell-RNA-Seq-Analysis/main/software_scripts/scripts/cellranger-counts.sh) script used to map reads in the fastq files.
+3. Review the [cellranger-counts.sh](https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2023-June-Single-Cell-RNA-Seq-Analysis/main/software_scripts/scripts/cellranger-counts.sh) script used to map reads in the fastq files.
 
-4. Copy contents of the script to your **scrnaseq_example** folder and do a test run.
+4. Copy the SLURM script to your **scrnaseq_example** folder and do a test run.
 
     ```bash
-    cd /share/workshop/scRNA_workshop/$USER/scrnaseq_example
-    wget https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-December-Single-Cell-RNA-Seq-Analysis/main/software_scripts/scripts/cellranger-counts.sh
+		mkdir -p /share/workshop/scRNA_workshop/$USER/scrnaseq_example/scripts/slurmout
+    cd /share/workshop/scRNA_workshop/$USER/scrnaseq_example/scripts
+    cp /share/workshop/scRNA_workshop/Software/cellranger-counts.slurm .
     ```
 
     update the email address in the script if you like.
@@ -364,21 +369,14 @@ Cell Ranger does produce a more readable HTML report with the same statistics an
 
     ```bash
     cd /share/workshop/scRNA_workshop/$USER/scrnaseq_example
-    ln -s /share/workshop/scRNA_workshop/cellranger.outs/A001-C-007 ./A001-C-007-copy
+    ln -s /share/workshop/scRNA_workshop/cellranger_outs ./A001-C-007-copy
     ```
 
-	1. In the folder A001-C-007-copy, which output folders/files were generated from this script?
-	2. Review the metrics_summary.csv file
-		1. What where the total number of reads in this sample?
-		2. Reads Mapped Confidently to transcriptome?
-		3. Sequencing Saturation?
-		4. Mean Reads per Cell?
-		5. Median UMI Counts per Cell?
-	3. head the files under raw_feature_bc_matrix and filtered_feature_bc_matrix
-	4. Transfer the html file to your computer
-	5. Transfer the matrix files and hdf5 file to your computer. (However, we will be using data from the full datasets for all three samples instead of this subset).
+	1. Explore the folder A001-C-007-copy. Which output folders/files contain the expression matrix?
+	2. Review the metrics_summary.csv file. What was the total number of reads in this sample?
+	3. Use `head` to look at the first few lines of the files under raw_feature_bc_matrix and filtered_feature_bc_matrix. See if you can determine the difference between the raw and filtered results.
 
-In the intereste of time, the dataset we use for this step is a small subset of the original data. The cellranger summary file is [here](fullset_web_summary.html)
+In the interest of time, the dataset we use for this step is a small subset of the original data. The cellranger summary file is [here](fullset_web_summary.html)
 
 ---
 
