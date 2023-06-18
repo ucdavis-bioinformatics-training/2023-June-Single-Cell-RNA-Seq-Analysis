@@ -72,11 +72,13 @@ function showResults(myq, qc, rc){
 </script>
 
 
-The dataset used in this course is from Becker, W. R.; Nevins, S. A.; Chen, D. C.; Chiu, R.; Horning, A. M.; Guha, T. K.; Laquindanum, R.; Mills, M.; Chaib, H.; Ladabaum, U.; Longacre, T.; Shen, J.; Esplin, E. D.; Kundaje, A.; Ford, J. M.; Curtis, C.; Snyder, M. P.; Greenleaf, W. J. Single-Cell Analyses Define a Continuum of Cell State and Composition Changes in the Malignant Transformation of Polyps to Colorectal Cancer. Nat. Genet. 2022. https://doi.org/10.1038/s41588-022-01088-x.
+The dataset used in this workshop is a subset of a much larger dataset from a [recent study](https://doi.org/10.1038/s41588-022-01088-x) that generated single nuclei transcriptome and chromatin accessibility profiles from colorectal tissue samples. The authors isolated 1000 to 10000 nuclei each from 81 samples of three types: 48 polyp samples, 27 normal tissue samples, and 6 colorectal cancer (CRC) samples from patients with or without germline APC mutations. They observed a continuum of cell state and composition changes from normal tissue, to polyps, to cancer.
 
-In this study, single nuclei transcriptome and chromatin accessibility profiles were generated from 1000 to 10000 cells per sample from 48 polys, 27 normal tissues and 6 colorectal cancer (CRC) patients with or without germline APC mutations. It observed a continuum of cell state and composition changes from normal tissue to polys to cancer.
+For the purposes of this workshop, we will use one sample from each condition (CRC: A001-C-007, polyp: A001-C-104, and normal: B001-A-301).
 
-For the purposes of this workshop, we are using a subset of this data; one sample per condition (CRC: A001-C-007, polyp: A001-C-104, and normal: B001-A-301).
+Source:
+
+Becker, W. R.; Nevins, S. A.; Chen, D. C.; Chiu, R.; Horning, A. M.; Guha, T. K.; Laquindanum, R.; Mills, M.; Chaib, H.; Ladabaum, U.; Longacre, T.; Shen, J.; Esplin, E. D.; Kundaje, A.; Ford, J. M.; Curtis, C.; Snyder, M. P.; Greenleaf, W. J. Single-Cell Analyses Define a Continuum of Cell State and Composition Changes in the Malignant Transformation of Polyps to Colorectal Cancer. Nat. Genet. 2022. https://doi.org/10.1038/s41588-022-01088-x.
 
 # Data Setup
 
@@ -100,7 +102,7 @@ cd 00-RawData/
 ln -s /share/workshop/scRNA_workshop/Data/*.fastq.gz .
 ```
 
-This directory now contains the reads for each "sample" (in this case just 1).
+This directory now contains the reads for each sample.
 
 **2b\.** Let's create a sample sheet for the project, and store sample names in a file called samples.txt
 
@@ -110,6 +112,7 @@ ls *_R1_* |cut -d'_' -f1 - > ../samples.txt
 cat ../samples.txt
 ```
 
+# Data Exploration
 ---
 **3\.** Now, take a look at the raw data directory.
 
@@ -123,8 +126,8 @@ ls /share/workshop/scRNA_workshop/$USER/scrnaseq_example/00-RawData
 Read 1
 
 ```bash
-cd 00-RawData/
-zless A001-C-007_S4_I1_001.fastq.gz
+cd /share/workshop/scRNA_workshop/$USER/scrnaseq_example/00-RawData
+zless A001-C-007_S4_R1_001.fastq.gz
 ```
 
 and Read 2
@@ -133,22 +136,24 @@ and Read 2
 zless A001-C-007_S4_R2_001.fastq.gz
 ```
 
-Detailed explanation of FASTQ file is [here](filetypes.md). Please read on the description and make sure you can identify which lines correspond to a single read and which lines are the header, sequence, and quality values. Press 'q' to exit this screen. Then, let's figure out the number of reads in this file. A simple way to do that is to count the number of lines and divide by 4 (because the record of each read uses 4 lines). In order to do this use cat to output the uncompressed file and pipe that to "wc" to count the number of lines:
+A detailed explanation of FASTQ file can be found [here](filetypes.md). Please read on the description and make sure you can identify which lines correspond to a single read and which lines are the header, sequence, and quality values. Press 'q' to exit this screen.
+
+Let's figure out the number of reads in this file. A simple way to do that is to count the number of lines and divide by 4 (because the record of each read uses 4 lines). In order to do this use cat to output the uncompressed file and pipe that to "wc" to count the number of lines:
 
 ```bash
-zcat A001-C-007_S4_I1_001.fastq.gz | wc -l
+zcat A001-C-007_S4_R1_001.fastq.gz | wc -l
 ```
 
 Divide this number by 4 and you have the number of reads in this file. One more thing to try is to figure out the length of the reads without counting each nucleotide. First get the first 4 lines of the file (i.e. the first record):
 
 ```bash
-zcat A001-C-007_S4_I1_001.fastq.gz  | head -4
+zcat A001-C-007_S4_R1_001.fastq.gz  | head -4
 ```
 
 Note the header lines (1st and 3rd line) and sequence and quality lines (2nd and 4th) in each 4-line fastq block. You can isolate the sequence line:
 
 ```bash
-zcat A001-C-007_S4_I1_001.fastq.gz | head -2 | tail -1
+zcat A001-C-007_S4_R1_001.fastq.gz | head -2 | tail -1
 ```
 
 Then, copy and paste the DNA sequence line into the following command (replace [sequence] with the line):
@@ -162,7 +167,7 @@ This will give you the length of the read.
 Also can do the bash one liner:
 
 ```bash
-echo -n $(zcat A001-C-007_S4_I1_001.fastq.gz  | head -2 | tail -1) | wc -c
+echo -n $(zcat A001-C-007_S4_R1_001.fastq.gz  | head -2 | tail -1) | wc -c
 ```
 
 See if you can figure out how this command works.
