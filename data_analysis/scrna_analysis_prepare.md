@@ -137,4 +137,4 @@ Your RStudio should look something like this
 <img src="figures/RStudio.png" alt="RStudio" width="80%"/>
 
 
-Now spend a few minutes navigating through our data. How may samples are there? Find the hdf5 file and the matrix files. View the HTML files and let's discuss.
+Now spend a few minutes navigating through our data. How may samples are there? Find the hdf5 file and the matrix files.
