@@ -6,7 +6,7 @@ output:
       keep_md: TRUE
 ---
 
-Last Updated: December 8, 2022
+Last Updated: June 19, 2023
 
 # Part 6: Add Doublet Detection
 
@@ -527,21 +527,6 @@ experiment.data <- doubletFinder_v3(experiment.data, PCs = 1:20, pN = 0.25, pK =
 experiment.data <- subset(experiment.data,  DF.classifications_0.25_0.02_142 == "Singlet")
 ```
 
-
-#### The Rmd file that demonstrate how to apply doublet detection to all samples and get them into shape to be used for standard Seurat workflow
-
-```r
-download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-December-Single-Cell-RNA-Seq-Analysis/main/data_analysis/scRNA_Workshop-PART6-bonus.Rmd", "scRNA_Workshop-PART6-bonus.Rmd")
-```
-
-### Download the Rmd file for Part 7
-
-```r
-download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-December-Single-Cell-RNA-Seq-Analysis/main/data_analysis/scRNA_Workshop-PART7.Rmd", "scRNA_Workshop-PART7.Rmd")
-```
-
-
-
 ## Session Information
 
 ```r
@@ -584,7 +569,7 @@ sessionInfo()
 ##  [34] leiden_0.4.3           future.apply_1.10.0    maps_3.4.1            
 ##  [37] abind_1.4-5            scales_1.2.1           DBI_1.1.3             
 ##  [40] spatstat.random_3.0-1  miniUI_0.1.1.1         Rcpp_1.0.9            
-##  [43] xtable_1.8-4           reticulate_1.26        bit_4.0.5             
+##  [43] xtable_1.8-4           reticulate_1.28        bit_4.0.5             
 ##  [46] dotCall64_1.0-2        htmlwidgets_1.5.4      httr_1.4.4            
 ##  [49] RColorBrewer_1.1-3     ellipsis_0.3.2         ica_1.0-3             
 ##  [52] pkgconfig_2.0.3        farver_2.1.1           sass_0.4.4            

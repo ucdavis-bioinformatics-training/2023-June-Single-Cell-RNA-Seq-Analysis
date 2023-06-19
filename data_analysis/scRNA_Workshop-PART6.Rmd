@@ -6,7 +6,7 @@ output:
       keep_md: TRUE
 ---
 
-Last Updated: December 8, 2022
+Last Updated: June 19, 2023
 
 # Part 6: Add Doublet Detection
 
@@ -204,19 +204,6 @@ experiment.data <- doubletFinder_v3(experiment.data, PCs = 1:20, pN = 0.25, pK =
 ```{r doubletfinder-remove, eval=FALSE, warning=FALSE,error=FALSE,message=FALSE}
 experiment.data <- subset(experiment.data,  DF.classifications_0.25_0.02_142 == "Singlet")
 ```
-
-#### The Rmd file that demonstrate how to apply doublet detection to all samples and get them into shape to be used for standard Seurat workflow
-
-```{r doubletfinder-bonus, eval=FALSE, warning=FALSE,error=FALSE,message=FALSE}
-download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-December-Single-Cell-RNA-Seq-Analysis/main/data_analysis/scRNA_Workshop-PART6-bonus.Rmd", "scRNA_Workshop-PART6-bonus.Rmd")
-```
-
-### Download Rmd file for Part 7
-
-```{r download7, eval=TRUE, warning=FALSE,error=FALSE,message=FALSE}
-download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-December-Single-Cell-RNA-Seq-Analysis/main/data_analysis/scRNA_Workshop-PART7.Rmd", "scRNA_Workshop-PART7.Rmd")
-```
-
 
 ## Session Information
 ```{r sessioinfo}
