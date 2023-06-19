@@ -6,11 +6,18 @@ output:
       keep_md: TRUE
 ---
 
-Last Updated: December 7, 2022
 
-# Part 2: Some QA/QC, filtering and normalization
 
-## Load libraries
+Last Updated: June 19, 2023
+
+# Part 2: QA/QC, filtering, and normalization
+
+In this workshop, we are using the filtered feature barcode matrix. While this lowers the likelihood of encountering barcodes that are not cell-associated within our expression matrix, it is still good practice to perform quality assurance / control on the experiment.
+
+## Setup
+
+First, we need to load the required libraries.
+
 
 ```r
 library(Seurat)
@@ -18,28 +25,35 @@ library(biomaRt)
 library(ggplot2)
 library(knitr)
 library(kableExtra)
+library(reshape2)
 ```
 
-## Load the Seurat object from part 1
+If you are continuing directly from part 1, the experiment.aggregate object is likely already in your workspace. In case you cleared your workspace at the end of the previous section, or are working on this project at a later date, after quitting and re-starting R, you can use the `readRDS` function to read your saved Seurat object from part 1.
+
 
 ```r
-load(file="original_seurat_object.RData")
+experiment.aggregate <- readRDS("scRNA_workshop_1.rds")
 experiment.aggregate
 ```
 
 ```
 ## An object of class Seurat 
-## 21005 features across 30902 samples within 1 assay 
-## Active assay: RNA (21005 features, 0 variable features)
+## 36601 features across 9452 samples within 1 assay 
+## Active assay: RNA (36601 features, 0 variable features)
 ```
+
+The seed is used to initialize pseudo-random functions. Some of the functions we will be using have pseudo-random elements. Setting a common seed ensures that all of us will get the same results, and that the results will remain stable when re-run.
+
 
 ```r
 set.seed(12345)
 ```
 
-## Some basic QA/QC of the metadata, print tables of the 5% quantiles.
+## Display metadata by quantile
 
-Show 5% quantiles for number of genes per cell per sample
+Using a few nested functions, we can produce prettier, more detailed, versions of the simple exploratory summary statistics we generated for the available metadata in the last section. In the code below, 5% quantile tables are produced for each metadata value, separated by sample identity.
+
+**Genes per cell**
 
 ```r
 kable(do.call("cbind", tapply(experiment.aggregate$nFeature_RNA, 
@@ -60,134 +74,134 @@ kable(do.call("cbind", tapply(experiment.aggregate$nFeature_RNA,
 <tbody>
   <tr>
    <td style="text-align:left;"> 0% </td>
-   <td style="text-align:right;"> 298.0 </td>
-   <td style="text-align:right;"> 297 </td>
-   <td style="text-align:right;"> 298.00 </td>
+   <td style="text-align:right;"> 404.00 </td>
+   <td style="text-align:right;"> 397.00 </td>
+   <td style="text-align:right;"> 416.00 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 5% </td>
-   <td style="text-align:right;"> 306.0 </td>
-   <td style="text-align:right;"> 308 </td>
-   <td style="text-align:right;"> 302.00 </td>
+   <td style="text-align:right;"> 459.75 </td>
+   <td style="text-align:right;"> 468.00 </td>
+   <td style="text-align:right;"> 505.00 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 10% </td>
-   <td style="text-align:right;"> 315.0 </td>
-   <td style="text-align:right;"> 321 </td>
-   <td style="text-align:right;"> 304.00 </td>
+   <td style="text-align:right;"> 495.00 </td>
+   <td style="text-align:right;"> 505.00 </td>
+   <td style="text-align:right;"> 577.00 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 15% </td>
-   <td style="text-align:right;"> 325.0 </td>
-   <td style="text-align:right;"> 336 </td>
-   <td style="text-align:right;"> 307.00 </td>
+   <td style="text-align:right;"> 530.00 </td>
+   <td style="text-align:right;"> 537.15 </td>
+   <td style="text-align:right;"> 657.00 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 20% </td>
-   <td style="text-align:right;"> 339.0 </td>
-   <td style="text-align:right;"> 351 </td>
-   <td style="text-align:right;"> 310.00 </td>
+   <td style="text-align:right;"> 574.00 </td>
+   <td style="text-align:right;"> 581.00 </td>
+   <td style="text-align:right;"> 733.00 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 25% </td>
-   <td style="text-align:right;"> 356.0 </td>
-   <td style="text-align:right;"> 367 </td>
-   <td style="text-align:right;"> 312.00 </td>
+   <td style="text-align:right;"> 625.00 </td>
+   <td style="text-align:right;"> 622.00 </td>
+   <td style="text-align:right;"> 821.00 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 30% </td>
-   <td style="text-align:right;"> 380.0 </td>
-   <td style="text-align:right;"> 385 </td>
-   <td style="text-align:right;"> 316.00 </td>
+   <td style="text-align:right;"> 677.00 </td>
+   <td style="text-align:right;"> 676.30 </td>
+   <td style="text-align:right;"> 907.00 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 35% </td>
-   <td style="text-align:right;"> 406.0 </td>
-   <td style="text-align:right;"> 406 </td>
-   <td style="text-align:right;"> 319.00 </td>
+   <td style="text-align:right;"> 726.50 </td>
+   <td style="text-align:right;"> 730.00 </td>
+   <td style="text-align:right;"> 1006.55 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 40% </td>
-   <td style="text-align:right;"> 437.0 </td>
-   <td style="text-align:right;"> 430 </td>
-   <td style="text-align:right;"> 323.00 </td>
+   <td style="text-align:right;"> 783.00 </td>
+   <td style="text-align:right;"> 791.00 </td>
+   <td style="text-align:right;"> 1105.00 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 45% </td>
-   <td style="text-align:right;"> 482.0 </td>
-   <td style="text-align:right;"> 465 </td>
-   <td style="text-align:right;"> 327.00 </td>
+   <td style="text-align:right;"> 847.50 </td>
+   <td style="text-align:right;"> 881.00 </td>
+   <td style="text-align:right;"> 1228.85 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 50% </td>
-   <td style="text-align:right;"> 534.0 </td>
-   <td style="text-align:right;"> 515 </td>
-   <td style="text-align:right;"> 332.00 </td>
+   <td style="text-align:right;"> 927.00 </td>
+   <td style="text-align:right;"> 959.00 </td>
+   <td style="text-align:right;"> 1331.00 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 55% </td>
-   <td style="text-align:right;"> 616.0 </td>
-   <td style="text-align:right;"> 574 </td>
-   <td style="text-align:right;"> 338.00 </td>
+   <td style="text-align:right;"> 1020.25 </td>
+   <td style="text-align:right;"> 1042.55 </td>
+   <td style="text-align:right;"> 1447.00 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 60% </td>
-   <td style="text-align:right;"> 701.6 </td>
-   <td style="text-align:right;"> 645 </td>
-   <td style="text-align:right;"> 345.00 </td>
+   <td style="text-align:right;"> 1129.00 </td>
+   <td style="text-align:right;"> 1127.00 </td>
+   <td style="text-align:right;"> 1564.00 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 65% </td>
-   <td style="text-align:right;"> 787.0 </td>
-   <td style="text-align:right;"> 737 </td>
-   <td style="text-align:right;"> 355.00 </td>
+   <td style="text-align:right;"> 1241.50 </td>
+   <td style="text-align:right;"> 1231.00 </td>
+   <td style="text-align:right;"> 1680.00 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 70% </td>
-   <td style="text-align:right;"> 916.0 </td>
-   <td style="text-align:right;"> 869 </td>
-   <td style="text-align:right;"> 373.00 </td>
+   <td style="text-align:right;"> 1382.00 </td>
+   <td style="text-align:right;"> 1358.00 </td>
+   <td style="text-align:right;"> 1810.30 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 75% </td>
-   <td style="text-align:right;"> 1073.0 </td>
-   <td style="text-align:right;"> 1013 </td>
-   <td style="text-align:right;"> 429.00 </td>
+   <td style="text-align:right;"> 1570.00 </td>
+   <td style="text-align:right;"> 1520.00 </td>
+   <td style="text-align:right;"> 1955.75 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 80% </td>
-   <td style="text-align:right;"> 1264.4 </td>
-   <td style="text-align:right;"> 1179 </td>
-   <td style="text-align:right;"> 550.00 </td>
+   <td style="text-align:right;"> 1797.00 </td>
+   <td style="text-align:right;"> 1718.80 </td>
+   <td style="text-align:right;"> 2119.00 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 85% </td>
-   <td style="text-align:right;"> 1543.4 </td>
-   <td style="text-align:right;"> 1413 </td>
-   <td style="text-align:right;"> 868.00 </td>
+   <td style="text-align:right;"> 2101.75 </td>
+   <td style="text-align:right;"> 1970.85 </td>
+   <td style="text-align:right;"> 2325.00 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 90% </td>
-   <td style="text-align:right;"> 1961.4 </td>
-   <td style="text-align:right;"> 1778 </td>
-   <td style="text-align:right;"> 1356.00 </td>
+   <td style="text-align:right;"> 2592.00 </td>
+   <td style="text-align:right;"> 2344.70 </td>
+   <td style="text-align:right;"> 2567.00 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 95% </td>
-   <td style="text-align:right;"> 2871.9 </td>
-   <td style="text-align:right;"> 2400 </td>
-   <td style="text-align:right;"> 1979.35 </td>
+   <td style="text-align:right;"> 3735.00 </td>
+   <td style="text-align:right;"> 3299.00 </td>
+   <td style="text-align:right;"> 2959.35 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 100% </td>
-   <td style="text-align:right;"> 11933.0 </td>
-   <td style="text-align:right;"> 11925 </td>
-   <td style="text-align:right;"> 8761.00 </td>
+   <td style="text-align:right;"> 12063.00 </td>
+   <td style="text-align:right;"> 12064.00 </td>
+   <td style="text-align:right;"> 8812.00 </td>
   </tr>
 </tbody>
 </table>
 
-Show 5% quantiles for number of UMI per cell per sample
+**UMIs per cell**
 
 ```r
 kable(do.call("cbind", tapply(experiment.aggregate$nCount_RNA, 
@@ -208,142 +222,142 @@ kable(do.call("cbind", tapply(experiment.aggregate$nCount_RNA,
 <tbody>
   <tr>
    <td style="text-align:left;"> 0% </td>
-   <td style="text-align:right;"> 320.0 </td>
-   <td style="text-align:right;"> 316 </td>
-   <td style="text-align:right;"> 317.00 </td>
+   <td style="text-align:right;"> 500.00 </td>
+   <td style="text-align:right;"> 500.00 </td>
+   <td style="text-align:right;"> 500.00 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 5% </td>
-   <td style="text-align:right;"> 343.0 </td>
-   <td style="text-align:right;"> 347 </td>
-   <td style="text-align:right;"> 341.00 </td>
+   <td style="text-align:right;"> 536.00 </td>
+   <td style="text-align:right;"> 542.00 </td>
+   <td style="text-align:right;"> 595.00 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 10% </td>
-   <td style="text-align:right;"> 356.0 </td>
-   <td style="text-align:right;"> 363 </td>
-   <td style="text-align:right;"> 346.00 </td>
+   <td style="text-align:right;"> 576.50 </td>
+   <td style="text-align:right;"> 588.00 </td>
+   <td style="text-align:right;"> 698.00 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 15% </td>
-   <td style="text-align:right;"> 369.0 </td>
-   <td style="text-align:right;"> 381 </td>
-   <td style="text-align:right;"> 350.00 </td>
+   <td style="text-align:right;"> 632.25 </td>
+   <td style="text-align:right;"> 631.00 </td>
+   <td style="text-align:right;"> 803.00 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 20% </td>
-   <td style="text-align:right;"> 385.0 </td>
-   <td style="text-align:right;"> 400 </td>
-   <td style="text-align:right;"> 353.00 </td>
+   <td style="text-align:right;"> 686.00 </td>
+   <td style="text-align:right;"> 692.20 </td>
+   <td style="text-align:right;"> 909.00 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 25% </td>
-   <td style="text-align:right;"> 407.0 </td>
-   <td style="text-align:right;"> 422 </td>
-   <td style="text-align:right;"> 357.00 </td>
+   <td style="text-align:right;"> 756.00 </td>
+   <td style="text-align:right;"> 746.00 </td>
+   <td style="text-align:right;"> 1043.00 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 30% </td>
-   <td style="text-align:right;"> 436.0 </td>
-   <td style="text-align:right;"> 444 </td>
-   <td style="text-align:right;"> 361.00 </td>
+   <td style="text-align:right;"> 826.50 </td>
+   <td style="text-align:right;"> 821.00 </td>
+   <td style="text-align:right;"> 1179.90 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 35% </td>
-   <td style="text-align:right;"> 469.0 </td>
-   <td style="text-align:right;"> 468 </td>
-   <td style="text-align:right;"> 366.00 </td>
+   <td style="text-align:right;"> 894.25 </td>
+   <td style="text-align:right;"> 899.00 </td>
+   <td style="text-align:right;"> 1339.00 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 40% </td>
-   <td style="text-align:right;"> 508.0 </td>
-   <td style="text-align:right;"> 500 </td>
-   <td style="text-align:right;"> 370.00 </td>
+   <td style="text-align:right;"> 981.00 </td>
+   <td style="text-align:right;"> 995.80 </td>
+   <td style="text-align:right;"> 1514.60 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 45% </td>
-   <td style="text-align:right;"> 564.7 </td>
-   <td style="text-align:right;"> 543 </td>
-   <td style="text-align:right;"> 376.00 </td>
+   <td style="text-align:right;"> 1076.75 </td>
+   <td style="text-align:right;"> 1106.45 </td>
+   <td style="text-align:right;"> 1717.85 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 50% </td>
-   <td style="text-align:right;"> 640.0 </td>
-   <td style="text-align:right;"> 606 </td>
-   <td style="text-align:right;"> 382.00 </td>
+   <td style="text-align:right;"> 1203.50 </td>
+   <td style="text-align:right;"> 1231.00 </td>
+   <td style="text-align:right;"> 1913.00 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 55% </td>
-   <td style="text-align:right;"> 740.0 </td>
-   <td style="text-align:right;"> 685 </td>
-   <td style="text-align:right;"> 389.00 </td>
+   <td style="text-align:right;"> 1336.75 </td>
+   <td style="text-align:right;"> 1371.00 </td>
+   <td style="text-align:right;"> 2141.00 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 60% </td>
-   <td style="text-align:right;"> 856.6 </td>
-   <td style="text-align:right;"> 783 </td>
-   <td style="text-align:right;"> 399.00 </td>
+   <td style="text-align:right;"> 1493.00 </td>
+   <td style="text-align:right;"> 1514.60 </td>
+   <td style="text-align:right;"> 2399.00 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 65% </td>
-   <td style="text-align:right;"> 992.8 </td>
-   <td style="text-align:right;"> 912 </td>
-   <td style="text-align:right;"> 411.00 </td>
+   <td style="text-align:right;"> 1691.25 </td>
+   <td style="text-align:right;"> 1686.30 </td>
+   <td style="text-align:right;"> 2647.45 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 70% </td>
-   <td style="text-align:right;"> 1171.0 </td>
-   <td style="text-align:right;"> 1098 </td>
-   <td style="text-align:right;"> 432.00 </td>
+   <td style="text-align:right;"> 1920.00 </td>
+   <td style="text-align:right;"> 1909.20 </td>
+   <td style="text-align:right;"> 2960.10 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 75% </td>
-   <td style="text-align:right;"> 1428.0 </td>
-   <td style="text-align:right;"> 1328 </td>
-   <td style="text-align:right;"> 501.00 </td>
+   <td style="text-align:right;"> 2209.50 </td>
+   <td style="text-align:right;"> 2188.25 </td>
+   <td style="text-align:right;"> 3298.75 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 80% </td>
-   <td style="text-align:right;"> 1737.0 </td>
-   <td style="text-align:right;"> 1590 </td>
-   <td style="text-align:right;"> 662.00 </td>
+   <td style="text-align:right;"> 2690.00 </td>
+   <td style="text-align:right;"> 2606.60 </td>
+   <td style="text-align:right;"> 3704.00 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 85% </td>
-   <td style="text-align:right;"> 2179.1 </td>
-   <td style="text-align:right;"> 1991 </td>
-   <td style="text-align:right;"> 1118.00 </td>
+   <td style="text-align:right;"> 3332.75 </td>
+   <td style="text-align:right;"> 3124.00 </td>
+   <td style="text-align:right;"> 4309.05 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 90% </td>
-   <td style="text-align:right;"> 3026.2 </td>
-   <td style="text-align:right;"> 2720 </td>
-   <td style="text-align:right;"> 1970.40 </td>
+   <td style="text-align:right;"> 4419.00 </td>
+   <td style="text-align:right;"> 4052.50 </td>
+   <td style="text-align:right;"> 5087.10 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 95% </td>
-   <td style="text-align:right;"> 5176.5 </td>
-   <td style="text-align:right;"> 4213 </td>
-   <td style="text-align:right;"> 3338.45 </td>
+   <td style="text-align:right;"> 7780.25 </td>
+   <td style="text-align:right;"> 6615.75 </td>
+   <td style="text-align:right;"> 6472.75 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 100% </td>
-   <td style="text-align:right;"> 150669.0 </td>
-   <td style="text-align:right;"> 148953 </td>
-   <td style="text-align:right;"> 89690.00 </td>
+   <td style="text-align:right;"> 150805.00 </td>
+   <td style="text-align:right;"> 149096.00 </td>
+   <td style="text-align:right;"> 89743.00 </td>
   </tr>
 </tbody>
 </table>
 
-Show 5% quantiles for number of mitochondrial percentage per cell per sample
+**Mitochondrial percentage per cell**
 
 ```r
-kable(round(do.call("cbind", tapply(experiment.aggregate$percent.mito, Idents(experiment.aggregate),quantile,probs=seq(0,1,0.05))), digits = 3),
-      caption = "5% Quantiles of Percent Mitochondria by Sample") %>% kable_styling()
+kable(round(do.call("cbind", tapply(experiment.aggregate$percent_MT, Idents(experiment.aggregate),quantile,probs=seq(0,1,0.05))), digits = 3),
+      caption = "5% Quantiles of Percent Mitochondrial by Sample") %>% kable_styling()
 ```
 
 <table class="table" style="margin-left: auto; margin-right: auto;">
-<caption>5% Quantiles of Percent Mitochondria by Sample</caption>
+<caption>5% Quantiles of Percent Mitochondrial by Sample</caption>
  <thead>
   <tr>
    <th style="text-align:left;">   </th>
@@ -361,183 +375,340 @@ kable(round(do.call("cbind", tapply(experiment.aggregate$percent.mito, Idents(ex
   </tr>
   <tr>
    <td style="text-align:left;"> 5% </td>
+   <td style="text-align:right;"> 0.194 </td>
    <td style="text-align:right;"> 0.245 </td>
-   <td style="text-align:right;"> 0.247 </td>
-   <td style="text-align:right;"> 0.180 </td>
+   <td style="text-align:right;"> 0.087 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 10% </td>
-   <td style="text-align:right;"> 0.340 </td>
-   <td style="text-align:right;"> 0.402 </td>
-   <td style="text-align:right;"> 0.297 </td>
+   <td style="text-align:right;"> 0.266 </td>
+   <td style="text-align:right;"> 0.350 </td>
+   <td style="text-align:right;"> 0.118 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 15% </td>
-   <td style="text-align:right;"> 0.418 </td>
-   <td style="text-align:right;"> 0.543 </td>
-   <td style="text-align:right;"> 0.491 </td>
+   <td style="text-align:right;"> 0.326 </td>
+   <td style="text-align:right;"> 0.430 </td>
+   <td style="text-align:right;"> 0.143 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 20% </td>
-   <td style="text-align:right;"> 0.504 </td>
-   <td style="text-align:right;"> 0.703 </td>
-   <td style="text-align:right;"> 0.748 </td>
+   <td style="text-align:right;"> 0.368 </td>
+   <td style="text-align:right;"> 0.510 </td>
+   <td style="text-align:right;"> 0.164 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 25% </td>
-   <td style="text-align:right;"> 0.597 </td>
-   <td style="text-align:right;"> 0.856 </td>
-   <td style="text-align:right;"> 0.946 </td>
+   <td style="text-align:right;"> 0.419 </td>
+   <td style="text-align:right;"> 0.593 </td>
+   <td style="text-align:right;"> 0.185 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 30% </td>
-   <td style="text-align:right;"> 0.699 </td>
-   <td style="text-align:right;"> 1.024 </td>
-   <td style="text-align:right;"> 1.130 </td>
+   <td style="text-align:right;"> 0.473 </td>
+   <td style="text-align:right;"> 0.677 </td>
+   <td style="text-align:right;"> 0.211 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 35% </td>
-   <td style="text-align:right;"> 0.812 </td>
-   <td style="text-align:right;"> 1.222 </td>
-   <td style="text-align:right;"> 1.292 </td>
+   <td style="text-align:right;"> 0.529 </td>
+   <td style="text-align:right;"> 0.765 </td>
+   <td style="text-align:right;"> 0.235 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 40% </td>
-   <td style="text-align:right;"> 0.931 </td>
-   <td style="text-align:right;"> 1.425 </td>
-   <td style="text-align:right;"> 1.418 </td>
+   <td style="text-align:right;"> 0.581 </td>
+   <td style="text-align:right;"> 0.851 </td>
+   <td style="text-align:right;"> 0.263 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 45% </td>
-   <td style="text-align:right;"> 1.068 </td>
-   <td style="text-align:right;"> 1.686 </td>
-   <td style="text-align:right;"> 1.542 </td>
+   <td style="text-align:right;"> 0.642 </td>
+   <td style="text-align:right;"> 0.946 </td>
+   <td style="text-align:right;"> 0.292 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 50% </td>
-   <td style="text-align:right;"> 1.245 </td>
-   <td style="text-align:right;"> 1.976 </td>
-   <td style="text-align:right;"> 1.676 </td>
+   <td style="text-align:right;"> 0.705 </td>
+   <td style="text-align:right;"> 1.043 </td>
+   <td style="text-align:right;"> 0.323 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 55% </td>
-   <td style="text-align:right;"> 1.422 </td>
-   <td style="text-align:right;"> 2.345 </td>
-   <td style="text-align:right;"> 1.774 </td>
+   <td style="text-align:right;"> 0.789 </td>
+   <td style="text-align:right;"> 1.160 </td>
+   <td style="text-align:right;"> 0.362 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 60% </td>
-   <td style="text-align:right;"> 1.624 </td>
-   <td style="text-align:right;"> 2.836 </td>
-   <td style="text-align:right;"> 1.913 </td>
+   <td style="text-align:right;"> 0.864 </td>
+   <td style="text-align:right;"> 1.281 </td>
+   <td style="text-align:right;"> 0.404 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 65% </td>
-   <td style="text-align:right;"> 1.863 </td>
-   <td style="text-align:right;"> 3.297 </td>
-   <td style="text-align:right;"> 2.020 </td>
+   <td style="text-align:right;"> 0.962 </td>
+   <td style="text-align:right;"> 1.401 </td>
+   <td style="text-align:right;"> 0.450 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 70% </td>
-   <td style="text-align:right;"> 2.164 </td>
-   <td style="text-align:right;"> 3.792 </td>
-   <td style="text-align:right;"> 2.151 </td>
+   <td style="text-align:right;"> 1.061 </td>
+   <td style="text-align:right;"> 1.537 </td>
+   <td style="text-align:right;"> 0.512 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 75% </td>
-   <td style="text-align:right;"> 2.493 </td>
-   <td style="text-align:right;"> 4.199 </td>
-   <td style="text-align:right;"> 2.286 </td>
+   <td style="text-align:right;"> 1.184 </td>
+   <td style="text-align:right;"> 1.720 </td>
+   <td style="text-align:right;"> 0.587 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 80% </td>
-   <td style="text-align:right;"> 2.871 </td>
-   <td style="text-align:right;"> 4.582 </td>
-   <td style="text-align:right;"> 2.439 </td>
+   <td style="text-align:right;"> 1.330 </td>
+   <td style="text-align:right;"> 1.912 </td>
+   <td style="text-align:right;"> 0.681 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 85% </td>
-   <td style="text-align:right;"> 3.306 </td>
-   <td style="text-align:right;"> 5.000 </td>
-   <td style="text-align:right;"> 2.604 </td>
+   <td style="text-align:right;"> 1.491 </td>
+   <td style="text-align:right;"> 2.222 </td>
+   <td style="text-align:right;"> 0.796 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 90% </td>
-   <td style="text-align:right;"> 3.869 </td>
-   <td style="text-align:right;"> 5.542 </td>
-   <td style="text-align:right;"> 2.841 </td>
+   <td style="text-align:right;"> 1.717 </td>
+   <td style="text-align:right;"> 2.735 </td>
+   <td style="text-align:right;"> 0.947 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 95% </td>
-   <td style="text-align:right;"> 4.798 </td>
-   <td style="text-align:right;"> 6.266 </td>
-   <td style="text-align:right;"> 3.176 </td>
+   <td style="text-align:right;"> 2.165 </td>
+   <td style="text-align:right;"> 3.559 </td>
+   <td style="text-align:right;"> 1.191 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> 100% </td>
-   <td style="text-align:right;"> 46.647 </td>
-   <td style="text-align:right;"> 31.370 </td>
-   <td style="text-align:right;"> 19.728 </td>
+   <td style="text-align:right;"> 14.204 </td>
+   <td style="text-align:right;"> 13.172 </td>
+   <td style="text-align:right;"> 3.481 </td>
   </tr>
 </tbody>
 </table>
 
-Violin plot of 1) number of genes, 2) number of UMI and 3) percent mitochondrial genes
+## Visualize distribution of metadata values
+Seurat has a number of convenient built-in functions for visualizing metadata. These functions produce ggplot objects, which can easily be modified using ggplot2. Of course, all of these visualizations can be reproduced with custom code as well, and we will include some examples of both modifying Seurat plots and generating plots from scratch as the analysis continues.
+
+### Violin plots
+
+The `VlnPlot` function produces a composite plot with one panel for each element of the "features" vector. The data are grouped by the provided identity; by default, this is the active identity of the object, which can be accessed using the `Idents()` function, or in the "active.ident" slot.
+
 
 ```r
-VlnPlot(
-  experiment.aggregate,
-  features = c("nFeature_RNA", "nCount_RNA","percent.mito"),
-  ncol = 1, pt.size = 0.3)
+VlnPlot(experiment.aggregate,
+        features = c("nFeature_RNA", "nCount_RNA","percent_MT"),
+        ncol = 1,
+        pt.size = 0.3)
 ```
 
 ![](scRNA_Workshop-PART2_files/figure-html/violins-1.png)<!-- -->
 
-plot ridge plots of the same data
+#### Modifying Seurat plots
+Modifying the ggplot objects produced by a Seurat plotting function works best on individual panels. Therefore, to recreate the function above with modifications, we can use `lapply` to create a list of plots. In some cases it may be more appropriate to create the plots individually so that different modifications can be applied to each plot.
 
 
 ```r
-RidgePlot(experiment.aggregate, features=c("nFeature_RNA","nCount_RNA", "percent.mito"), ncol = 2)
+lapply(c("nFeature_RNA", "nCount_RNA","percent_MT"), function(feature){
+  VlnPlot(experiment.aggregate,
+          features = feature,
+          pt.size = 0.01) +
+    scale_fill_viridis_d(option = "mako") # default colors are not colorblind-friendly
+})
 ```
 
-![](scRNA_Workshop-PART2_files/figure-html/ridgeplot_pre-1.png)<!-- -->
+```
+## [[1]]
+```
 
-Plot the distribution of number of cells each gene is represented by.
+![](scRNA_Workshop-PART2_files/figure-html/violins_list-1.png)<!-- -->
+
+```
+## 
+## [[2]]
+```
+
+![](scRNA_Workshop-PART2_files/figure-html/violins_list-2.png)<!-- -->
+
+```
+## 
+## [[3]]
+```
+
+![](scRNA_Workshop-PART2_files/figure-html/violins_list-3.png)<!-- -->
 
 ```r
-plot(sort(Matrix::rowSums(GetAssayData(experiment.aggregate) >= 3), decreasing = TRUE) , xlab="gene rank", ylab="number of cells", main="Cells per genes (reads/gene >= 3 )")
+VlnPlot(experiment.aggregate, features = "nCount_RNA", pt.size = 0.01) + 
+  scale_y_continuous(trans = "log10") +
+  scale_fill_viridis_d(option = "mako") +
+  ggtitle("log10(nCount_RNA)")
+```
+
+![](scRNA_Workshop-PART2_files/figure-html/violins_list-4.png)<!-- -->
+
+These can later be stitched together with another library, like patchwork, or cowplot.
+
+### Ridge plots
+
+Ridge plots are very similar in appearance to violin plots turned on their sides. In some cases it may be more appropriate to create the plots individually so that appropriate transformations can be applied to each plot.
+
+
+```r
+RidgePlot(experiment.aggregate, features="nFeature_RNA") +
+  scale_fill_viridis_d(option = "mako")
+```
+
+![](scRNA_Workshop-PART2_files/figure-html/ridgeplot-1.png)<!-- -->
+
+```r
+RidgePlot(experiment.aggregate, features="nCount_RNA") +
+  scale_x_continuous(trans = "log10") + # "un-squish" the distribution
+  scale_fill_viridis_d(option = "mako")
+```
+
+![](scRNA_Workshop-PART2_files/figure-html/ridgeplot-2.png)<!-- -->
+
+```r
+RidgePlot(experiment.aggregate, features="percent_MT") +
+  scale_fill_viridis_d(option = "mako") +
+  coord_cartesian(xlim = c(0, 10)) # zoom in on the lower end of the distribution
+```
+
+![](scRNA_Workshop-PART2_files/figure-html/ridgeplot-3.png)<!-- -->
+
+### Custom plots
+The Seurat built-in functions are useful and easy to interact with, but sometimes you may wish to visualize something for which a plotting function does not already exist. For example, we might want to see how many cells are expressing each gene over some UMI threshold.
+
+The code below produces a ranked plot similar to the barcode inflection plots from the last section. On the x-axis are the genes arranged from most ubiquitously expressed to rarest. In a single cell dataset, many genes are expessed in a relatively small number of cells, or not at all. The y-axis displays the number of cells in which each gene is expressed.
+
+**Note: this function is SLOW You may want to skip this code block or run it while you take a break for a few minutes.**
+
+
+```r
+# retrieve count data
+counts <- GetAssayData(experiment.aggregate)
+# order genes from most to least ubiquitous
+ranked.genes <- names(sort(Matrix::rowSums(counts >= 3), decreasing = TRUE))
+# drop genes not expressed in any cell
+ranked.genes <- ranked.genes[ranked.genes %in% names(which(Matrix::rowSums(counts >= 3) >= 1))]
+# get number of cells for each sample
+cell.counts <- sapply(ranked.genes, function(gene){
+  tapply(counts[gene,], experiment.aggregate$orig.ident, function(x){
+    sum(x >= 3)
+  })
+})
+cell.counts <- as.data.frame(t(cell.counts))
+cell.counts$gene <- rownames(cell.counts)
+cell.counts <- melt(cell.counts, variable.name = "sample", value.name = "count")
+cell.counts$rank <- match(ranked.genes, cell.counts$gene)
+# plot
+ggplot(cell.counts, mapping = aes(x = rank, y = count, color = sample)) +
+  scale_x_continuous(trans = "log10") +
+  scale_y_continuous(trans = "log10") +
+  geom_smooth() +
+  scale_color_viridis_d(option = "mako") +
+  theme_classic() +
+  theme(legend.title = element_blank())
 ```
 
 ![](scRNA_Workshop-PART2_files/figure-html/gene_range-1.png)<!-- -->
 
+```r
+rm(counts, ranked.genes, cell.counts)
+```
 
-Gene Plot, scatter plot of gene expression across cells, (colored by sample), drawing horizontal an verticale lines at proposed filtering cutoffs.
+### Scatter plots
 
+Scatter plots allow us to visualize the relationships between the metadata variables.
 
 
 ```r
-FeatureScatter(experiment.aggregate, feature1 = "nCount_RNA", feature2 = "percent.mito", shuffle = TRUE) + geom_vline(xintercept = c(600,12000)) + geom_hline(yintercept = 8)
+# mitochondrial vs UMI
+FeatureScatter(experiment.aggregate,
+               feature1 = "nCount_RNA",
+               feature2 = "percent_MT",
+               shuffle = TRUE) +
+  scale_color_viridis_d(option = "mako")
 ```
 
 ![](scRNA_Workshop-PART2_files/figure-html/relationships-1.png)<!-- -->
 
 ```r
-FeatureScatter(experiment.aggregate, feature1 = "nFeature_RNA", feature2 = "percent.mito", shuffle = TRUE) + geom_vline(xintercept = c(400,4000)) + geom_hline(yintercept = 8)
+# mitochondrial vs genes
+FeatureScatter(experiment.aggregate,
+               feature1 = "nFeature_RNA",
+               feature2 = "percent_MT",
+               shuffle = TRUE) +
+  scale_color_viridis_d(option = "mako")
 ```
 
 ![](scRNA_Workshop-PART2_files/figure-html/relationships-2.png)<!-- -->
 
 ```r
-FeatureScatter(
-  experiment.aggregate, "nCount_RNA", "nFeature_RNA",
-  pt.size = 0.5, shuffle = TRUE)  + geom_vline(xintercept = c(600,12000)) + geom_hline(yintercept = c(400, 4000))
+# genes vs UMI
+FeatureScatter(experiment.aggregate,
+               feature1 = "nCount_RNA",
+               feature2 = "nFeature_RNA",
+               shuffle = TRUE)  +
+  scale_color_viridis_d(option = "mako")
 ```
 
 ![](scRNA_Workshop-PART2_files/figure-html/relationships-3.png)<!-- -->
 
-### Cell filtering
+## Cell filtering
+The goal of cell filtering is to remove cells with anomolous expression profiles, typically low UMI cells, which may correspond to low-quality cells or background barcodes that made it through the Cell Ranger filtration algorithm. It may also be appropriate to remove outlier cells with extremely high UMI counts.
 
-We use the information above to filter out cells. Here we choose those that have percent mitochondrial genes max of 8%, unique UMI counts under 1,000 or greater than 12,000 and contain at least 700 features within them.
+In this case, the proposed cut-offs on the high end of the distributions are quite conservative, in part to reduce the size of the object and speed up analysis during the workshop.
+
+The plots below display proposed filtering cut-offs.
+
+```r
+FeatureScatter(experiment.aggregate,
+               feature1 = "nCount_RNA",
+               feature2 = "percent_MT",
+               shuffle = TRUE) +
+  geom_vline(xintercept = c(1000, 25000)) +
+  geom_hline(yintercept = 5) +
+  scale_color_viridis_d(option = "mako")
+```
+
+![](scRNA_Workshop-PART2_files/figure-html/thresholds-1.png)<!-- -->
+
+```r
+FeatureScatter(experiment.aggregate,
+               feature1 = "nFeature_RNA",
+               feature2 = "percent_MT",
+               shuffle = TRUE) +
+  geom_vline(xintercept = c(500, 7500)) +
+  geom_hline(yintercept = 5) +
+  scale_color_viridis_d(option = "mako")
+```
+
+![](scRNA_Workshop-PART2_files/figure-html/thresholds-2.png)<!-- -->
+
+```r
+FeatureScatter(experiment.aggregate,
+               feature1 = "nCount_RNA",
+               feature2 = "nFeature_RNA",
+               pt.size = 0.5,
+               shuffle = TRUE)  +
+  geom_vline(xintercept = c(1000, 25000)) +
+  geom_hline(yintercept = c(500, 7500)) +
+  scale_color_viridis_d(option = "mako")
+```
+
+![](scRNA_Workshop-PART2_files/figure-html/thresholds-3.png)<!-- -->
+
+These filters can be put in place with the `subset` function.
 
 
 ```r
@@ -547,77 +718,106 @@ table(experiment.aggregate$orig.ident)
 ```
 ## 
 ## A001-C-007 A001-C-104 B001-A-301 
-##       3047       5881      21974
+##       1796       3142       4514
 ```
 
 ```r
-experiment.aggregate <- subset(experiment.aggregate, percent.mito <= 8)
-
-experiment.aggregate <- subset(experiment.aggregate, nCount_RNA >= 500 & nCount_RNA <= 12000)
-
-experiment.aggregate <- subset(experiment.aggregate, nFeature_RNA >= 400 & nFeature_RNA < 4000)
-
-experiment.aggregate
+# mitochondrial filter
+experiment.filter <- subset(experiment.aggregate, percent_MT <= 5)
+# UMI filter
+experiment.filter <- subset(experiment.filter, nCount_RNA >= 1000 & nCount_RNA <= 25000)
+# gene filter
+experiment.filter <- subset(experiment.filter, nFeature_RNA >= 500 & nFeature_RNA <= 7500)
+# filtering results
+experiment.filter
 ```
 
 ```
 ## An object of class Seurat 
-## 21005 features across 10595 samples within 1 assay 
-## Active assay: RNA (21005 features, 0 variable features)
+## 36601 features across 6312 samples within 1 assay 
+## Active assay: RNA (36601 features, 0 variable features)
 ```
 
 ```r
-table(experiment.aggregate$orig.ident)
+table(experiment.filter$orig.ident)
 ```
 
 ```
 ## 
 ## A001-C-007 A001-C-104 B001-A-301 
-##       1774       3416       5405
+##       1023       1858       3431
 ```
 
-Lets se the ridge plots now after filtering
+```r
+# ridge plots
+RidgePlot(experiment.filter, features="nFeature_RNA") +
+  scale_fill_viridis_d(option = "mako")
+```
+
+![](scRNA_Workshop-PART2_files/figure-html/cell_filtering-1.png)<!-- -->
+
+```r
+RidgePlot(experiment.filter, features="nCount_RNA") +
+  scale_x_continuous(trans = "log10") + 
+  scale_fill_viridis_d(option = "mako")
+```
+
+![](scRNA_Workshop-PART2_files/figure-html/cell_filtering-2.png)<!-- -->
+
+```r
+RidgePlot(experiment.filter, features="percent_MT") +
+  scale_fill_viridis_d(option = "mako")
+```
+
+![](scRNA_Workshop-PART2_files/figure-html/cell_filtering-3.png)<!-- -->
+
+```r
+# use filtered results from now on
+experiment.aggregate <- experiment.filter
+rm(experiment.filter)
+```
+
+**Play with the filtering parameters, and see how the results change. Is there a set of parameters you feel is more appropriate? Why?**
+
+## Feature filtering
+
+When creating the base Seurat object, we had the opportunity filter out some genes using the "min.cells" argument. At the time, we set that to 0. Since we didn't filter our features then, we can apply a filter at this point, or if we did filter when the object was created, this would be an opportunity to be more aggressive with filtration. The custom code below provides a function that filters genes requiring a min.umi in at least min.cells, or takes a user-provided list of genes.
 
 
 ```r
-RidgePlot(experiment.aggregate, features=c("nFeature_RNA","nCount_RNA", "percent.mito"), ncol = 2)
-```
-
-![](scRNA_Workshop-PART2_files/figure-html/ridgeplot_post-1.png)<!-- -->
-<br>
-
-### You may also want to filter out additional genes.
-
-<br>
-
-When creating the base Seurat object we did filter out some genes, recall _Keep all genes expressed in >= 10 cells_. After filtering cells and you may want to be more aggressive with the gene filter. Seurat doesn't supply such a function (that I can find), so below is a function that can do so, it filters genes requiring a min.value (log-normalized) in at least min.cells, here expression of 1 in at least 400 cells.
-
-
-```r
-experiment.aggregate
-FilterGenes <-
- function (object, min.value=1, min.cells = 0, genes = NULL) {
-   genes.use <- rownames(object)
-   if (!is.null(genes)) {
-     genes.use <- intersect(genes.use, genes)
-     object@data <- GetAssayData(object)[genes.use, ]
-   } else if (min.cells > 0) {
-     num.cells <- Matrix::rowSums(GetAssayData(object) > min.value)
-     genes.use <- names(num.cells[which(num.cells >= min.cells)])
-     object = object[genes.use, ]
-   }
-  object <- LogSeuratCommand(object = object)
+# define function
+FilterGenes <- function(object, min.umi = NA, min.cells = NA, genes = NULL) {
+  genes.use = NA
+  if (!is.null(genes)) {
+    genes.use = intersect(rownames(object), genes)
+    } else if (min.cells & min.umi) {
+      num.cells = Matrix::rowSums(GetAssayData(object) >= min.umi)
+      genes.use = names(num.cells[which(num.cells >= min.cells)])
+    }
+  object = object[genes.use,]
+  object = LogSeuratCommand(object = object)
   return(object)
 }
-
-experiment.aggregate.genes <- FilterGenes(object = experiment.aggregate, min.value = 1, min.cells = 400)
-experiment.aggregate.genes
-rm(experiment.aggregate.genes)
+# apply filter
+experiment.filter <- FilterGenes(object = experiment.aggregate, min.umi = 2, min.cells = 10)
+# filtering results
+experiment.filter
 ```
 
-## Next we want to normalize the data
+```
+## An object of class Seurat 
+## 11292 features across 6312 samples within 1 assay 
+## Active assay: RNA (11292 features, 0 variable features)
+```
 
-After filtering out cells from the dataset, the next step is to normalize the data. By default, we employ a global-scaling normalization method LogNormalize that normalizes the gene expression measurements for each cell by the total expression, multiplies this by a scale factor (10,000 by default), and then log-transforms the data.
+```r
+experiment.aggregate <- experiment.filter
+rm(experiment.filter)
+```
+
+## Normalize the data
+
+After filtering, the next step is to normalize the data. We employ a global-scaling normalization method LogNormalize that normalizes the gene expression measurements for each cell by the total expression, multiplies this by a scale factor (10,000 by default), and then log-transforms the data.
 
 
 ```r
@@ -632,21 +832,57 @@ experiment.aggregate <- NormalizeData(
   scale.factor = 10000)
 ```
 
-### Calculate Cell-Cycle with Seurat, the list of genes comes with Seurat (only for human)
-[Dissecting the multicellular ecosystem of metastatic melanoma by single-cell RNA-seq](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4944528/)
+## Cell cycle assignment
+Cell cycle phase can be a significant source of variation in single cell and single nucleus experiments. There are a number of automated cell cycle stage detection methods available for single cell data. For this workshop, we will be using the built-in Seurat cell cycle function, `CellCycleScoring`. This tool compares gene expression in each cell to a list of cell cycle marker genes and scores each barcode based on marker expression. The phase with the highest score is selected for each barcode. Seurat includes a list of cell cycle genes in human single cell data.
 
 
 ```r
-# this code is for human samples only!
-s.genes <- (cc.genes$s.genes)
-g2m.genes <- (cc.genes$g2m.genes)
+s.genes <- cc.genes$s.genes
+g2m.genes <- cc.genes$g2m.genes
+```
 
+For other species, a user-provided gene list may be substituted, or the orthologs of the human gene list used instead.
+
+**Do not run the code below for human experiments!**
+
+```r
+# mouse code DO NOT RUN for human data
+convertHumanGeneList <- function(x){
+  require("biomaRt")
+  human = useEnsembl("ensembl",
+                     dataset = "hsapiens_gene_ensembl",
+                     mirror = "uswest")
+  mouse = useEnsembl("ensembl",
+                     dataset = "mmusculus_gene_ensembl",
+                     mirror = "uswest")
+  genes = getLDS(attributes = c("hgnc_symbol"),
+                 filters = "hgnc_symbol",
+                 values = x ,
+                 mart = human,
+                 attributesL = c("mgi_symbol"),
+                 martL = mouse,
+                 uniqueRows=T)
+  humanx = unique(genes[, 2])
+  print(head(humanx)) # print first 6 genes found to the screen
+  return(humanx)
+}
+# convert lists to mouse orthologs
+s.genes <- convertHumanGeneList(cc.genes.updated.2019$s.genes)
+g2m.genes <- convertHumanGeneList(cc.genes.updated.2019$g2m.genes)
+```
+
+Once an appropriate gene list has been identified, the `CellCycleScoring` function can be run.
+
+
+```r
 experiment.aggregate <- CellCycleScoring(experiment.aggregate,
                                          s.features = s.genes,
                                          g2m.features = g2m.genes,
                                          set.ident = TRUE)
 table(experiment.aggregate@meta.data$Phase) %>%
-  kable(caption = "Number of Cells in each Cell Cycle Stage", col.names = c("Stage", "Count"), align = "c") %>%
+  kable(caption = "Number of Cells in each Cell Cycle Stage",
+        col.names = c("Stage", "Count"),
+        align = "c") %>%
   kable_styling()
 ```
 
@@ -661,48 +897,24 @@ table(experiment.aggregate@meta.data$Phase) %>%
 <tbody>
   <tr>
    <td style="text-align:center;"> G1 </td>
-   <td style="text-align:center;"> 5465 </td>
+   <td style="text-align:center;"> 3759 </td>
   </tr>
   <tr>
    <td style="text-align:center;"> G2M </td>
-   <td style="text-align:center;"> 2327 </td>
+   <td style="text-align:center;"> 1136 </td>
   </tr>
   <tr>
    <td style="text-align:center;"> S </td>
-   <td style="text-align:center;"> 2803 </td>
+   <td style="text-align:center;"> 1417 </td>
   </tr>
 </tbody>
 </table>
 
-For mouse data, we would need to convert the gene lists from human genes to their mouse orthologs using Biomart. **Skip this code for the workshop data.**
-
-
 ```r
-# Mouse Code DO NOT RUN
-convertHumanGeneList <- function(x){
-  require("biomaRt")
-  human = useEnsembl("ensembl", dataset = "hsapiens_gene_ensembl", mirror = "uswest")
-  mouse = useEnsembl("ensembl", dataset = "mmusculus_gene_ensembl", mirror = "uswest")
-
-  genes = getLDS(attributes = c("hgnc_symbol"), filters = "hgnc_symbol", values = x , mart = human, attributesL = c("mgi_symbol"), martL = mouse, uniqueRows=T)
-
-  humanx <- unique(genes[, 2])
-
-  # Print the first 6 genes found to the screen
-  print(head(humanx))
-  return(humanx)
-}
-
-m.s.genes <- convertHumanGeneList(cc.genes.updated.2019$s.genes)
-m.g2m.genes <- convertHumanGeneList(cc.genes.updated.2019$g2m.genes)
-
-# Create our Seurat object and complete the initialization steps
-experiment.aggregate <- CellCycleScoring(experiment.aggregate, s.features = m.s.genes, g2m.features = m.g2m.genes, set.ident = TRUE)
-
-table(experiment.aggregate@meta.data$Phase) %>% kable(caption = "Number of Cells in each Cell Cycle Stage", col.names = c("Stage", "Count"), align = "c") %>% kable_styling()
+rm(s.genes, g2m.genes)
 ```
 
-#### Fixing the defualt "Ident" in Seurat
+Because the "set.ident" argument was set to TRUE (this is also the default behavior), the active identity of the Seurat object was changed to the phase. To return the active identity to the sample identity, use the `Idents` function.
 
 
 ```r
@@ -712,11 +924,10 @@ table(Idents(experiment.aggregate))
 ```
 ## 
 ##    S  G2M   G1 
-## 2803 2327 5465
+## 1417 1136 3759
 ```
 
 ```r
-## So lets change it back to sample name
 Idents(experiment.aggregate) <- "orig.ident"
 table(Idents(experiment.aggregate))
 ```
@@ -724,7 +935,7 @@ table(Idents(experiment.aggregate))
 ```
 ## 
 ## A001-C-007 A001-C-104 B001-A-301 
-##       1774       3416       5405
+##       1023       1858       3431
 ```
 
 
@@ -742,7 +953,6 @@ The function FindVariableFeatures identifies the most highly variable genes (def
 experiment.aggregate <- FindVariableFeatures(
   object = experiment.aggregate,
   selection.method = "vst")
-
 length(VariableFeatures(experiment.aggregate))
 ```
 
@@ -752,13 +962,12 @@ length(VariableFeatures(experiment.aggregate))
 
 ```r
 top10 <- head(VariableFeatures(experiment.aggregate), 10)
-
 top10
 ```
 
 ```
-##  [1] "BEST4"   "NRG1"    "TPH1"    "CLCA4"   "CACNA1A" "TRPM3"   "CTNNA2" 
-##  [8] "TIMP3"   "CA7"     "LRMP"
+##  [1] "BEST4"      "CLCA4"      "SMOC2"      "NRG1"       "TPH1"      
+##  [6] "LRMP"       "TRPM3"      "PTPRR"      "AC007493.1" "CACNA1A"
 ```
 
 ```r
@@ -769,50 +978,34 @@ vfp1
 
 ![](scRNA_Workshop-PART2_files/figure-html/find_variable_genes-1.png)<!-- -->
 
+**How do the results change if you use selection.method = "dispersion" or selection.method = "mean.var.plot"?**
+
 FindVariableFeatures isn't the only way to set the "variable features" of a Seurat object. Another reasonable approach is to select a set of "minimally expressed" genes.
 
 
 ```r
-dim(experiment.aggregate)
-```
+min.value <- 2
+min.cells <- 10
 
-```
-## [1] 21005 10595
-```
-
-```r
-min.value = 2
-min.cells = 10
 num.cells <- Matrix::rowSums(GetAssayData(experiment.aggregate, slot = "count") > min.value)
 genes.use <- names(num.cells[which(num.cells >= min.cells)])
 length(genes.use)
 ```
 
 ```
-## [1] 5986
+## [1] 7012
 ```
 
 ```r
 VariableFeatures(experiment.aggregate) <- genes.use
+rm(min.value, min.cells, num.cells, genes.use)
 ```
 
-
-#### Question(s)
-
-1. Play some with the filtering parameters, see how results change?
-2. How do the results change if you use selection.method = "dispersion" or selection.method = "mean.var.plot"
-
-
-## Finally, lets save the filtered and normalized data
+## Save the Seurat object and download the next Rmd file
 
 ```r
-save(experiment.aggregate, file="pre_sample_corrected.RData")
-```
-
-## Get the next Rmd file
-
-```r
-download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-December-Single-Cell-RNA-Seq-Analysis/main/data_analysis/scRNA_Workshop-PART3.Rmd", "scRNA_Workshop-PART3.Rmd")
+saveRDS(experiment.aggregate, file="scRNA_workshop_2.rds")
+download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2023-June-Single-Cell-RNA-Seq-Analysis/main/data_analysis/scRNA_Workshop-PART3.Rmd", "scRNA_Workshop-PART3.Rmd")
 ```
 
 ## Session Information
@@ -822,13 +1015,13 @@ sessionInfo()
 ```
 
 ```
-## R version 4.2.2 (2022-10-31)
+## R version 4.1.0 (2021-05-18)
 ## Platform: x86_64-apple-darwin17.0 (64-bit)
-## Running under: macOS Catalina 10.15.7
+## Running under: macOS Big Sur 10.16
 ## 
 ## Matrix products: default
-## BLAS:   /Library/Frameworks/R.framework/Versions/4.2/Resources/lib/libRblas.0.dylib
-## LAPACK: /Library/Frameworks/R.framework/Versions/4.2/Resources/lib/libRlapack.dylib
+## BLAS:   /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRblas.dylib
+## LAPACK: /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRlapack.dylib
 ## 
 ## locale:
 ## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
@@ -837,59 +1030,57 @@ sessionInfo()
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] kableExtra_1.3.4   knitr_1.41         ggplot2_3.4.0      biomaRt_2.54.0    
-## [5] SeuratObject_4.1.3 Seurat_4.3.0      
+## [1] reshape2_1.4.4     kableExtra_1.3.4   knitr_1.43         ggplot2_3.4.2     
+## [5] biomaRt_2.50.3     SeuratObject_4.1.3 Seurat_4.3.0      
 ## 
 ## loaded via a namespace (and not attached):
-##   [1] systemfonts_1.0.4      BiocFileCache_2.6.0    plyr_1.8.8            
-##   [4] igraph_1.3.5           lazyeval_0.2.2         sp_1.5-1              
-##   [7] splines_4.2.2          listenv_0.8.0          scattermore_0.8       
-##  [10] GenomeInfoDb_1.34.3    digest_0.6.30          htmltools_0.5.3       
-##  [13] fansi_1.0.3            magrittr_2.0.3         memoise_2.0.1         
+##   [1] systemfonts_1.0.4      BiocFileCache_2.2.1    plyr_1.8.8            
+##   [4] igraph_1.5.0           lazyeval_0.2.2         sp_1.6-1              
+##   [7] splines_4.1.0          listenv_0.9.0          scattermore_1.2       
+##  [10] GenomeInfoDb_1.30.1    digest_0.6.31          htmltools_0.5.5       
+##  [13] fansi_1.0.4            magrittr_2.0.3         memoise_2.0.1         
 ##  [16] tensor_1.5             cluster_2.1.4          ROCR_1.0-11           
-##  [19] globals_0.16.2         Biostrings_2.66.0      matrixStats_0.63.0    
-##  [22] svglite_2.1.0          spatstat.sparse_3.0-0  prettyunits_1.1.1     
-##  [25] colorspace_2.0-3       rvest_1.0.3            rappdirs_0.3.3        
-##  [28] blob_1.2.3             ggrepel_0.9.2          xfun_0.35             
-##  [31] dplyr_1.0.10           crayon_1.5.2           RCurl_1.98-1.9        
-##  [34] jsonlite_1.8.3         progressr_0.11.0       spatstat.data_3.0-0   
-##  [37] survival_3.4-0         zoo_1.8-11             glue_1.6.2            
-##  [40] polyclip_1.10-4        gtable_0.3.1           zlibbioc_1.44.0       
-##  [43] XVector_0.38.0         webshot_0.5.4          leiden_0.4.3          
-##  [46] future.apply_1.10.0    BiocGenerics_0.44.0    abind_1.4-5           
-##  [49] scales_1.2.1           DBI_1.1.3              spatstat.random_3.0-1 
-##  [52] miniUI_0.1.1.1         Rcpp_1.0.9             progress_1.2.2        
-##  [55] viridisLite_0.4.1      xtable_1.8-4           reticulate_1.26       
-##  [58] bit_4.0.5              stats4_4.2.2           htmlwidgets_1.5.4     
-##  [61] httr_1.4.4             RColorBrewer_1.1-3     ellipsis_0.3.2        
+##  [19] globals_0.16.2         Biostrings_2.62.0      matrixStats_1.0.0     
+##  [22] svglite_2.1.1          spatstat.sparse_3.0-1  prettyunits_1.1.1     
+##  [25] colorspace_2.1-0       rvest_1.0.3            rappdirs_0.3.3        
+##  [28] blob_1.2.4             ggrepel_0.9.3          xfun_0.39             
+##  [31] dplyr_1.1.2            crayon_1.5.2           RCurl_1.98-1.12       
+##  [34] jsonlite_1.8.5         progressr_0.13.0       spatstat.data_3.0-1   
+##  [37] survival_3.5-5         zoo_1.8-12             glue_1.6.2            
+##  [40] polyclip_1.10-4        gtable_0.3.3           zlibbioc_1.40.0       
+##  [43] XVector_0.34.0         webshot_0.5.4          leiden_0.4.3          
+##  [46] future.apply_1.11.0    BiocGenerics_0.40.0    abind_1.4-5           
+##  [49] scales_1.2.1           DBI_1.1.3              spatstat.random_3.1-5 
+##  [52] miniUI_0.1.1.1         Rcpp_1.0.10            progress_1.2.2        
+##  [55] viridisLite_0.4.2      xtable_1.8-4           reticulate_1.30       
+##  [58] bit_4.0.5              stats4_4.1.0           htmlwidgets_1.6.2     
+##  [61] httr_1.4.6             RColorBrewer_1.1-3     ellipsis_0.3.2        
 ##  [64] ica_1.0-3              farver_2.1.1           pkgconfig_2.0.3       
-##  [67] XML_3.99-0.12          dbplyr_2.2.1           sass_0.4.4            
-##  [70] uwot_0.1.14            deldir_1.0-6           utf8_1.2.2            
-##  [73] labeling_0.4.2         tidyselect_1.2.0       rlang_1.0.6           
-##  [76] reshape2_1.4.4         later_1.3.0            AnnotationDbi_1.60.0  
-##  [79] munsell_0.5.0          tools_4.2.2            cachem_1.0.6          
-##  [82] cli_3.4.1              generics_0.1.3         RSQLite_2.2.19        
-##  [85] ggridges_0.5.4         evaluate_0.18          stringr_1.4.1         
-##  [88] fastmap_1.1.0          yaml_2.3.6             goftest_1.2-3         
-##  [91] bit64_4.0.5            fitdistrplus_1.1-8     purrr_0.3.5           
-##  [94] RANN_2.6.1             KEGGREST_1.38.0        pbapply_1.6-0         
-##  [97] future_1.29.0          nlme_3.1-160           mime_0.12             
-## [100] ggrastr_1.0.1          xml2_1.3.3             compiler_4.2.2        
-## [103] rstudioapi_0.14        beeswarm_0.4.0         filelock_1.0.2        
-## [106] curl_4.3.3             plotly_4.10.1          png_0.1-8             
-## [109] spatstat.utils_3.0-1   tibble_3.1.8           bslib_0.4.1           
-## [112] stringi_1.7.8          highr_0.9              lattice_0.20-45       
-## [115] Matrix_1.5-3           vctrs_0.5.1            pillar_1.8.1          
-## [118] lifecycle_1.0.3        spatstat.geom_3.0-3    lmtest_0.9-40         
-## [121] jquerylib_0.1.4        RcppAnnoy_0.0.20       bitops_1.0-7          
-## [124] data.table_1.14.6      cowplot_1.1.1          irlba_2.3.5.1         
-## [127] httpuv_1.6.6           patchwork_1.1.2        R6_2.5.1              
-## [130] promises_1.2.0.1       KernSmooth_2.23-20     gridExtra_2.3         
-## [133] vipor_0.4.5            IRanges_2.32.0         parallelly_1.32.1     
-## [136] codetools_0.2-18       MASS_7.3-58.1          assertthat_0.2.1      
-## [139] withr_2.5.0            sctransform_0.3.5      GenomeInfoDbData_1.2.9
-## [142] S4Vectors_0.36.0       hms_1.1.2              parallel_4.2.2        
-## [145] grid_4.2.2             tidyr_1.2.1            rmarkdown_2.18        
-## [148] Rtsne_0.16             spatstat.explore_3.0-5 Biobase_2.58.0        
-## [151] shiny_1.7.3            ggbeeswarm_0.6.0
+##  [67] XML_3.99-0.14          dbplyr_2.3.2           sass_0.4.6            
+##  [70] uwot_0.1.14            deldir_1.0-9           utf8_1.2.3            
+##  [73] labeling_0.4.2         tidyselect_1.2.0       rlang_1.1.1           
+##  [76] later_1.3.1            AnnotationDbi_1.56.2   munsell_0.5.0         
+##  [79] tools_4.1.0            cachem_1.0.8           cli_3.6.1             
+##  [82] generics_0.1.3         RSQLite_2.3.1          ggridges_0.5.4        
+##  [85] evaluate_0.21          stringr_1.5.0          fastmap_1.1.1         
+##  [88] yaml_2.3.7             goftest_1.2-3          bit64_4.0.5           
+##  [91] fitdistrplus_1.1-11    purrr_1.0.1            RANN_2.6.1            
+##  [94] KEGGREST_1.34.0        pbapply_1.7-0          future_1.32.0         
+##  [97] nlme_3.1-162           mime_0.12              xml2_1.3.4            
+## [100] compiler_4.1.0         rstudioapi_0.14        filelock_1.0.2        
+## [103] curl_5.0.1             plotly_4.10.2          png_0.1-8             
+## [106] spatstat.utils_3.0-3   tibble_3.2.1           bslib_0.5.0           
+## [109] stringi_1.7.12         highr_0.10             lattice_0.21-8        
+## [112] Matrix_1.5-4.1         vctrs_0.6.3            pillar_1.9.0          
+## [115] lifecycle_1.0.3        spatstat.geom_3.2-1    lmtest_0.9-40         
+## [118] jquerylib_0.1.4        RcppAnnoy_0.0.20       data.table_1.14.8     
+## [121] cowplot_1.1.1          bitops_1.0-7           irlba_2.3.5.1         
+## [124] httpuv_1.6.11          patchwork_1.1.2        R6_2.5.1              
+## [127] promises_1.2.0.1       KernSmooth_2.23-21     gridExtra_2.3         
+## [130] IRanges_2.28.0         parallelly_1.36.0      codetools_0.2-19      
+## [133] MASS_7.3-60            withr_2.5.0            sctransform_0.3.5     
+## [136] S4Vectors_0.32.4       GenomeInfoDbData_1.2.7 mgcv_1.8-42           
+## [139] hms_1.1.3              parallel_4.1.0         grid_4.1.0            
+## [142] tidyr_1.3.0            rmarkdown_2.22         Rtsne_0.16            
+## [145] spatstat.explore_3.2-1 Biobase_2.54.0         shiny_1.7.4
 ```
