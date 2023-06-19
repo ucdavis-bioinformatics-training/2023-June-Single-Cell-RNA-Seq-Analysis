@@ -369,7 +369,7 @@ Cell Ranger does produce a more readable HTML report with the same statistics an
 
     ```bash
     cd /share/workshop/scRNA_workshop/$USER/scrnaseq_example
-    ln -s /share/workshop/scRNA_workshop/cellranger_outs ./A001-C-007-copy
+    ln -s /share/workshop/scRNA_workshop/cellranger_outs/A001-C-007-subset ./A001-C-007-copy
     ```
 
 	1. Explore the folder A001-C-007-copy. Which output folders/files contain the expression matrix?
