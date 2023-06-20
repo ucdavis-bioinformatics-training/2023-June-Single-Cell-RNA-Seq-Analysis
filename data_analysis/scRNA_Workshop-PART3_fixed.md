@@ -29,8 +29,8 @@ experiment.aggregate <- readRDS(file="scRNA_workshop_2.rds")
 experiment.aggregate
 ```
 
-<div class='r_output'> An object of class Seurat 
- 11292 features across 6312 samples within 1 assay 
+<div class='r_output'> An object of class Seurat
+ 11292 features across 6312 samples within 1 assay
  Active assay: RNA (11292 features, 7012 variable features)
 </div>
 Set a seed for any pseudo-random functions.
@@ -157,9 +157,11 @@ PCs with a strong enrichment of low p-value genes are identified as significant 
 ```r
 experiment.aggregate <- JackStraw(experiment.aggregate, dims = 100)
 JackStrawPlot(object = experiment.aggregate, dims = 1:100) +
-  scale_color_viridis_d(option = "turbo") +
+  scale_color_viridis_d() +
   theme(legend.position="bottom")
 ```
+
+![](scRNA_Workshop-PART3_files/figure-html/jackstraw-1.png)<!-- -->
 
 ## Save the Seurat object and download the next Rmd file
 
@@ -177,20 +179,20 @@ sessionInfo()
 <div class='r_output'> R version 4.1.0 (2021-05-18)
  Platform: x86_64-apple-darwin17.0 (64-bit)
  Running under: macOS Big Sur 10.16
- 
+
  Matrix products: default
  BLAS:   /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRblas.dylib
  LAPACK: /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRlapack.dylib
- 
+
  locale:
  [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
- 
+
  attached base packages:
  [1] stats     graphics  grDevices utils     datasets  methods   base     
- 
+
  other attached packages:
  [1] ggplot2_3.4.2      knitr_1.43         SeuratObject_4.1.3 Seurat_4.3.0      
- 
+
  loaded via a namespace (and not attached):
    [1] Rtsne_0.16             colorspace_2.1-0       deldir_1.0-9          
    [4] ellipsis_0.3.2         ggridges_0.5.4         rstudioapi_0.14       
@@ -199,7 +201,7 @@ sessionInfo()
   [13] codetools_0.2-19       splines_4.1.0          cachem_1.0.8          
   [16] polyclip_1.10-4        jsonlite_1.8.5         ica_1.0-3             
   [19] cluster_2.1.4          png_0.1-8              uwot_0.1.14           
-  [22] shiny_1.7.4            sctransform_0.3.5      spatstat.sparse_3.0-1 
+  [22] shiny_1.7.4            sctransform_0.3.5      spatstat.sparse_3.0-1
   [25] compiler_4.1.0         httr_1.4.6             Matrix_1.5-4.1        
   [28] fastmap_1.1.1          lazyeval_0.2.2         cli_3.6.1             
   [31] later_1.3.1            htmltools_0.5.5        tools_4.1.0           
@@ -207,7 +209,7 @@ sessionInfo()
   [37] RANN_2.6.1             reshape2_1.4.4         dplyr_1.1.2           
   [40] Rcpp_1.0.10            scattermore_1.2        jquerylib_0.1.4       
   [43] vctrs_0.6.3            nlme_3.1-162           spatstat.explore_3.2-1
-  [46] progressr_0.13.0       lmtest_0.9-40          spatstat.random_3.1-5 
+  [46] progressr_0.13.0       lmtest_0.9-40          spatstat.random_3.1-5
   [49] xfun_0.39              stringr_1.5.0          globals_0.16.2        
   [52] mime_0.12              miniUI_0.1.1.1         lifecycle_1.0.3       
   [55] irlba_2.3.5.1          goftest_1.2-3          future_1.32.0         
