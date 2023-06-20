@@ -361,7 +361,7 @@ Cell Ranger does produce a more readable HTML report with the same statistics an
     update the email address in the script if you like.
 
     ```bash
-    sbatch cellranger-counts.sh
+    sbatch cellranger-counts.slurm
     ```
 
 
