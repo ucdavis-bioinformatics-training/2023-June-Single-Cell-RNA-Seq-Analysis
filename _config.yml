@@ -52,7 +52,7 @@ navigation:
   - title: scRNAseq Analysis - PART3
     url: data_analysis/scRNA_Workshop-PART3
   - title: scRNAseq Analysis - PART4
-    url: data_analysis/scRNA_Workshop-PART4
+    url: data_analysis/scRNA_Workshop-PART4_fixed
   - title: scRNAseq Analysis - PART5
     url: data_analysis/scRNA_Workshop-PART5_with_quizzes
   - title: scRNAseq Analysis - PART6
