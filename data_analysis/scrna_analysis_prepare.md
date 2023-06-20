@@ -80,6 +80,14 @@ if (!any(rownames(installed.packages()) == "DoubletFinder")){
   remotes::install_github('chris-mcginnis-ucsf/DoubletFinder')
 }
 
+if (!any(rownames(installed.packages()) == "openxlsx")){
+  BiocManager::install("openxlsx")
+}
+
+if (!any(rownames(installed.packages()) == "HGNChelper")){
+  BiocManager::install("HGNChelper")
+}
+
 ## All of these should now load without error.
 
 library(rmarkdown)
@@ -95,6 +103,8 @@ library(biomaRt)
 library(limma)
 library(topGO)
 library(org.Hs.eg.db)
+library(openxlsx)
+library(HGNChelper)
 
 sessionInfo()
 ```
