@@ -348,7 +348,7 @@ Cell Ranger does produce a more readable HTML report with the same statistics an
 		cellranger count --help
     ```
 
-3. Review the [cellranger-counts.slurm](../software_scripts/scripts/cellranger-counts.slurm) script used to map reads in the fastq files.
+3. Review the [cellranger-counts.sh](../software_scripts/scripts/cellranger-counts.sh) script used to map reads in the fastq files.
 
 4. Copy the SLURM script to your **scrnaseq_example** folder and do a test run.
 
