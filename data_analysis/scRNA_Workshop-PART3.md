@@ -6,44 +6,52 @@ output:
       keep_md: TRUE
 ---
 
-Last Updated: December 7, 2022
+
+
+Last Updated: June 19, 2023
 
 # Part 3: PCA and choice in number of PCS
 
-## Load libraries
+## Setup
+
+First, load the required R libraries.
 
 ```r
 library(Seurat)
-library(biomaRt)
 library(knitr)
 library(ggplot2)
 ```
 
-## Load the Seurat object
+Next, read in the saved Seurat object from the previous section.
 
 ```r
-load(file="pre_sample_corrected.RData")
+experiment.aggregate <- readRDS(file="scRNA_workshop_2.rds")
 experiment.aggregate
 ```
 
 ```
 ## An object of class Seurat 
-## 21005 features across 10595 samples within 1 assay 
-## Active assay: RNA (21005 features, 5986 variable features)
+## 11292 features across 6312 samples within 1 assay 
+## Active assay: RNA (11292 features, 7012 variable features)
+```
+
+Set a seed for any pseudo-random functions.
+
+```r
+set.seed(12345)
 ```
 
 ## Scale the data
 
-ScaleData - Scales and centers genes in the dataset. If variables are provided in vars.to.regress, they are individually regressed against each gene, and the resulting residuals are then scaled and centered unless otherwise specified. Here we regress out cell cycle results S.Score and G2M.Score, percentage mitochondria (percent.mito) and the number of features (nFeature_RNA).
+The `ScaleData` function scales and centers genes in the dataset. If variables are provided with the "vars.to.regress" argument, they are individually regressed against each gene, and the resulting residuals are then scaled and centered unless otherwise specified. We regress out cell cycle results S.Score and G2M.Score, mitochondrial RNA level (percent_MT), and the number of features (nFeature_RNA) as a proxy for sequencing depth.
 
 
 ```r
-experiment.aggregate <- ScaleData(
-  object = experiment.aggregate,
-  vars.to.regress = c("S.Score", "G2M.Score", "percent.mito", "nFeature_RNA"))
+experiment.aggregate <- ScaleData(experiment.aggregate,
+                                  vars.to.regress = c("S.Score", "G2M.Score", "percent_MT", "nFeature_RNA"))
 ```
 
-## Dimensionality reduction with PCA
+## Perform dimensionality reduction with PCA
 
 Next we perform PCA (principal components analysis) on the scaled data.  
 
@@ -54,12 +62,15 @@ Next we perform PCA (principal components analysis) on the scaled data.
 
 
 ```r
-experiment.aggregate <- RunPCA(object = experiment.aggregate, npcs=100)
+experiment.aggregate <- RunPCA(experiment.aggregate, npcs = 100)
 ```
 
-Seurat then provides a number of ways to visualize the PCA results
+Seurat provides a number of ways to visualize the PCA results.
 
-Visualize PCA loadings
+### PCA loadings
+
+The top genes associated with the reduction component are plotted for the selected dimension.
+
 
 ```r
 VizDimLoadings(experiment.aggregate, dims = 1, ncol = 1) + theme_minimal(base_size = 8)
@@ -73,37 +84,61 @@ VizDimLoadings(experiment.aggregate, dims = 2, ncol = 1) + theme_minimal(base_si
 
 ![](scRNA_Workshop-PART3_files/figure-html/viz_pca-2.png)<!-- -->
 
-Principal components plot
+### Principal components plot
+
+A scatter plot showing the placement of each cell on two selected components, by default, the first and second.
+
 
 ```r
-DimPlot(object = experiment.aggregate, reduction = "pca")
+DimPlot(experiment.aggregate,
+        reduction = "pca",
+        shuffle = TRUE) +
+  scale_color_viridis_d(option = "mako")
 ```
 
 ![](scRNA_Workshop-PART3_files/figure-html/plot_pca-1.png)<!-- -->
 
-Draws a heatmap focusing on a principal component. Both cells and genes are sorted by their principal component scores. Allows for nice visualization of sources of heterogeneity in the dataset.
+### Heat map
+
+Heat maps can be drawn for each component. Both cells and genes are sorted by their principal component scores. This allows for nice visualization of sources of heterogeneity in the dataset.
 
 
 ```r
-DimHeatmap(object = experiment.aggregate, dims = 1:6, cells = 500, balanced = TRUE)
+DimHeatmap(experiment.aggregate, dims = 1:6, cells = 500, balanced = TRUE)
 ```
 
 ![](scRNA_Workshop-PART3_files/figure-html/heatmap_pca-1.png)<!-- -->
 
 ```r
-DimHeatmap(object = experiment.aggregate, dims = 7:12, cells = 500, balanced = TRUE)
+DimHeatmap(experiment.aggregate, dims = 7:12, cells = 500, balanced = TRUE)
 ```
 
 ![](scRNA_Workshop-PART3_files/figure-html/heatmap_pca-2.png)<!-- -->
 
-#### Questions
+#### Explore
 
-1. Go back to the original data (rerun the load RData section) and then try modifying the ScaleData vars.to.regres, remove some variables, try adding in orig.ident? See how choices effect the pca plot
+Re-import the original data and try modifying the ScaleData vars.to.regress argument. You could remove some variables, or add others. What happens? See how choices effect the plots.
 
-### Selecting which PCs to use
+
+```r
+experiment.explore <- readRDS("scRNA_workshop_2.rds")
+experiment.explore <- ScaleData(experiment.explore) # make changes here to explore the data
+experiment.explore <- RunPCA(experiment.explore) # what happens if you adjust npcs?
+VizDimLoadings(experiment.explore, dims = 1:2)
+DimPlot(experiment.explore, reduction = "pca")
+DimHeatmap(experiment.explore, dims = 1:6, cells = 500, balanced = TRUE) # adjust parameters
+rm(experiment.explore)
+```
+
+## Selecting PCs to use
+
 To overcome the extensive technical noise in any single gene, Seurat clusters cells based on their PCA scores, with each PC essentially representing a metagene that combines information across a correlated gene set. Determining how many PCs to include downstream is therefore an important step.
 
-ElbowPlot plots the standard deviations (or approximate singular values if running PCAFast) of the principle components for easy identification of an elbow in the graph. This elbow often corresponds well with the significant PCs and is much faster to run.  This is the traditional approach to selecting principal components.
+### Elbow plot
+
+An elbow plot displays the standard deviations (or approximate singular values if running PCAFast) of the principle components for easy identification of an elbow in the graph. This elbow often corresponds well with the significant PCs and is much faster to run.  This is the traditional approach to selecting principal components.
+
+The appearance of elbow plots tends to be highly consistent across single cell / single nucleus experiments. Generally, the line approaches zero at around PC 50. This is a reasonable number of PCs to use for the downstream steps.
 
 
 ```r
@@ -112,31 +147,27 @@ ElbowPlot(experiment.aggregate, ndims = 100)
 
 ![](scRNA_Workshop-PART3_files/figure-html/elbow-1.png)<!-- -->
 
-The JackStraw function randomly permutes a subset of data, and calculates projected PCA scores for these 'random' genes, then compares the PCA scores for the 'random' genes with the observed PCA scores to determine statistical signifance. End result is a p-value for each gene's association with each principal component. We identify significant PCs as those who have a strong enrichment of low p-value genes.
+### JackStraw
+
+The JackStraw function randomly permutes a subset of data, and calculates projected PCA scores for these genes. The PCA scores for these randomly permuted genes are then compared with the observed PCA scores to determine statistical significance. The end result is a p-value for each gene's association with each principal component.
+
+PCs with a strong enrichment of low p-value genes are identified as significant components.
+
+**The JackStraw permutation is computationally intensive and can be quite slow. Consider skipping this step and exploring the function when you have some extra time.**
 
 
 ```r
-experiment.aggregate <- JackStraw(object = experiment.aggregate, dims = 100)
+experiment.aggregate <- JackStraw(experiment.aggregate, dims = 100)
+JackStrawPlot(object = experiment.aggregate, dims = 1:100) +
+  scale_color_viridis_d(option = "turbo") +
+  theme(legend.position="bottom")
 ```
 
+## Save the Seurat object and download the next Rmd file
 
 ```r
-experiment.aggregate <- ScoreJackStraw(experiment.aggregate, dims = 1:100)
-JackStrawPlot(object = experiment.aggregate, dims = 1:100) + theme(legend.position="bottom")
-```
-
-![](scRNA_Workshop-PART3_files/figure-html/plot_jackstraw-1.png)<!-- -->
-
-## Finally, lets save the filtered and normalized data
-
-```r
-save(experiment.aggregate, file="pca_sample_corrected.RData")
-```
-
-## Get the next Rmd file
-
-```r
-download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-December-Single-Cell-RNA-Seq-Analysis/main/data_analysis/scRNA_Workshop-PART4.Rmd", "scRNA_Workshop-PART4.Rmd")
+saveRDS(experiment.aggregate, file="scRNA_workshop_3.rds")
+download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2023-June-Single-Cell-RNA-Seq-Analysis/main/data_analysis/scRNA_Workshop-PART4.Rmd", "scRNA_Workshop-PART4.Rmd")
 ```
 
 ## Session Information
@@ -146,13 +177,13 @@ sessionInfo()
 ```
 
 ```
-## R version 4.2.2 (2022-10-31)
+## R version 4.1.0 (2021-05-18)
 ## Platform: x86_64-apple-darwin17.0 (64-bit)
-## Running under: macOS Catalina 10.15.7
+## Running under: macOS Big Sur 10.16
 ## 
 ## Matrix products: default
-## BLAS:   /Library/Frameworks/R.framework/Versions/4.2/Resources/lib/libRblas.0.dylib
-## LAPACK: /Library/Frameworks/R.framework/Versions/4.2/Resources/lib/libRlapack.dylib
+## BLAS:   /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRblas.dylib
+## LAPACK: /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRlapack.dylib
 ## 
 ## locale:
 ## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
@@ -161,56 +192,45 @@ sessionInfo()
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] ggplot2_3.4.0      knitr_1.41         biomaRt_2.54.0     SeuratObject_4.1.3
-## [5] Seurat_4.3.0      
+## [1] ggplot2_3.4.2      knitr_1.43         SeuratObject_4.1.3 Seurat_4.3.0      
 ## 
 ## loaded via a namespace (and not attached):
-##   [1] BiocFileCache_2.6.0    plyr_1.8.8             igraph_1.3.5          
-##   [4] lazyeval_0.2.2         sp_1.5-1               splines_4.2.2         
-##   [7] listenv_0.8.0          scattermore_0.8        GenomeInfoDb_1.34.3   
-##  [10] digest_0.6.30          htmltools_0.5.3        fansi_1.0.3           
-##  [13] magrittr_2.0.3         memoise_2.0.1          tensor_1.5            
-##  [16] cluster_2.1.4          ROCR_1.0-11            globals_0.16.2        
-##  [19] Biostrings_2.66.0      matrixStats_0.63.0     spatstat.sparse_3.0-0 
-##  [22] prettyunits_1.1.1      colorspace_2.0-3       rappdirs_0.3.3        
-##  [25] blob_1.2.3             ggrepel_0.9.2          xfun_0.35             
-##  [28] dplyr_1.0.10           crayon_1.5.2           RCurl_1.98-1.9        
-##  [31] jsonlite_1.8.3         progressr_0.11.0       spatstat.data_3.0-0   
-##  [34] survival_3.4-0         zoo_1.8-11             glue_1.6.2            
-##  [37] polyclip_1.10-4        gtable_0.3.1           zlibbioc_1.44.0       
-##  [40] XVector_0.38.0         leiden_0.4.3           future.apply_1.10.0   
-##  [43] BiocGenerics_0.44.0    abind_1.4-5            scales_1.2.1          
-##  [46] DBI_1.1.3              spatstat.random_3.0-1  miniUI_0.1.1.1        
-##  [49] Rcpp_1.0.9             progress_1.2.2         viridisLite_0.4.1     
-##  [52] xtable_1.8-4           reticulate_1.26        bit_4.0.5             
-##  [55] stats4_4.2.2           htmlwidgets_1.5.4      httr_1.4.4            
-##  [58] RColorBrewer_1.1-3     ellipsis_0.3.2         ica_1.0-3             
-##  [61] farver_2.1.1           pkgconfig_2.0.3        XML_3.99-0.12         
-##  [64] dbplyr_2.2.1           sass_0.4.4             uwot_0.1.14           
-##  [67] deldir_1.0-6           utf8_1.2.2             labeling_0.4.2        
-##  [70] tidyselect_1.2.0       rlang_1.0.6            reshape2_1.4.4        
-##  [73] later_1.3.0            AnnotationDbi_1.60.0   munsell_0.5.0         
-##  [76] tools_4.2.2            cachem_1.0.6           cli_3.4.1             
-##  [79] generics_0.1.3         RSQLite_2.2.19         ggridges_0.5.4        
-##  [82] evaluate_0.18          stringr_1.4.1          fastmap_1.1.0         
-##  [85] yaml_2.3.6             goftest_1.2-3          bit64_4.0.5           
-##  [88] fitdistrplus_1.1-8     purrr_0.3.5            RANN_2.6.1            
-##  [91] KEGGREST_1.38.0        pbapply_1.6-0          future_1.29.0         
-##  [94] nlme_3.1-160           mime_0.12              xml2_1.3.3            
-##  [97] compiler_4.2.2         rstudioapi_0.14        filelock_1.0.2        
-## [100] curl_4.3.3             plotly_4.10.1          png_0.1-8             
-## [103] spatstat.utils_3.0-1   tibble_3.1.8           bslib_0.4.1           
-## [106] stringi_1.7.8          highr_0.9              lattice_0.20-45       
-## [109] Matrix_1.5-3           vctrs_0.5.1            pillar_1.8.1          
-## [112] lifecycle_1.0.3        spatstat.geom_3.0-3    lmtest_0.9-40         
-## [115] jquerylib_0.1.4        RcppAnnoy_0.0.20       bitops_1.0-7          
-## [118] data.table_1.14.6      cowplot_1.1.1          irlba_2.3.5.1         
-## [121] httpuv_1.6.6           patchwork_1.1.2        R6_2.5.1              
-## [124] promises_1.2.0.1       KernSmooth_2.23-20     gridExtra_2.3         
-## [127] IRanges_2.32.0         parallelly_1.32.1      codetools_0.2-18      
-## [130] MASS_7.3-58.1          assertthat_0.2.1       withr_2.5.0           
-## [133] sctransform_0.3.5      GenomeInfoDbData_1.2.9 S4Vectors_0.36.0      
-## [136] hms_1.1.2              parallel_4.2.2         grid_4.2.2            
-## [139] tidyr_1.2.1            rmarkdown_2.18         Rtsne_0.16            
-## [142] spatstat.explore_3.0-5 Biobase_2.58.0         shiny_1.7.3
+##   [1] Rtsne_0.16             colorspace_2.1-0       deldir_1.0-9          
+##   [4] ellipsis_0.3.2         ggridges_0.5.4         rstudioapi_0.14       
+##   [7] spatstat.data_3.0-1    farver_2.1.1           leiden_0.4.3          
+##  [10] listenv_0.9.0          ggrepel_0.9.3          fansi_1.0.4           
+##  [13] codetools_0.2-19       splines_4.1.0          cachem_1.0.8          
+##  [16] polyclip_1.10-4        jsonlite_1.8.5         ica_1.0-3             
+##  [19] cluster_2.1.4          png_0.1-8              uwot_0.1.14           
+##  [22] shiny_1.7.4            sctransform_0.3.5      spatstat.sparse_3.0-1 
+##  [25] compiler_4.1.0         httr_1.4.6             Matrix_1.5-4.1        
+##  [28] fastmap_1.1.1          lazyeval_0.2.2         cli_3.6.1             
+##  [31] later_1.3.1            htmltools_0.5.5        tools_4.1.0           
+##  [34] igraph_1.5.0           gtable_0.3.3           glue_1.6.2            
+##  [37] RANN_2.6.1             reshape2_1.4.4         dplyr_1.1.2           
+##  [40] Rcpp_1.0.10            scattermore_1.2        jquerylib_0.1.4       
+##  [43] vctrs_0.6.3            nlme_3.1-162           spatstat.explore_3.2-1
+##  [46] progressr_0.13.0       lmtest_0.9-40          spatstat.random_3.1-5 
+##  [49] xfun_0.39              stringr_1.5.0          globals_0.16.2        
+##  [52] mime_0.12              miniUI_0.1.1.1         lifecycle_1.0.3       
+##  [55] irlba_2.3.5.1          goftest_1.2-3          future_1.32.0         
+##  [58] MASS_7.3-60            zoo_1.8-12             scales_1.2.1          
+##  [61] promises_1.2.0.1       spatstat.utils_3.0-3   parallel_4.1.0        
+##  [64] RColorBrewer_1.1-3     yaml_2.3.7             reticulate_1.30       
+##  [67] pbapply_1.7-0          gridExtra_2.3          sass_0.4.6            
+##  [70] stringi_1.7.12         highr_0.10             rlang_1.1.1           
+##  [73] pkgconfig_2.0.3        matrixStats_1.0.0      evaluate_0.21         
+##  [76] lattice_0.21-8         ROCR_1.0-11            purrr_1.0.1           
+##  [79] tensor_1.5             labeling_0.4.2         patchwork_1.1.2       
+##  [82] htmlwidgets_1.6.2      cowplot_1.1.1          tidyselect_1.2.0      
+##  [85] parallelly_1.36.0      RcppAnnoy_0.0.20       plyr_1.8.8            
+##  [88] magrittr_2.0.3         R6_2.5.1               generics_0.1.3        
+##  [91] DBI_1.1.3              withr_2.5.0            pillar_1.9.0          
+##  [94] fitdistrplus_1.1-11    survival_3.5-5         abind_1.4-5           
+##  [97] sp_1.6-1               tibble_3.2.1           future.apply_1.11.0   
+## [100] KernSmooth_2.23-21     utf8_1.2.3             spatstat.geom_3.2-1   
+## [103] plotly_4.10.2          rmarkdown_2.22         grid_4.1.0            
+## [106] data.table_1.14.8      digest_0.6.31          xtable_1.8-4          
+## [109] tidyr_1.3.0            httpuv_1.6.11          munsell_0.5.0         
+## [112] viridisLite_0.4.2      bslib_0.5.0
 ```
