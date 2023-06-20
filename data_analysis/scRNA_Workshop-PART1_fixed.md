@@ -282,8 +282,8 @@ experiment.aggregate <- CreateSeuratObject(
 experiment.aggregate
 ```
 
-<div class='r_output'> An object of class Seurat 
- 36601 features across 9452 samples within 1 assay 
+<div class='r_output'> An object of class Seurat
+ 36601 features across 9452 samples within 1 assay
  Active assay: RNA (36601 features, 0 variable features)
 </div>
 ```r
@@ -311,10 +311,10 @@ str(experiment.aggregate)
    .. .. .. .. .. .. ..$ : chr [1:9452] "AAACCCAAGTTATGGA_A001-C-007" "AAACCCACAACGCCCA_A001-C-007" "AAACCCACAGAAGTTA_A001-C-007" "AAACCCAGTCAGTCCG_A001-C-007" ...
    .. .. .. .. .. ..@ x       : num [1:13299189] 1 1 1 1 1 1 1 1 1 1 ...
    .. .. .. .. .. ..@ factors : list()
-   .. .. .. ..@ scale.data   : num[0 , 0 ] 
+   .. .. .. ..@ scale.data   : num[0 , 0 ]
    .. .. .. ..@ key          : chr "rna_"
    .. .. .. ..@ assay.orig   : NULL
-   .. .. .. ..@ var.features : logi(0) 
+   .. .. .. ..@ var.features : logi(0)
    .. .. .. ..@ meta.features:'data.frame':	36601 obs. of  0 variables
    .. .. .. ..@ misc         : list()
    ..@ meta.data   :'data.frame':	9452 obs. of  3 variables:
@@ -400,8 +400,8 @@ Using base R functions we can take a quick look at the available metadata by sam
 table(experiment.aggregate$orig.ident)
 ```
 
-<div class='r_output'> 
- A001-C-007 A001-C-104 B001-A-301 
+<div class='r_output'>
+ A001-C-007 A001-C-104 B001-A-301
        1796       3142       4514
 </div>
 ```r
@@ -409,15 +409,15 @@ tapply(experiment.aggregate$nCount_RNA, experiment.aggregate$orig.ident, summary
 ```
 
 <div class='r_output'> $`A001-C-007`
-    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-     500     756    1204    2785    2210  150805 
- 
+    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
+     500     756    1204    2785    2210  150805
+
  $`A001-C-104`
-    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-     500     746    1231    2292    2188  149096 
- 
+    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
+     500     746    1231    2292    2188  149096
+
  $`B001-A-301`
-    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
      500    1043    1913    2790    3299   89743
 </div>
 ```r
@@ -425,15 +425,15 @@ tapply(experiment.aggregate$nFeature_RNA, experiment.aggregate$orig.ident, summa
 ```
 
 <div class='r_output'> $`A001-C-007`
-    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-     404     625     927    1382    1570   12063 
- 
+    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
+     404     625     927    1382    1570   12063
+
  $`A001-C-104`
-    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-     397     622     959    1286    1520   12064 
- 
+    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
+     397     622     959    1286    1520   12064
+
  $`B001-A-301`
-    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
      416     821    1331    1501    1956    8812
 </div>
 #### Barcode inflection plots
@@ -460,6 +460,10 @@ BarcodeInflectionsPlot(experiment.aggregate) +
 
 ![](scRNA_Workshop-PART1_files/figure-html/barcode_inflection_plot_log-1.png)<!-- -->
 
+A barcode inflection plot calculated on all barcodes (the raw_feature_bc_matrix files) looks more like the familiar Cell Ranger barcode rank plot.
+
+![](scRNA_Workshop-PART1_files/figure-html/barcode_inflection_plot_all.png)<!-- -->
+
 #### Reads from the mitochondrial genome
 
 Filtering on the expression of genes from the mitochondrial genome is not appropriate in all cell types, however, in many tissues, low-quality / dying cells may exhibit extensive mitochondrial contamination. Even when not filtering on mitochondrial expression, the data can be interesting or informative.
@@ -472,7 +476,7 @@ experiment.aggregate$percent_MT <- PercentageFeatureSet(experiment.aggregate, pa
 summary(experiment.aggregate$percent_MT)
 ```
 
-<div class='r_output'>    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+<div class='r_output'>    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
   0.0000  0.2802  0.5601  0.8283  1.0834 14.2037
 </div>
 ### Save the object and download the next Rmd file
@@ -492,20 +496,20 @@ sessionInfo()
 <div class='r_output'> R version 4.1.0 (2021-05-18)
  Platform: x86_64-apple-darwin17.0 (64-bit)
  Running under: macOS Big Sur 10.16
- 
+
  Matrix products: default
  BLAS:   /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRblas.dylib
  LAPACK: /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRlapack.dylib
- 
+
  locale:
  [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
- 
+
  attached base packages:
  [1] stats     graphics  grDevices utils     datasets  methods   base     
- 
+
  other attached packages:
  [1] ggplot2_3.4.2      kableExtra_1.3.4   SeuratObject_4.1.3 Seurat_4.3.0      
- 
+
  loaded via a namespace (and not attached):
    [1] Rtsne_0.16             colorspace_2.1-0       deldir_1.0-9          
    [4] ellipsis_0.3.2         ggridges_0.5.4         rstudioapi_0.14       
@@ -515,7 +519,7 @@ sessionInfo()
   [16] splines_4.1.0          cachem_1.0.8           knitr_1.43            
   [19] polyclip_1.10-4        jsonlite_1.8.5         ica_1.0-3             
   [22] cluster_2.1.4          png_0.1-8              uwot_0.1.14           
-  [25] shiny_1.7.4            sctransform_0.3.5      spatstat.sparse_3.0-1 
+  [25] shiny_1.7.4            sctransform_0.3.5      spatstat.sparse_3.0-1
   [28] compiler_4.1.0         httr_1.4.6             Matrix_1.5-4.1        
   [31] fastmap_1.1.1          lazyeval_0.2.2         cli_3.6.1             
   [34] later_1.3.1            htmltools_0.5.5        tools_4.1.0           
