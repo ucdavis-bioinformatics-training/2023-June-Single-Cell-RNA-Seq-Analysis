@@ -348,7 +348,7 @@ Cell Ranger does produce a more readable HTML report with the same statistics an
 		cellranger count --help
     ```
 
-3. Review the [cellranger-counts.sh](https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2023-June-Single-Cell-RNA-Seq-Analysis/main/software_scripts/scripts/cellranger-counts.sh) script used to map reads in the fastq files.
+3. Review the [cellranger-counts.bash](https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2023-June-Single-Cell-RNA-Seq-Analysis/main/software_scripts/scripts/cellranger-counts.sh) script used to map reads in the fastq files.
 
 4. Copy the SLURM script to your **scrnaseq_example** folder and do a test run.
 
