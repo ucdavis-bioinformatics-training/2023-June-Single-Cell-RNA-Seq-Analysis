@@ -47,6 +47,13 @@ if (!any(rownames(installed.packages()) == "ggplot2")){
 if (!any(rownames(installed.packages()) == "dplyr")){
   BiocManager::install("dplyr")
 }
+if (!any(rownames(installed.packages()) == "tidyr")){
+  BiocManager::install("tidyr")
+}
+
+if (!any(rownames(installed.packages()) == "viridis")){
+  BiocManager::install("viridis")
+}
 
 if (!any(rownames(installed.packages()) == "reshape2")){
   BiocManager::install("reshape2")
@@ -98,6 +105,8 @@ library(knitr)
 library(kableExtra)
 library(ggplot2)
 library(dplyr)
+library(tidyr)
+library(viridis)
 library(reshape2)
 library(biomaRt)
 library(limma)
