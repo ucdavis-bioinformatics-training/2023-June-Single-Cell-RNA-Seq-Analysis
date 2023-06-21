@@ -87,25 +87,24 @@ function showResults(myq, qc, rc){
 
 ```r
 library(Seurat)
-library(ggplot2)
 library(limma)
 library(topGO)
+library(HGNChelper)
+library(dplyr)
 ```
 
 ## Load the Seurat object
 
 ```r
-load("clusters_seurat_object.RData")
+experiment.merged <- readRDS("scRNA_workshop_4.rds")
 experiment.merged
 ```
 
-```
-## An object of class Seurat 
-## 21005 features across 10595 samples within 1 assay 
-## Active assay: RNA (21005 features, 5986 variable features)
-##  3 dimensional reductions calculated: pca, tsne, umap
-```
-
+<div class='r_output'> An object of class Seurat 
+ 11292 features across 6312 samples within 1 assay 
+ Active assay: RNA (11292 features, 7012 variable features)
+  3 dimensional reductions calculated: pca, tsne, umap
+</div>
 ```r
 Idents(experiment.merged) <- "finalcluster"
 ```
@@ -115,11 +114,8 @@ Idents(experiment.merged) <- "finalcluster"
 
 
 ```r
-cluster12 <- subset(experiment.merged, idents = '12')
-expr <- as.matrix(GetAssayData(cluster12))
-# Filter out genes that are 0 for every cell in this cluster
-bad <- which(rowSums(expr) == 0)
-expr <- expr[-bad,]
+cluster10 <- subset(experiment.merged, idents = '10')
+expr <- as.matrix(GetAssayData(cluster10))
 
 # Select genes that are expressed > 0 in at least half of cells
 n.gt.0 <- apply(expr, 1, function(x)length(which(x > 0)))
@@ -141,30 +137,28 @@ names(geneList) <- all.genes
 	GenTable(GOdata, Fisher = resultFisher, topNodes = 20, numChar = 60)
 ```
 
-```
-##         GO.ID                                                            Term Annotated Significant Expected  Fisher
-## 1  GO:0050861        positive regulation of B cell receptor signaling pathway         7           2     0.01 8.6e-05
-## 2  GO:0072659                         protein localization to plasma membrane       236           5     0.49 0.00010
-## 3  GO:0050852                               T cell receptor signaling pathway       125           4     0.26 0.00012
-## 4  GO:0050727                             regulation of inflammatory response       235           4     0.49 0.00127
-## 5  GO:0021762                                    substantia nigra development        32           2     0.07 0.00196
-## 6  GO:0000304                                      response to singlet oxygen         1           1     0.00 0.00207
-## 7  GO:0042351                     'de novo' GDP-L-fucose biosynthetic process         1           1     0.00 0.00207
-## 8  GO:2000473        positive regulation of hematopoietic stem cell migration         1           1     0.00 0.00207
-## 9  GO:0051623                    positive regulation of norepinephrine uptake         1           1     0.00 0.00207
-## 10 GO:0032745                positive regulation of interleukin-21 production         1           1     0.00 0.00207
-## 11 GO:0072749                             cellular response to cytochalasin B         1           1     0.00 0.00207
-## 12 GO:1905475                  regulation of protein localization to membrane       139           3     0.29 0.00284
-## 13 GO:0034113                                  heterotypic cell-cell adhesion        45           2     0.09 0.00385
-## 14 GO:1903615    positive regulation of protein tyrosine phosphatase activity         2           1     0.00 0.00414
-## 15 GO:0031022                           nuclear migration along microfilament         2           1     0.00 0.00414
-## 16 GO:0021817 nucleokinesis involved in cell motility in cerebral cortex r...         2           1     0.00 0.00414
-## 17 GO:0002728 negative regulation of natural killer cell cytokine producti...         2           1     0.00 0.00414
-## 18 GO:0044855                               plasma membrane raft distribution         2           1     0.00 0.00414
-## 19 GO:1905430                                    cellular response to glycine         2           1     0.00 0.00414
-## 20 GO:0001954                     positive regulation of cell-matrix adhesion        48           2     0.10 0.00437
-```
-* Annotated: number of genes (out of all.genes) that are annotated with that GO term
+<div class='r_output'>         GO.ID                                                            Term Annotated Significant Expected  Fisher
+ 1  GO:0030644                          intracellular chloride ion homeostasis         8           4     0.32 0.00015
+ 2  GO:0030050                          vesicle transport along actin filament        15           5     0.59 0.00020
+ 3  GO:0030036                                 actin cytoskeleton organization       462          40    18.19 0.00020
+ 4  GO:0051660                        establishment of centrosome localization         9           4     0.35 0.00025
+ 5  GO:0006895                                     Golgi to endosome transport        17           5     0.67 0.00039
+ 6  GO:0045053                            protein retention in Golgi apparatus         5           3     0.20 0.00057
+ 7  GO:0032534                              regulation of microvillus assembly         5           3     0.20 0.00057
+ 8  GO:0043268                  positive regulation of potassium ion transport        19           5     0.75 0.00068
+ 9  GO:0035176                                                 social behavior        19           5     0.75 0.00068
+ 10 GO:0009653                              anatomical structure morphogenesis      1495          96    58.87 0.00093
+ 11 GO:0030155                                     regulation of cell adhesion       473          33    18.62 0.00096
+ 12 GO:2000650 negative regulation of sodium ion transmembrane transporter ...         6           3     0.24 0.00111
+ 13 GO:0000381        regulation of alternative mRNA splicing, via spliceosome        42           7     1.65 0.00114
+ 14 GO:0090630                                   activation of GTPase activity        82          10     3.23 0.00135
+ 15 GO:1904908 negative regulation of maintenance of mitotic sister chromat...         2           2     0.08 0.00155
+ 16 GO:0048669                       collateral sprouting in absence of injury         2           2     0.08 0.00155
+ 17 GO:0042060                                                   wound healing       262          21    10.32 0.00155
+ 18 GO:0007163                   establishment or maintenance of cell polarity       160          15     6.30 0.00158
+ 19 GO:0045944       positive regulation of transcription by RNA polymerase II       791          48    31.15 0.00158
+ 20 GO:0040018            positive regulation of multicellular organism growth        14           4     0.55 0.00173
+</div>* Annotated: number of genes (out of all.genes) that are annotated with that GO term
 * Significant: number of genes that are annotated with that GO term and meet our criteria for "expressed"
 * Expected: Under random chance, number of genes that would be expected to be annotated with that GO term and meeting our criteria for "expressed"
 * Fisher: (Raw) p-value from Fisher's Exact Test
@@ -181,9 +175,9 @@ submitButton1 = document.getElementById('submit1');
 
 myQuestions1 = [
   {
-    question: "What GO term is most significantly enriched for genes expressed in cluster 12?",
+    question: "What GO term is most significantly enriched for genes expressed in cluster 10?",
     answers: {
-      a: "T cell receptor signaling pathway",
+      a: "intracellular chloride ion homeostasis",
       b: "cytoplasmic translation",
       c: "protein folding",
       d: "ribosomal large subunit biogenesis"
@@ -191,10 +185,10 @@ myQuestions1 = [
     correctAnswer: "a"
   },
   {
-    question: "How many genes annotated with the top GO term are expressed in cluster 12?",
+    question: "How many genes annotated with the top GO term are expressed in cluster 10?",
     answers: {
-      a: "114",
-      b: "0.24",
+      a: "8",
+      b: "0.32",
       c: "0",
       d: "4"
     },
@@ -203,8 +197,8 @@ myQuestions1 = [
   {
     question: "How many expressed genes would be expected to be annotated with the top GO term under random chance?",
     answers: {
-      a: "114",
-      b: "0.24",
+      a: "8",
+      b: "0.32",
       c: "0",
       d: "4"
     },
@@ -215,12 +209,6 @@ myQuestions1 = [
 buildQuiz(myQuestions1, quizContainer1);
 submitButton1.addEventListener('click', function() {showResults(myQuestions1, quizContainer1, resultsContainer1);});
 </script>
-
-## Challenge Questions 
-If you have extra time:
-
-1. Rerun the enrichment analysis for the molecular function (MF) ontology.
-2. Think about how you write code to repeat the above enrichment analysis for every cluster (hint: ?base::sapply).
 
 # 2. Model-based DE analysis in limma
 [limma](https://bioconductor.org/packages/release/bioc/html/limma.html) is an R package for differential expression analysis of bulk RNASeq and microarray data.  We apply it here to single cell data.
@@ -234,110 +222,86 @@ keep <- rownames(expr)[which(n.gt.0/ncol(expr) >= 0.1)]
 expr2 <- expr[keep,]
 
 # Set up "design matrix" with statistical model
-cluster12$proper.ident <- make.names(cluster12$orig.ident)
-mm <- model.matrix(~0 + proper.ident + S.Score + G2M.Score + percent.mito + nFeature_RNA, data = cluster12[[]])
+cluster10$proper.ident <- make.names(cluster10$orig.ident)
+mm <- model.matrix(~0 + proper.ident + S.Score + G2M.Score + percent_MT + nFeature_RNA, data = cluster10[[]])
 head(mm)
 ```
 
-```
-##                             proper.identA001.C.007 proper.identA001.C.104 proper.identB001.A.301      S.Score   G2M.Score percent.mito nFeature_RNA
-## AAACCCACAGAAGTTA_A001-C-007                      1                      0                      0  0.016243559 -0.05567510    1.6666667          466
-## AAACGCTAGGAGCAAA_A001-C-007                      1                      0                      0 -0.059688163  0.01823853    2.0519836          626
-## AAACGCTTCTCTGCTG_A001-C-007                      1                      0                      0  0.244774911  0.74333121    1.1502030         1104
-## AAAGAACCACGAAGAC_A001-C-007                      1                      0                      0 -0.003307564  0.09956644    1.4218009          535
-## AACAGGGGTCCCTGAG_A001-C-007                      1                      0                      0 -0.035800756  0.01552573    0.7968127          744
-## AAGGTAATCCTCAGAA_A001-C-007                      1                      0                      0 -0.062652203  0.04392439    0.9419152          546
-```
-
+<div class='r_output'>                             proper.identA001.C.007 proper.identA001.C.104 proper.identB001.A.301     S.Score   G2M.Score percent_MT nFeature_RNA
+ AAGCCATCAAGACCTT_A001-C-007                      1                      0                      0  0.06496555 -0.07473751  0.4904632         1253
+ AAGTTCGGTACCTATG_A001-C-007                      1                      0                      0  0.01208720 -0.03974145  0.5266623         1127
+ AATGAAGTCAGCGTCG_A001-C-007                      1                      0                      0  0.11081470  0.07119225  1.0507881         1262
+ ACAGAAATCCAGCTCT_A001-C-007                      1                      0                      0 -0.04751440 -0.06997775  0.6423123         1610
+ ACGGTTACAAATCGGG_A001-C-007                      1                      0                      0 -0.02654739  0.13670266  0.7633588         1899
+ AGAGAGCGTTCTCCTG_A001-C-007                      1                      0                      0 -0.08564181  0.36355846  0.3964321          780
+</div>
 ```r
 tail(mm)
 ```
 
-```
-##                             proper.identA001.C.007 proper.identA001.C.104 proper.identB001.A.301     S.Score    G2M.Score percent.mito nFeature_RNA
-## TTCCGTGTCCGCTGTT_B001-A-301                      0                      0                      1 -0.08190609 -0.045416409    0.6387509         1064
-## TTCTGTACATAGACTC_B001-A-301                      0                      0                      1  0.02359308 -0.056658892    0.3048780          536
-## TTCTTCCAGTCCCAAT_B001-A-301                      0                      0                      1  0.02491281 -0.088061413    0.3700278          862
-## TTGGATGCACGGTGCT_B001-A-301                      0                      0                      1 -0.04342491  0.071349069    0.9578544          451
-## TTTACGTGTGTCTTAG_B001-A-301                      0                      0                      1 -0.09985271 -0.093126270    0.5780347          942
-## TTTCGATAGACAACAT_B001-A-301                      0                      0                      1  0.04867999  0.004383793    0.4915730         2371
-```
-
+<div class='r_output'>                             proper.identA001.C.007 proper.identA001.C.104 proper.identB001.A.301     S.Score   G2M.Score percent_MT nFeature_RNA
+ TTGCCTGTCCGCGATG_A001-C-104                      0                      1                      0 -0.06933278 -0.02305915  0.3658218         2207
+ TTGGGATTCGTTCCCA_A001-C-104                      0                      1                      0 -0.06606713 -0.09091689  0.4091653         1547
+ TTGTTTGCACTACGGC_A001-C-104                      0                      1                      0  0.10614897  0.16666296  0.5232806         4131
+ TTTCAGTTCGCACTCT_A001-C-104                      0                      1                      0 -0.09860144 -0.06928261  1.8292683         1291
+ TTTGTTGTCGAGATGG_A001-C-104                      0                      1                      0  0.53662508 -0.01783252  1.1442709         3158
+ GACTCAACACACACGC_B001-A-301                      0                      0                      1  0.05115791 -0.10329846  0.1606426          973
+</div>
 ```r
 # Fit model in limma
 fit <- lmFit(expr2, mm)
 head(coef(fit))
 ```
 
-```
-##        proper.identA001.C.007 proper.identA001.C.104 proper.identB001.A.301    S.Score  G2M.Score percent.mito  nFeature_RNA
-## CCNL2               0.2396261           -0.006494329             0.05299145  0.1177847 -0.3851735  0.099257545  0.0003433512
-## CDK11A              0.6641791            0.089012473             0.09024772 -0.6450108  0.6608372 -0.013579988  0.0001919251
-## GNB1                0.5498174            0.363893455             0.38644072  0.2396164  0.2658143 -0.001826895  0.0004433892
-## SKI                 0.2285806            0.398793577            -0.12774089 -0.1044831 -0.4867745 -0.059676145  0.0002570741
-## KCNAB2              0.4760345            0.765881330             0.54504314  0.9751246  0.6724686 -0.103461311 -0.0001717929
-## CAMTA1             -0.1310409           -0.095618782             0.07542118 -0.4560094 -0.4501812 -0.002074261  0.0004712436
-```
-
+<div class='r_output'>          proper.identA001.C.007 proper.identA001.C.104 proper.identB001.A.301     S.Score  G2M.Score percent_MT  nFeature_RNA
+ C1orf159             0.09035597             0.05713314            -0.12377511 -0.04907108  0.2390908  0.0265014  1.507975e-04
+ SDF4                 0.37198100             0.48933012             0.18564080  0.02277449  0.7557869 -0.2090015 -7.724535e-05
+ CCNL2                0.45862277             0.30595382             1.86485404  0.44929124 -0.6053252  0.1915253  2.435578e-04
+ MIB2                 0.03562615             0.16762967            -0.09454838 -0.11151005 -0.4005421 -0.1667042  8.803433e-05
+ CDK11B               0.57768924            -0.17984772            -0.19687762 -0.61947055  0.1419469  0.2500343  2.087001e-04
+ SLC35E2B             0.03496575             0.07970405            -0.04265325 -0.38532142  0.2340181  0.1238448  6.849378e-05
+</div>
 ```r
 # Test 'B001-A-301' - 'A001-C-007'
 contr <- makeContrasts(proper.identB001.A.301 - proper.identA001.C.007, levels = colnames(coef(fit)))
-contr
-```
-
-```
-##                         Contrasts
-## Levels                   proper.identB001.A.301 - proper.identA001.C.007
-##   proper.identA001.C.007                                              -1
-##   proper.identA001.C.104                                               0
-##   proper.identB001.A.301                                               1
-##   S.Score                                                              0
-##   G2M.Score                                                            0
-##   percent.mito                                                         0
-##   nFeature_RNA                                                         0
-```
-
-```r
 fit2 <- contrasts.fit(fit, contrasts = contr)
 fit2 <- eBayes(fit2)
 out <- topTable(fit2, n = Inf, sort.by = "P")
 head(out, 30)
 ```
 
-```
-##               logFC   AveExpr         t      P.Value    adj.P.Val         B
-## SLC26A2   3.0491797 1.0629482 17.062816 1.279092e-47 2.475042e-44 96.842841
-## GUCA2A    1.6316995 0.4334461 11.246381 3.615387e-25 3.497887e-22 46.344851
-## PHGR1     1.9817254 0.7501501 10.812613 1.263317e-23 8.148397e-21 42.872558
-## XIST      1.3225033 0.3657630 10.380945 4.060678e-22 1.702613e-19 39.482858
-## SLC26A3   1.8205559 0.6555777 10.370872 4.399517e-22 1.702613e-19 39.404586
-## PDE3A     1.4273415 0.4332776  9.692689 8.833021e-20 2.848649e-17 34.228170
-## CKB       2.0132899 1.4913849  8.459897 7.999548e-16 2.211304e-13 25.345494
-## PIGR      1.9395745 1.3447380  8.150402 6.989238e-15 1.690522e-12 23.235771
-## ATP1A1    1.4142129 0.6672922  7.771705 9.228991e-14 1.984233e-11 20.726518
-## CLCA4     1.0457945 0.3366567  7.582066 3.258275e-13 6.304761e-11 19.501071
-## MT-CO2   -1.5085157 2.7289681 -7.503861 5.447945e-13 9.583431e-11 19.001933
-## MUC12     1.2542062 0.5705467  7.222223 3.364764e-12 5.425683e-10 17.235244
-## TMSB4X    1.4108471 1.0055437  6.294871 9.469176e-10 1.409450e-07 11.778234
-## FTH1      1.1423795 0.6892685  6.268453 1.102695e-09 1.519892e-07 11.631283
-## CCND3     1.5327817 1.3641127  6.256938 1.178211e-09 1.519892e-07 11.567378
-## S100A6    1.4073711 0.9677000  6.161607 2.031648e-09 2.457025e-07 11.041922
-## CEACAM7   0.9032732 0.3321876  6.006647 4.859850e-09 5.531652e-07 10.201561
-## NXPE1     1.0027720 0.4764160  5.894184 9.055717e-09 9.734896e-07  9.602475
-## FKBP5     1.3994918 1.3421646  5.776481 1.720380e-08 1.752071e-06  8.985344
-## FABP1     1.0951597 0.5854007  5.710409 2.455702e-08 2.375892e-06  8.643388
-## HSP90AA1 -1.1122036 0.6331681 -5.655640 3.290375e-08 3.031846e-06  8.362388
-## PIP4K2A   1.3017235 1.1825719  5.524949 6.555718e-08 5.766052e-06  7.700923
-## PARP8     1.2093942 0.9387516  5.482825 8.164914e-08 6.869178e-06  7.490466
-## SELENOP   0.8384054 0.3588361  5.438166 1.028959e-07 8.295982e-06  7.268813
-## MUC13     0.9862040 0.5686166  5.423396 1.110395e-07 8.594456e-06  7.195839
-## B2M       1.2463700 1.0201418  5.398320 1.263212e-07 9.211562e-06  7.072330
-## NCL      -0.8912419 0.4153055 -5.394937 1.285334e-07 9.211562e-06  7.055704
-## RNF213   -1.3405337 1.4710884 -5.370101 1.459659e-07 1.008729e-05  6.933916
-## FRYL      1.1859519 1.1869102  5.063632 6.749130e-07 4.503299e-05  5.470366
-## TSPAN1    0.6987805 0.2775711  4.992235 9.543618e-07 6.155634e-05  5.139976
-```
-
+<div class='r_output'>             logFC   AveExpr        t      P.Value    adj.P.Val         B
+ UTP6     2.771737 0.1647313 5.555220 9.135633e-08 0.0004364092 7.4033275
+ S100PBP  2.812186 0.2142075 5.015554 1.197360e-06 0.0028598939 5.0912200
+ ALG14    2.210138 0.1503340 4.767290 3.675731e-06 0.0048251558 4.0869951
+ ZNF525   2.425630 0.1652124 4.745937 4.040323e-06 0.0048251558 4.0024512
+ TXNL4A   2.089932 0.1416849 4.628829 6.750082e-06 0.0064490285 3.5440387
+ CMSS1    2.166560 0.1630744 4.398707 1.800823e-05 0.0114155254 2.6696461
+ FAM204A  2.180902 0.1590753 4.371382 2.018435e-05 0.0114155254 2.5681911
+ WDTC1    2.198629 0.1694821 4.332526 2.371794e-05 0.0114155254 2.4247952
+ ADAMTSL1 3.418667 0.4165572 4.315208 2.547738e-05 0.0114155254 2.3612183
+ NMRAL1   2.292548 0.1813030 4.307704 2.627798e-05 0.0114155254 2.3337349
+ TCP11L1  2.202365 0.1649595 4.307625 2.628654e-05 0.0114155254 2.3334459
+ ZNF43    2.319958 0.1859967 4.205410 3.990650e-05 0.0158861114 1.9629628
+ LNX2     2.752712 0.2984931 4.156446 4.861261e-05 0.0174846771 1.7880754
+ KLHL36   2.021210 0.1583305 4.128697 5.432365e-05 0.0174846771 1.6897099
+ PROX1    2.292479 0.1760185 4.104031 5.993316e-05 0.0174846771 1.6027298
+ CRKL     2.137632 0.1798690 4.095706 6.194832e-05 0.0174846771 1.5734680
+ ZNF3     2.254016 0.1913725 4.079704 6.600427e-05 0.0174846771 1.5173672
+ IRF3     2.718407 0.3001289 4.060982 7.107132e-05 0.0174846771 1.4519605
+ CDK18    2.162366 0.1708365 4.060577 7.118518e-05 0.0174846771 1.4505452
+ RXRA     2.056970 0.1731630 4.050718 7.400472e-05 0.0174846771 1.4162056
+ MED17    2.159188 0.1828195 4.041080 7.686377e-05 0.0174846771 1.3827025
+ TTC7A    2.201710 0.1728635 4.026694 8.132775e-05 0.0176592125 1.3328189
+ ZNF480   2.271793 0.2030146 4.011207 8.640911e-05 0.0179467969 1.2792824
+ RBL1     2.208890 0.2095978 3.971884 1.007047e-04 0.0200444376 1.1441201
+ SARS     2.384320 0.2063039 3.945727 1.114307e-04 0.0209300889 1.0548315
+ NFU1     1.973533 0.1593605 3.940006 1.139172e-04 0.0209300889 1.0353696
+ RAB22A   2.100397 0.2068305 3.914924 1.254551e-04 0.0221962542 0.9503174
+ PPIL4    2.205829 0.2056979 3.895878 1.349488e-04 0.0230232310 0.8860400
+ ADPGK    2.013676 0.1634801 3.881872 1.423612e-04 0.0234503229 0.8389417
+ RNF13    2.170378 0.1892707 3.850945 1.601209e-04 0.0249376083 0.7354474
+</div>
 ### Output columns:
 * logFC: log fold change (since we are working with Seurat's natural log transformed data, will be natural log fold change)
 * AveExpr: Average expression across all cells in expr2
@@ -360,7 +324,7 @@ myQuestions2 = [
   {
     question: "How many genes have adj.P.Val < 0.05?",
     answers: {
-      a: "125",
+      a: "457",
       b: "131",
       c: "0",
       d: "100"
@@ -370,7 +334,7 @@ myQuestions2 = [
   {
     question: "How many genes are significantly (adj.P.Val < 0.05) downregulated in B001-A-301 relative to A001-C-007?",
     answers: {
-      a: "53",
+      a: "273",
       b: "65",
       c: "0",
       d: "24"
@@ -381,7 +345,7 @@ myQuestions2 = [
     question: "Revise the code to test 'A001-C-007' - 'A001-C-104'.  How many genes are differentially expressed between these groups? (adj.P.Val < 0.05)?  (Hint: ?makeContrasts)",
     answers: {
       a: "0",
-      b: "36",
+      b: "21",
       c: "283",
       d: "27"
     },
@@ -393,96 +357,174 @@ buildQuiz(myQuestions2, quizContainer2);
 submitButton2.addEventListener('click', function() {showResults(myQuestions2, quizContainer2, resultsContainer2);});
 </script>
 
+# Cell type identification with ScType
+[ScType](https://www.nature.com/articles/s41467-022-28803-w) assigns our clusters from Seurat to a cell type based on a hierarchical external database.
 
-# BONUS: Cell type identification with scMRMA
-[scMRMA]([https://academic.oup.com/nar/article/50/2/e7/6396893]) (single cell Multi-Resolution Marker-based Annotation Algorithm) classifies cells by iteratively clustering them then annotating based on a hierarchical external database.
+The database supplied with the package is human but users can supply their own data.  
 
-The databases included with the current version are only for use with human and mouse, but a user-constructed hierarchichal database can be used. 
+More details are available on [Github](https://github.com/IanevskiAleksandr/sc-type):
 
-The package can be installed from [Github](https://github.com/JiaLiVUMC/scMRMA):
+Source ScType functions from Github:
+
+```r
+# load gene set preparation function
+source("https://raw.githubusercontent.com/IanevskiAleksandr/sc-type/master/R/gene_sets_prepare.R")
+# load cell type annotation function
+source("https://raw.githubusercontent.com/IanevskiAleksandr/sc-type/master/R/sctype_score_.R")
+```
+
+Read in marker database:
+
+```r
+# DB file
+db_ = "https://raw.githubusercontent.com/IanevskiAleksandr/sc-type/master/ScTypeDB_full.xlsx";
+tissue = "Intestine" # e.g. Immune system,Pancreas,Liver,Eye,Kidney,Brain,Lung,Adrenal,Heart,Intestine,Muscle,Placenta,Spleen,Stomach,Thymus 
+
+# prepare gene sets
+gs_list = gene_sets_prepare(db_, tissue)
+```
+
+Let's take a look at the structure of the marker database:
+
+```r
+head(gs_list)
+```
+
+<div class='r_output'> $gs_positive
+ $gs_positive$Erythroblasts
+  [1] "AHSP"   "ALAS2"  "GYPA"   "HBA1"   "HBA2"   "HBB"    "HBG1"   "HBG2"   "HBM"    "HBZ"    "HEMGN"  "MIR144" "MYL4"   "SLC4A1" "SPTA1" 
+ 
+ $gs_positive$`Chromaffin cells`
+  [1] "ARX"     "ASIC5"   "CCK"     "CRYBA2"  "FEV"     "KCNH6"   "MLN"     "NEUROD1" "NKX2-2"  "ONECUT3" "PAX4"    "PCSK1"   "SST"     "SSTR5"  
+ 
+ $gs_positive$`Smooth muscle cells`
+  [1] "ACTG2"     "ANO1"      "CHRDL2"    "CNN1"      "DES"       "FBXL22"    "FRMD6-AS2" "GREM2"     "MYH11"     "OVCH2"     "TACR2"     "TAGLN"     "WIF1"     
+ 
+ $gs_positive$`Myeloid cells`
+  [1] "C1QB"     "C1QC"     "DCANP1"   "CD163"    "CD207"    "DNASE1L3" "HCAR3"    "IL1B"     "LILRB2"   "LILRB5"   "P2RY13"   "RPL32P1"  "VSIG4"   
+ 
+ $gs_positive$`Lymphoid cells`
+  [1] "CCR4"   "CD247"  "GZMA"   "GZMK"   "ICOS"   "IL17A"  "LTA"    "NCR2"   "SH2D1A" "TRDC"   "TRGC1"  "VPREB1"
+ 
+ $gs_positive$`Intestinal epithelial cells`
+  [1] "ALPI"      "ARL14"     "LEXM"      "CA7"       "DEFB1"     "EGFR-AS1"  "HMGN1P20"  "LINC00955" "TRIM31"    "UNC5CL"   
+ 
+ $gs_positive$`ENS glia`
+  [1] "BCAN"     "CDH19"    "COL20A1"  "FOXD3"    "GPR12"    "MPZ"      "PLP1"     "PTPRZ1"   "RLBP1"    "SERPINA3" "SOX10"    "SOX2"     "SOX2-OT"  "TFAP2A"  
+ 
+ $gs_positive$`ENS neurons`
+  [1] "CEND1"     "DRGX"      "GAL"       "GCGR"      "GRP"       "HECW1-IT1" "IQCJ"      "NEFL"      "PDIA2"     "PHOX2A"    "SLC18A3"   "STMN4"     "TTC9B"    
+ 
+ $gs_positive$`Vascular endothelial cells`
+  [1] "APLNR"   "BTNL9"   "CLEC3B"  "ESAM"    "ESM1"    "FLT1"    "GJA5"    "GPIHBP1" "LHX6"    "MMRN2"   "NOTCH4"  "PRND"    "SOX17"  
+ 
+ $gs_positive$`Stromal cells`
+ [1] "CXCL14" "FZD10"  "ITGA11" "MMP27"  "MSC"    "PDGFRA"
+ 
+ $gs_positive$`Mesothelial cells`
+  [1] "BNC1"     "C21orf62" "C3"       "CEMP1"    "CRB2"     "DSC3"     "HAS1"     "KLK11"    "PHYHIP"   "PTPRQ"    "TGM1"     "TNNT1"    "WNT10A"   "WT1"     
+ 
+ $gs_positive$`Lymphatic endothelial cells`
+  [1] "ABCA4"     "ART5"      "CCL21"     "GPR1"      "LINC00636" "MPP7"      "PLIN5"     "STAB2"     "TBX1"      "TP63"      "TSPEAR"   
+ 
+ 
+ $gs_negative
+ $gs_negative$Erythroblasts
+ character(0)
+ 
+ $gs_negative$`Chromaffin cells`
+ character(0)
+ 
+ $gs_negative$`Smooth muscle cells`
+ character(0)
+ 
+ $gs_negative$`Myeloid cells`
+ character(0)
+ 
+ $gs_negative$`Lymphoid cells`
+ character(0)
+ 
+ $gs_negative$`Intestinal epithelial cells`
+ character(0)
+ 
+ $gs_negative$`ENS glia`
+ character(0)
+ 
+ $gs_negative$`ENS neurons`
+ character(0)
+ 
+ $gs_negative$`Vascular endothelial cells`
+ character(0)
+ 
+ $gs_negative$`Stromal cells`
+ character(0)
+ 
+ $gs_negative$`Mesothelial cells`
+ character(0)
+ 
+ $gs_negative$`Lymphatic endothelial cells`
+ character(0)
+</div>
+Let's add a cell type and associated markers (markers from https://panglaodb.se/markers.html?cell_type=%27Tuft%20cells%27#google_vignette):
+
+```r
+gs_list$gs_positive$`Tuft cells` <- c("SUCNR1", "FABP1", "POU2F3", "SIGLECF", "CDHR2", "AVIL", "ESPN", "LRMP", "TRPM5", "DCLK1", "TAS1R3", "SOX9", "TUBB5", "CAMK2B", "GNAT3", "IL25", "PLCB2", "GFI1B", "ATOH1", "CD24A", "ASIC5", "KLF3", "KLF6", "DRD3", "NRADD", "GNG13", "NREP", "RGS2", "RAC2", "PTGS1", "IRF7", "FFAR3", "ALOX5", "TSLP", "IL4RA", "IL13RA1", "IL17RB", "PTPRC")
+gs_list$gs_negative$`Tuft cells` <- NULL
+```
 
 
 ```r
-# Remove hashes to run
-# install.packages("devtools")
-# devtools::install_github("JiaLiVUMC/scMRMA")
+# get cell-type by cell matrix
+scale.data <- GetAssayData(experiment.merged, "scale")
+es.max = sctype_score(scRNAseqData = scale.data, scaled = TRUE, 
+                      gs = gs_list$gs_positive, gs2 = gs_list$gs_negative) 
+# cell type scores for first cell
+es.max[,1]
+```
+
+<div class='r_output'>         Smooth muscle cells              Lymphoid cells Intestinal epithelial cells                    ENS glia  Vascular endothelial cells               Stromal cells Lymphatic endothelial cells                  Tuft cells 
+                  -0.3240119                  -0.1071450                  -0.4512850                  -0.1365531                  -0.1035601                  -0.1551877                   2.1424191                   0.6259383
+</div>
+We will derive a cluster-level score by summing the cell level scores within each cluster
+
+```r
+tmp <- lapply(sort(unique(experiment.merged$finalcluster)), function(cl, nkeep = 3){
+  es.max.cl <- sort(rowSums(es.max[, experiment.merged$finalcluster == cl]), decreasing = TRUE)
+  out <- head(data.frame(finalcluster = cl, ScType = names(es.max.cl), scores = es.max.cl, ncells = sum(experiment.merged$finalcluster == cl)), nkeep)
+  out$rank <- 1:nkeep
+  return(out)
+})
+cL_results.top <- do.call("rbind", tmp)
+cL_results.top1 <- subset(cL_results.top, rank == 1)
+```
+
+Merge ScType cluster-level results with Seurat object
+
+```r
+tmp <- data.frame(cell = colnames(experiment.merged), finalcluster = experiment.merged$finalcluster)
+tmp <- left_join(tmp, cL_results.top1, by = "finalcluster")
+experiment.merged$ScType <- tmp$ScType
 ```
 
 
 ```r
-suppressPackageStartupMessages(library(scMRMA))
-result <- scMRMA(input = experiment.merged,
-                 species = "Hs",
-                 db = "panglaodb")
+DimPlot(experiment.merged, group.by = "ScType")
 ```
 
-```
-## Pre-defined cell type database panglaodb will be used.
-## Multi Resolution Annotation Started. 
-## Level 1 annotation started. 
-## Level 2 annotation started. 
-## Level 3 annotation started. 
-## Level 4 annotation started. 
-## Uniform Resolution Annotation Started.
-```
+![](scRNA_Workshop-PART5_with_quizzes_files/figure-html/unnamed-chunk-9-1.png)<!-- -->
+
+The ScType developer suggests that assignments with a score less than (number of cells in cluster)/4 are low confidence and should be set to unknown:
 
 ```r
-table(result$uniformR$annotationResult)
+tmp <- data.frame(cell = colnames(experiment.merged), finalcluster = experiment.merged$finalcluster)
+tmp <- left_join(tmp, cL_results.top1, by = "finalcluster")
+# set assignments with scores less than ncells/4 to unknown
+tmp$ScType.filtered <- ifelse(tmp$scores < tmp$ncells/4, "Unknown", tmp$ScType)
+experiment.merged$ScType.filtered <- tmp$ScType.filtered
+DimPlot(experiment.merged, group.by = "ScType.filtered")
 ```
 
-```
-## UniformR
-##  Epithelial cells      Goblet cells           Neurons         Podocytes       Enterocytes    T memory cells       Macrophages      Plasma cells Endothelial cells    B cells memory        Tuft cells 
-##              4556              1356               978              1992               819               329               195               142                99                80                49
-```
-
-```r
-## Add cell types to metadata
-experiment.merged <- AddMetaData(experiment.merged, result$uniformR$annotationResult, col.name = "CellType")
-table(experiment.merged$CellType, experiment.merged$orig.ident)
-```
-
-```
-##                    
-##                     A001-C-007 A001-C-104 B001-A-301
-##   Epithelial cells         202       1315       3039
-##   Goblet cells              56        361        939
-##   Neurons                  936         10         32
-##   Podocytes                319       1292        381
-##   Enterocytes                0         20        799
-##   T memory cells            79        164         86
-##   Macrophages               94         64         37
-##   Plasma cells              75         44         23
-##   Endothelial cells          7         51         41
-##   B cells memory             4         49         27
-##   Tuft cells                 2         46          1
-```
-
-```r
-table(experiment.merged$CellType, experiment.merged$finalcluster)
-```
-
-```
-##                    
-##                        0    3    1    2    4    5    6    7    8    9   10   11   12   13   14   15   16   17   18   19   20   22   23   24   26
-##   Epithelial cells  1178  133   12  885   21  673  551  174    6  227  356   13    4    1  263    1   10    2    1    7    0    0    0    0   38
-##   Goblet cells         2   28    0    1  668    2    2    5    1    0    7  370    0  268    2    0    0    0    0    0    0    0    0    0    0
-##   Neurons              0    1  909    2    1    2    0    5    0    0    7    0    3    0    1    0    0    3    0    0    0    0    0   44    0
-##   Podocytes            2  757    1    1    0    1  117  452    1    1   25    5    0    0    5  269  199    0  156    0    0    0    0    0    0
-##   Enterocytes          5    0    0    2    0    1    0    4  626  177    0    0    1    3    0    0    0    0    0    0    0    0    0    0    0
-##   T memory cells       0    0    0    0    0    1    2    0    0    0    3    0  317    0    0    0    0    5    0    1    0    0    0    0    0
-##   Macrophages          0    0    0    4    0    2    0    0    0    0    0    0    3    0    0    0    0  186    0    0    0    0    0    0    0
-##   Plasma cells         0    0    0    0    0    0    1    0    0    0    1    1    1    0    0    0    0    0    0  138    0    0    0    0    0
-##   Endothelial cells    0    2    1    0    0    0    1    0    0    0    2    0    0    0    0    0    0    0    0    0   92    1    0    0    0
-##   B cells memory       0    0    0    0    0    0    0    0    0    0    0    0    1    0    0    0    0    0    0    0    0   79    0    0    0
-##   Tuft cells           0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0    0   49    0    0
-```
-
-```r
-DimPlot(experiment.merged, group.by = "CellType", label = TRUE)
-```
-
-![](scRNA_Workshop-PART5_with_quizzes_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
+![](scRNA_Workshop-PART5_with_quizzes_files/figure-html/unnamed-chunk-10-1.png)<!-- -->
 
 ## Get the next Rmd file
 
@@ -497,32 +539,32 @@ download.file("https://raw.githubusercontent.com/ucdavis-bioinformatics-training
 sessionInfo()
 ```
 
-```
-## R version 4.2.2 (2022-10-31)
-## Platform: x86_64-apple-darwin17.0 (64-bit)
-## Running under: macOS Catalina 10.15.7
-## 
-## Matrix products: default
-## BLAS:   /Library/Frameworks/R.framework/Versions/4.2/Resources/lib/libRblas.0.dylib
-## LAPACK: /Library/Frameworks/R.framework/Versions/4.2/Resources/lib/libRlapack.dylib
-## 
-## locale:
-## [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
-## 
-## attached base packages:
-## [1] stats4    stats     graphics  grDevices utils     datasets  methods   base     
-## 
-## other attached packages:
-##  [1] scMRMA_1.0           networkD3_0.4        data.tree_1.0.0      tidyr_1.2.1          RANN_2.6.1           plyr_1.8.8           irlba_2.3.5.1        Matrix_1.5-3         org.Hs.eg.db_3.16.0  topGO_2.50.0         SparseM_1.81         GO.db_3.16.0         AnnotationDbi_1.60.0 IRanges_2.32.0       S4Vectors_0.36.0     Biobase_2.58.0       graph_1.76.0         BiocGenerics_0.44.0  limma_3.54.0         ggplot2_3.4.0        SeuratObject_4.1.3  
-## [22] Seurat_4.3.0        
-## 
-## loaded via a namespace (and not attached):
-##   [1] igraph_1.3.5           lazyeval_0.2.2         sp_1.5-1               splines_4.2.2          listenv_0.8.0          scattermore_0.8        usethis_2.1.6          GenomeInfoDb_1.34.3    digest_0.6.30          htmltools_0.5.3        fansi_1.0.3            magrittr_2.0.3         memoise_2.0.1          tensor_1.5             cluster_2.1.4          ROCR_1.0-11            remotes_2.4.2          globals_0.16.2         Biostrings_2.66.0     
-##  [20] matrixStats_0.63.0     spatstat.sparse_3.0-0  prettyunits_1.1.1      colorspace_2.0-3       blob_1.2.3             ggrepel_0.9.2          xfun_0.35              dplyr_1.0.10           callr_3.7.3            RCurl_1.98-1.9         crayon_1.5.2           jsonlite_1.8.4         progressr_0.11.0       spatstat.data_3.0-0    survival_3.4-0         zoo_1.8-11             glue_1.6.2             polyclip_1.10-4        gtable_0.3.1          
-##  [39] zlibbioc_1.44.0        XVector_0.38.0         leiden_0.4.3           pkgbuild_1.4.0         future.apply_1.10.0    abind_1.4-5            scales_1.2.1           DBI_1.1.3              spatstat.random_3.0-1  miniUI_0.1.1.1         Rcpp_1.0.9             viridisLite_0.4.1      xtable_1.8-4           reticulate_1.26        bit_4.0.5              profvis_0.3.7          htmlwidgets_1.5.4      httr_1.4.4             RColorBrewer_1.1-3    
-##  [58] ellipsis_0.3.2         ica_1.0-3              farver_2.1.1           urlchecker_1.0.1       pkgconfig_2.0.3        sass_0.4.4             uwot_0.1.14            deldir_1.0-6           utf8_1.2.2             labeling_0.4.2         tidyselect_1.2.0       rlang_1.0.6            reshape2_1.4.4         later_1.3.0            munsell_0.5.0          tools_4.2.2            cachem_1.0.6           cli_3.4.1              generics_0.1.3        
-##  [77] RSQLite_2.2.19         devtools_2.4.5         ggridges_0.5.4         evaluate_0.18          stringr_1.4.1          fastmap_1.1.0          yaml_2.3.6             goftest_1.2-3          processx_3.8.0         fs_1.5.2               knitr_1.41             bit64_4.0.5            fitdistrplus_1.1-8     purrr_0.3.5            KEGGREST_1.38.0        pbapply_1.6-0          future_1.29.0          nlme_3.1-160           mime_0.12             
-##  [96] compiler_4.2.2         rstudioapi_0.14        plotly_4.10.1          png_0.1-8              spatstat.utils_3.0-1   tibble_3.1.8           bslib_0.4.1            stringi_1.7.8          highr_0.9              ps_1.7.2               lattice_0.20-45        vctrs_0.5.1            pillar_1.8.1           lifecycle_1.0.3        spatstat.geom_3.0-3    lmtest_0.9-40          jquerylib_0.1.4        RcppAnnoy_0.0.20       bitops_1.0-7          
-## [115] data.table_1.14.6      cowplot_1.1.1          httpuv_1.6.6           patchwork_1.1.2        R6_2.5.1               promises_1.2.0.1       KernSmooth_2.23-20     gridExtra_2.3          parallelly_1.32.1      sessioninfo_1.2.2      codetools_0.2-18       pkgload_1.3.2          MASS_7.3-58.1          assertthat_0.2.1       withr_2.5.0            sctransform_0.3.5      GenomeInfoDbData_1.2.9 parallel_4.2.2         grid_4.2.2            
-## [134] rmarkdown_2.18         Rtsne_0.16             spatstat.explore_3.0-5 shiny_1.7.3
-```
+<div class='r_output'> R version 4.3.1 (2023-06-16 ucrt)
+ Platform: x86_64-w64-mingw32/x64 (64-bit)
+ Running under: Windows 10 x64 (build 19045)
+ 
+ Matrix products: default
+ 
+ 
+ locale:
+ [1] LC_COLLATE=English_United States.utf8  LC_CTYPE=English_United States.utf8    LC_MONETARY=English_United States.utf8 LC_NUMERIC=C                           LC_TIME=English_United States.utf8    
+ 
+ time zone: America/Los_Angeles
+ tzcode source: internal
+ 
+ attached base packages:
+ [1] stats4    stats     graphics  grDevices utils     datasets  methods   base     
+ 
+ other attached packages:
+  [1] org.Hs.eg.db_3.17.0  dplyr_1.1.2          HGNChelper_0.8.1     topGO_2.52.0         SparseM_1.81         GO.db_3.17.0         AnnotationDbi_1.62.1 IRanges_2.34.0       S4Vectors_0.38.1     Biobase_2.60.0       graph_1.78.0         BiocGenerics_0.46.0  limma_3.56.2         SeuratObject_4.1.3   Seurat_4.3.0        
+ 
+ loaded via a namespace (and not attached):
+   [1] RColorBrewer_1.1-3      rstudioapi_0.14         jsonlite_1.8.5          magrittr_2.0.3          spatstat.utils_3.0-3    farver_2.1.1            rmarkdown_2.22          zlibbioc_1.46.0         vctrs_0.6.3             ROCR_1.0-11             memoise_2.0.1           spatstat.explore_3.2-1  RCurl_1.98-1.12         htmltools_0.5.5         sass_0.4.6              sctransform_0.3.5       parallelly_1.36.0       KernSmooth_2.23-21     
+  [19] bslib_0.5.0             htmlwidgets_1.6.2       ica_1.0-3               plyr_1.8.8              plotly_4.10.2           zoo_1.8-12              cachem_1.0.8            igraph_1.5.0            mime_0.12               lifecycle_1.0.3         pkgconfig_2.0.3         Matrix_1.5-4.1          R6_2.5.1                fastmap_1.1.1           GenomeInfoDbData_1.2.10 fitdistrplus_1.1-11     future_1.32.0           shiny_1.7.4            
+  [37] digest_0.6.31           colorspace_2.1-0        patchwork_1.1.2         tensor_1.5              irlba_2.3.5.1           RSQLite_2.3.1           labeling_0.4.2          progressr_0.13.0        fansi_1.0.4             spatstat.sparse_3.0-1   httr_1.4.6              polyclip_1.10-4         abind_1.4-5             compiler_4.3.1          withr_2.5.0             bit64_4.0.5             DBI_1.1.3               highr_0.10             
+  [55] MASS_7.3-60             tools_4.3.1             lmtest_0.9-40           zip_2.3.0               httpuv_1.6.11           future.apply_1.11.0     goftest_1.2-3           glue_1.6.2              nlme_3.1-162            promises_1.2.0.1        grid_4.3.1              Rtsne_0.16              cluster_2.1.4           reshape2_1.4.4          generics_0.1.3          gtable_0.3.3            spatstat.data_3.0-1     tidyr_1.3.0            
+  [73] data.table_1.14.8       XVector_0.40.0          sp_1.6-1                utf8_1.2.3              spatstat.geom_3.2-1     RcppAnnoy_0.0.20        ggrepel_0.9.3           RANN_2.6.1              pillar_1.9.0            stringr_1.5.0           later_1.3.1             splines_4.3.1           lattice_0.21-8          bit_4.0.5               survival_3.5-5          deldir_1.0-9            tidyselect_1.2.0        Biostrings_2.68.1      
+  [91] miniUI_0.1.1.1          pbapply_1.7-0           knitr_1.43              gridExtra_2.3           scattermore_1.2         xfun_0.39               matrixStats_1.0.0       stringi_1.7.12          lazyeval_0.2.2          yaml_2.3.7              evaluate_0.21           codetools_0.2-19        tibble_3.2.1            cli_3.6.1               uwot_0.1.14             xtable_1.8-4            reticulate_1.30         munsell_0.5.0          
+ [109] jquerylib_0.1.4         GenomeInfoDb_1.36.0     Rcpp_1.0.10             globals_0.16.2          spatstat.random_3.1-5   png_0.1-8               parallel_4.3.1          ellipsis_0.3.2          blob_1.2.4              ggplot2_3.4.2           bitops_1.0-7            listenv_0.9.0           viridisLite_0.4.2       scales_1.2.1            ggridges_0.5.4          openxlsx_4.2.5.2        crayon_1.5.2            leiden_0.4.3           
+ [127] purrr_1.0.1             rlang_1.1.1             KEGGREST_1.40.0         cowplot_1.1.1
+</div>
