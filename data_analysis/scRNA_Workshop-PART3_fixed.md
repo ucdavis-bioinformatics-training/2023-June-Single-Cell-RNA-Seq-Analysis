@@ -156,6 +156,7 @@ PCs with a strong enrichment of low p-value genes are identified as significant 
 
 ```r
 experiment.aggregate <- JackStraw(experiment.aggregate, dims = 100)
+experiment.aggregate <- ScoreJackStraw(experiment.aggregate, dims = 1:100)
 JackStrawPlot(object = experiment.aggregate, dims = 1:100) +
   scale_color_viridis_d() +
   theme(legend.position="bottom")
