@@ -136,6 +136,7 @@ DimPlot(object = experiment.integrated, group.by="ident", reduction="pca", shuff
 
 ![](scRNA_Workshop-PART7_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
 
+## 
 
 ## Save the integrated data
 
@@ -147,7 +148,14 @@ save(experiment.integrated, file="sample_integrated.RData")
 
 ## Part 7.2: Ambient/Background RNA removal
 
-![](./figures/ambient-rna-correction-0rev1.png)<!-- -->
+<p align = "center">
+<img src="figures/ambient-rna-correction-0rev1.png" alt="micribial" width="85%"/>
+</p>
+
+<p align = "right" style="font-family:Times;font-size:12px;">
+https://www.10xgenomics.com/resources/analysis-guides/introduction-to-ambient-rna-correction
+</p>
+
 
 Ambient RNA is a ubiquitous phenomimon for droplet-based single cell capture technologies. It captures freely floating/cell-free mRNA moleclues that are derived from ruptured, dead or dying cells, or from other source of contamination. The degree of background RNA contamination shows tissue specific characteristics, demonstrated in [Madisson, et al., 2019](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-019-1906-x). Single nuclei libraries also tend to produce higher background RNA, as the protocols release cytoplasmic RNA into solution, which may lead to higher background RNA in the data. Without background removal, it is still possible to get distinct cell clusters and reasonable results. The correction/removal of ambient RNA should be considered if rare and/or unknown cell types are the project goal. If the well-know major cells types are the intereste of the project, this steps is not necessary.
 

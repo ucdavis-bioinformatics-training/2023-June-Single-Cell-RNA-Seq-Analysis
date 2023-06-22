@@ -12,9 +12,9 @@ Last Updated: June 19, 2023
 
 Doublets are cells that appear to be, but are not, real cells. There are two major types of doublets: heterotypic and homotypic. Heterotypic doublets are formed by cells with distinct transcriptional profiles. Homotypic doublets are formed by cells with similar transcriptional profiles. Heterotypic doublets are relatively easier to detect compared with homotypic doublets. Depending on the protocols used to barcode single cells/nuclei, doublet rates vary significantly and it can reach as high as 40%.
 
-Experimental strategies have been developed to reduce the doublet rate, such as [cell hashing](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-018-1603-1), [demuxlet](https://www.nature.com/articles/nbt.4042), and [MULTI-Seq](https://www.nature.com/articles/s41592-019-0433-8). However, these techniques require extra steps in sample preparation which leads to extra costs, time and they do not guarantee to remove all doublets.
+Experimental strategies have been developed to reduce the doublet rate, such as [cell hashing](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-018-1603-1), and [MULTI-Seq](https://www.nature.com/articles/s41592-019-0433-8). However, these techniques require extra steps in sample preparation which leads to extra costs, time and they do not guarantee to remove all doublets.
 
-Naturally, removing doublets _in silico_ is very appealing and there have been many tools/methods developed to achieve this: [DoubletFinder](https://www.cell.com/cell-systems/pdfExtended/S2405-4712(19)30073-0), DoubletDetection(https://github.com/JonathanShor/DoubletDetection), [DoubletDecon](https://www.sciencedirect.com/science/article/pii/S2211124719312860), among others.
+Naturally, removing doublets _in silico_ is very appealing and there have been many tools/methods developed to achieve this: [DoubletFinder](https://www.cell.com/cell-systems/pdfExtended/S2405-4712(19)30073-0), DoubletDetection(https://github.com/JonathanShor/DoubletDetection), [DoubletDecon](https://www.sciencedirect.com/science/article/pii/S2211124719312860), [demuxlet](https://www.nature.com/articles/nbt.4042), among others.
 
 <p align = "center">
 <img src="figures/doublets.jpg" alt="micribial" width="85%"/>
@@ -70,7 +70,7 @@ Later, we initialize the Seurat object (`CreateSeuratObject`) with the raw (non-
 
 ```r
 d10x.data <- lapply(ids[1], function(i){
-  d10x <- Read10X_h5(file.path(dataset_loc, i, "outs","raw_feature_bc_matrix.h5"))
+  d10x <- Read10X_h5(file.path(dataset_loc, i, "outs","filtered_feature_bc_matrix.h5"))
   colnames(d10x) <- paste(sapply(strsplit(colnames(d10x),split="-"),'[[',1L),i,sep="-")
   d10x
 })
@@ -82,13 +82,13 @@ str(d10x.data)
 ```
 ## List of 1
 ##  $ A001-C-007:Formal class 'dgCMatrix' [package "Matrix"] with 6 slots
-##   .. ..@ i       : int [1:16845098] 13849 300 539 916 2153 2320 3196 4057 4317 4786 ...
-##   .. ..@ p       : int [1:1189230] 0 1 1 100 101 102 103 240 241 241 ...
-##   .. ..@ Dim     : int [1:2] 36601 1189229
+##   .. ..@ i       : int [1:2482307] 60 145 216 237 238 247 258 285 290 298 ...
+##   .. ..@ p       : int [1:1797] 0 1549 2236 2703 3241 4013 4642 5748 6285 7444 ...
+##   .. ..@ Dim     : int [1:2] 36601 1796
 ##   .. ..@ Dimnames:List of 2
 ##   .. .. ..$ : chr [1:36601] "MIR1302-2HG" "FAM138A" "OR4F5" "AL627309.1" ...
-##   .. .. ..$ : chr [1:1189229] "AAACCCAAGAAACCCA-A001-C-007" "AAACCCAAGAAACCCG-A001-C-007" "AAACCCAAGAAACTGT-A001-C-007" "AAACCCAAGAAAGCGA-A001-C-007" ...
-##   .. ..@ x       : num [1:16845098] 1 1 1 1 1 1 1 1 1 1 ...
+##   .. .. ..$ : chr [1:1796] "AAACCCAAGTTATGGA-A001-C-007" "AAACCCACAACGCCCA-A001-C-007" "AAACCCACAGAAGTTA-A001-C-007" "AAACCCAGTCAGTCCG-A001-C-007" ...
+##   .. ..@ x       : num [1:2482307] 1 1 1 1 1 1 1 1 1 1 ...
 ##   .. ..@ factors : list()
 ```
 
@@ -97,7 +97,7 @@ If you don't have the needed hdf5 libraries you can read in the matrix files lik
 
 ```r
 d10x.data <- sapply(ids[1], function(i){
-  d10x <- Read10X(file.path(dataset_loc, i, "/outs","raw_feature_bc_matrix"))
+  d10x <- Read10X(file.path(dataset_loc, i, "/outs","filtered_feature_bc_matrix"))
   colnames(d10x) <- paste(sapply(strsplit(colnames(d10x), split="-"), '[[', 1L), i, sep="-")
   d10x
 })
@@ -134,7 +134,7 @@ summary(experiment.data$percent.mito)
 
 ```
 ##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##   0.000   2.283   3.285   3.324   4.255  46.647
+##  0.0000  0.4192  0.7047  0.9086  1.1840 14.2037
 ```
 
 Violin plot of 1) number of genes, 2) number of UMI and 3) percent mitochondrial genes
@@ -168,8 +168,8 @@ table(experiment.data$orig.ident)
 
 ```
 ## 
-##  A001 
-## 17908
+## A001 
+## 1796
 ```
 
 ```r
@@ -184,7 +184,7 @@ experiment.data
 
 ```
 ## An object of class Seurat 
-## 36601 features across 1777 samples within 1 assay 
+## 36601 features across 1712 samples within 1 assay 
 ## Active assay: RNA (36601 features, 0 variable features)
 ```
 
@@ -195,7 +195,7 @@ table(experiment.data$orig.ident)
 ```
 ## 
 ## A001 
-## 1777
+## 1712
 ```
 
 <br>
@@ -497,7 +497,7 @@ experiment.data <- doubletFinder_v3(experiment.data, PCs = 1:20, pN = 0.25, pK =
 ```
 
 ```
-## [1] "Creating 592 artificial doublets..."
+## [1] "Creating 571 artificial doublets..."
 ## [1] "Creating Seurat object..."
 ## [1] "Normalizing Seurat object..."
 ## [1] "Finding variable genes..."
