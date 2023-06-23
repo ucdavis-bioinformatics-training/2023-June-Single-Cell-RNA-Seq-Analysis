@@ -482,7 +482,8 @@ bcmvn <- find.pK(sweep.stats)
 ```
 
 ```r
-pK.set <- unique(sweep.stats$pK)[3]
+pK.set <- unique(sweep.stats$pK)[1]
+pK.set <- bcmvn$pK[which(bcmvn$BCmetric == max(bcmvn$BCmetric))]
 ```
 <br>
 
@@ -525,6 +526,9 @@ experiment.data <- doubletFinder_v3(experiment.data, PCs = 1:20, pN = 0.25, pK =
 
 ```r
 experiment.data <- subset(experiment.data,  DF.classifications_0.25_0.02_142 == "Singlet")
+colnames(experiment.data@meta.data)
+sum(experiment.data$DF.classifications_0.25_0.03_137 == "Doublet")
+bcmvn
 ```
 
 ## Session Information
